@@ -1,24 +1,27 @@
-/* Bit Bazaar v0.2.0: double-sided freestanding shelves, 20 wall units, 3,000 figures. */
+/* Bit Bazaar visual revision 0.1.2: clipped shelf geometry, walnut rear panels, readable distance signs. */
 /* THE BIT BAZAAR — no framework, no remote services, no external dependencies.
-   First-person software projection; 3,000 real, separate collectibles.
+   First-person software projection; 1,000 real, separate collectibles.
    World coordinates are in store floor units. Figures never respawn when shelved. */
 (() => {
 'use strict';
 const DB = window.BIT_COLLECTION;
-if (!DB || DB.figures.length !== 3000 || DB.sets.length !== 300) {
+if (!DB || DB.figures.length !== 1000 || DB.sets.length !== 100) {
  document.body.innerHTML = '<p style="color:white;padding:30px">Collection asset could not load. Keep the assets folder beside index.html.</p>';return;
 }
 const $ = id => document.getElementById(id);
 const canvas = $('world'), ctx = canvas.getContext('2d',{alpha:false});
 const W=480, H=270, FOCAL=360, HORIZON=133, EYE=1.64;
 ctx.imageSmoothingEnabled=false;
-const img=new Image(); let figAtlas=img;
-img.onload=buildAtlas;img.src='assets/figurines.png';
-const NUM_FLOOR=20,NUM_WALL=20,NUM_RACKS=60,ROWS=5,PER_ROW=10,MAX_TOTE=10;
+const img = new Image(); img.src='assets/figurines.png';
+const NUM_RACKS=20, ROWS=5, PER_ROW=10, MAX_TOTE=10;
 const STORE_KEY='bit-bazaar-save-v1';
-const SW=70,SD=74;
-const {fixtures,shelves}=makeFixtures();
-
+const SW=70, SD=74;
+const shelves=[];
+// 4 large aisles × 5 racks; 5 rows × 10 slots = exact 1,000 slots.
+for(let r=0;r<5;r++)for(let a=0;a<4;a++){
+ shelves.push({id:r*4+a,x:11+a*16,z:11+r*12,w:7.7,depth:1.05,
+  name:`SHELF ${String(r*4+a+1).padStart(2,'0')}`,aisle:String.fromCharCode(65+a)});
+}
 let player={x:35,z:68,yaw:0};
 let tote=[],rows=[],selected=null, floor=[], figureById=DB.figures;
 let modal='', focus=null, playing=false, shift=false, activeSet=0, albumQuery='';
@@ -32,7 +35,7 @@ function srand(seed){ let s=seed>>>0;return ()=>{s=(s*1664525+1013904223)>>>0;re
 const rng=srand(20261102);
 function setupFloor(){
  floor=[];const used=allUsed();
- for(let i=0;i<DB.figures.length;i++){
+ for(let i=0;i<1000;i++){
   let x,z,n=0;
   do{ x=2.5+rng()*65;z=3+rng()*67;n++; }
   while(n<150 && (blocked(x,z,0.28)|| (sqr(x-35)+sqr(z-68)<5)));
@@ -45,13 +48,16 @@ function resetState(){
 }
 function restore(){
  let raw;try{raw=JSON.parse(localStorage.getItem(STORE_KEY)||'null')}catch(e){raw=null}
- if(!raw||raw.version!==1 || !Array.isArray(raw.rows)||![20,60].includes(raw.rows.length)){resetState();return}
- // Original twenty one-sided shelves become the FRONT faces of the same fixtures.
- const previous=raw.rows.length===20;
- rows=Array.from({length:NUM_RACKS},(_,a)=>Array.from({length:ROWS},(_,b)=>{
-  const oldIndex=previous?(a<40&&a%2===0?a/2:-1):a;
-  const v=oldIndex>=0&&raw.rows[oldIndex]&&raw.rows[oldIndex][b];
-  return Array.isArray(v)?v.filter(Number.isInteger).filter(id=>id>=0&&id<DB.figures.length).slice(0,PER_ROW):[];
+ // Preserve a full backup before opening saves from the 3,000-figure build in safe mode.
+ if(raw&&Array.isArray(raw.rows)&&raw.rows.length===60){
+  try{localStorage.setItem('bit-bazaar-v020-save-backup',JSON.stringify(raw))}catch(e){}
+  raw={...raw,rows:Array.from({length:20},(_,i)=>raw.rows[i*2]),
+    tote:Array.isArray(raw.tote)?raw.tote.filter(id=>Number.isInteger(id)&&id>=0&&id<1000):[],
+    selected:Number.isInteger(raw.selected)&&raw.selected<1000?raw.selected:null};
+ }
+ if(!raw||raw.version!==1 || !Array.isArray(raw.rows)||raw.rows.length!==20){resetState();return}
+ rows=Array.from({length:20},(_,a)=>Array.from({length:5},(_,b)=>{
+  let v=raw.rows[a]&&raw.rows[a][b];return Array.isArray(v)?v.filter(Number.isInteger).filter(id=>id>=0&&id<1000).slice(0,10):[];
  }));
  const used=new Set();
  for(const rack of rows)for(const row of rack){
@@ -59,7 +65,7 @@ function restore(){
   for(let k=row.length-1;k>=0;k--){const id=row[k];if(used.has(id)||(id/10|0)!==setId)row.splice(k,1);else used.add(id)}
  }
  let old=Array.isArray(raw.tote)?raw.tote:[];
- tote=old.filter(id=>Number.isInteger(id)&&id>=0&&id<DB.figures.length&&!used.has(id)).slice(0,MAX_TOTE);
+ tote=old.filter(id=>Number.isInteger(id)&&id>=0&&id<1000&&!used.has(id)).slice(0,MAX_TOTE);
  for(const id of tote)used.add(id);
  selected=tote.includes(raw.selected)?raw.selected:(tote[0]??null);
  if(raw.player && isFinite(raw.player.x)&&isFinite(raw.player.z)&&isFinite(raw.player.yaw)&&!blocked(raw.player.x,raw.player.z,0.2)){
@@ -70,8 +76,7 @@ function restore(){
 function save(){try{localStorage.setItem(STORE_KEY,JSON.stringify({version:1,tote,rows,selected,player}))}catch(e){}}
 function blocked(x,z,pad=.3){
  if(x<1.4+pad||x>SW-1.4-pad||z<1.4+pad||z>SD-1.4-pad)return true;
- for(const f of fixtures){const dx=x-f.x,dz=z-f.z;
-  if(Math.abs(dx*f.ux+dz*f.uz)<f.w/2+pad && Math.abs(dx*f.nx+dz*f.nz)<f.depth/2+pad)return true}
+ for(const s of shelves){if(Math.abs(x-s.x)<s.w/2+pad && Math.abs(z-s.z)<s.depth/2+pad)return true}
  return false;
 }
 function stats(){
@@ -79,13 +84,13 @@ function stats(){
  const completed=rows.reduce((n,r)=>n+r.filter(x=>x.length===10).length,0);
  $('placed').textContent=placed.toLocaleString();$('complete').textContent=completed;
  $('toteCount').textContent=`${tote.length} / ${MAX_TOTE} FIGURES`;
- $('progress-fill').style.width=`${placed/DB.figures.length*100}%`;
- $('aisleLabel').textContent=`${nearestAisle()} · ${Math.max(0,DB.figures.length-placed)} TO SHELVE`;
- if(placed===DB.figures.length){setTimeout(()=>showVictory(),1200)}
+ $('progress-fill').style.width=`${placed/10}%`;
+ $('aisleLabel').textContent=`${nearestAisle()} · ${Math.max(0,1000-placed)} TO SHELVE`;
+ if(placed===1000){setTimeout(()=>showVictory(),1200)}
 }
 function nearestAisle(){const i=clamp(Math.round((player.x-11)/16),0,3);return `AISLE ${'ABCD'[i]}`;}
 function showVictory(){if(!playing)return;playing=false;$('screen').classList.add('shown');
- $('screen').querySelector('.title-card').innerHTML='<div class="eyebrow">★ PERFECT COLLECTION ★</div><h1>ALL<br><em>SORTED!</em></h1><p>Every unique figurine has a home. You organized all 300 sets across 300 shelf rows. THE BIT BAZAAR is now a collector’s dream.</p><button id="victoryBtn" class="primary large">EXPLORE YOUR STORE →</button>';
+ $('screen').querySelector('.title-card').innerHTML='<div class="eyebrow">★ PERFECT COLLECTION ★</div><h1>ALL<br><em>SORTED!</em></h1><p>Every unique figurine has a home. You organized all 100 sets across 100 shelf rows. THE BIT BAZAAR is now a collector’s dream.</p><button id="victoryBtn" class="primary large">EXPLORE YOUR STORE →</button>';
  $('victoryBtn').onclick=()=>{playing=true;$('screen').classList.remove('shown')};
 }
 function notify(s,kind='normal'){
@@ -94,14 +99,14 @@ function notify(s,kind='normal'){
  clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').classList.remove('visible'),2200);
 }
 function countSet(sid){let count=0;for(const rack of rows)for(const row of rack)for(const id of row)if((id/10|0)===sid)count++;return count;}
-function rowForSet(sid){for(let s=0;s<NUM_RACKS;s++)for(let r=0;r<ROWS;r++)if(rows[s][r].length&&(rows[s][r][0]/10|0)===sid)return [s,r];return null;}
+function rowForSet(sid){for(let s=0;s<20;s++)for(let r=0;r<5;r++)if(rows[s][r].length&&(rows[s][r][0]/10|0)===sid)return [s,r];return null;}
 const figure=id=>figureById[id];
 const iconHTML=id=>`<span class="sprite" aria-hidden="true" style="background-position:-${figure(id).atlasX}px -${figure(id).atlasY}px"></span>`;
 function openDrawer(kind, data){modal=kind;
  $('drawer').classList.add('open');$('drawerShade').classList.add('show');$('drawer').setAttribute('aria-hidden','false');
- if(kind==='shelf'){const s=shelves[data];$('drawerKicker').textContent=`DISPLAY ${s.id+1}/60 · ${s.aisle}`;$('drawerTitle').textContent=s.name;}
+ if(kind==='shelf'){const s=shelves[data];$('drawerKicker').textContent=`AISLE ${s.aisle} · DISPLAY ${s.id+1}/20`;$('drawerTitle').textContent=s.name;}
  else if(kind==='tote'){$('drawerKicker').textContent='YOUR CARRIED COLLECTION';$('drawerTitle').textContent='POCKET TOTE';}
- else if(kind==='album'){$('drawerKicker').textContent='3,000 MINIATURE TREASURES';$('drawerTitle').textContent='COLLECTION ALMANAC';}
+ else if(kind==='album'){$('drawerKicker').textContent='1,000 MINIATURE TREASURES';$('drawerTitle').textContent='COLLECTION ALMANAC';}
  activeShelf=data;renderDrawer();
 }
 let activeShelf=0;
@@ -116,7 +121,7 @@ function renderTote(){
   html+='<p class="label">SELECTED: '+(sel===null?'NONE':figure(sel).name.toUpperCase())+'</p><div class="figure-grid">';
   for(const id of tote)html+=`<button class="figure-card ${id===sel?'active':''}" data-select="${id}" title="${figure(id).name} · ${DB.sets[figure(id).setId].name}">${iconHTML(id)}<span>#${String(id+1).padStart(4,'0')}</span></button>`;
   html+='</div>';
-  if(sel!==null)html+=`<div class="info-strip"><b>${figure(sel).name}</b><br>${DB.sets[figure(sel).setId].name}<br>Figure ${figure(sel).number} of 10 · Set ${figure(sel).setId+1} of 300</div>`;
+  if(sel!==null)html+=`<div class="info-strip"><b>${figure(sel).name}</b><br>${DB.sets[figure(sel).setId].name}<br>Figure ${figure(sel).number} of 10 · Set ${figure(sel).setId+1} of 100</div>`;
  }
  html+='<div class="footer-actions"><span class="label">SHOP OPERATIONS</span><button id="viewAlbum" class="chrome">VIEW ALL SETS</button></div>';
  $('drawerBody').innerHTML=html;
@@ -138,7 +143,7 @@ function renderShelf(){
   html+=`</div><div style="font-size:9px;margin-top:6px;color:${compatible?'#9de9cc':'#beaabb'}">${compatible?'TAP TO PLACE SELECTED FIGURE':figIds.length===10?'COMPLETE ROW':sel===null?'PICK UP A FIGURE FIRST':sid!==null&&sid!==figure(sel).setId?'DIFFERENT SET — NOT ALLOWED':rowForSet(figure(sel).setId)?'THIS SET HAS ANOTHER ROW':'ROW UNAVAILABLE'}</div></button>`;
   if(figIds.length)html+=`<button class="back" style="font-size:10px" data-take="${ri}">↶ Take last figure back into tote</button>`;
  }
- html+='<div class="info-strip">Display capacity: <b>50 figures</b> per shelf. Your shop has 20 two-sided floor fixtures and 20 single-sided wall fixtures, with 60 display faces in all.</div>';
+ html+='<div class="info-strip">Display capacity: <b>50 figures</b> per shelf. Your shop contains exactly 20 of these shelves.</div>';
  $('drawerBody').innerHTML=html;
  $('drawerBody').querySelectorAll('[data-row]').forEach(el=>el.onclick=()=>placeFig(r.id,+el.dataset.row));
  $('drawerBody').querySelectorAll('[data-take]').forEach(el=>el.onclick=()=>takeFig(r.id,+el.dataset.take));
@@ -160,7 +165,7 @@ function takeFig(shelfId,rowId){const row=rows[shelfId][rowId];if(!row.length)re
  const id=row.pop();tote.push(id);selected=id;save();stats();if(modal==='shelf')renderShelf();notify(`${figure(id).name} returned to tote.`);
 }
 function renderAlbum(){
- let html=`<div class="info-strip">300 collectible series × 10 unique figurines. Search by a series name, or inspect any series to see what you have shelved.</div><div class="album-toolbar"><input id="albumSearch" class="search" placeholder="Search 300 collectible sets..." type="search" value="${albumQuery.replace(/["<>&]/g,'')}" /></div>`;
+ let html=`<div class="info-strip">100 original collectible series × 10 unique figurines. Search by a series name, or inspect any series to see what you have shelved.</div><div class="album-toolbar"><input id="albumSearch" class="search" placeholder="Search 100 collectible sets..." type="search" value="${albumQuery.replace(/["<>&]/g,'')}" /></div>`;
  html+='<div id="albumResults"></div><div class="footer-actions"><button class="reset-button" id="resetBtn">RESET SAVED STORE</button><span class="label">PROGRESS SAVES AUTOMATICALLY</span></div>';
  $('drawerBody').innerHTML=html;
  const search=$('albumSearch');search.oninput=()=>{albumQuery=search.value;paintAlbumList()};
@@ -177,7 +182,7 @@ function paintAlbumList(){const dest=$('albumResults');if(!dest)return;
 }
 function renderSetDetail(sid){
  activeSet=sid;const set=DB.sets[sid],place=rowForSet(sid);
- let html=`<button class="back" id="backAlbum">← BACK TO 300 SETS</button><div class="info-strip"><b>${set.name}</b><br>${countSet(sid)} / 10 shelved · ${place?`Shelf ${place[0]+1}, Row ${place[1]+1}`:'No display row assigned yet'}</div><div class="album-detail-grid">`;
+ let html=`<button class="back" id="backAlbum">← BACK TO 100 SETS</button><div class="info-strip"><b>${set.name}</b><br>${countSet(sid)} / 10 shelved · ${place?`Shelf ${place[0]+1}, Row ${place[1]+1}`:'No display row assigned yet'}</div><div class="album-detail-grid">`;
  for(const id of set.memberIds){
   let status='SCATTERED ON FLOOR';if(tote.includes(id))status='IN TOTE';
   else for(const rack of rows)for(const row of rack)if(row.includes(id))status='✓ ON DISPLAY';
@@ -204,28 +209,27 @@ function screenPoint(v){const d=Math.max(.18,v.depth);return {x:W/2+v.side*FOCAL
 function cameraDepth(x,z){return (x-player.x)*Math.sin(player.yaw)-(z-player.z)*Math.cos(player.yaw)}
 function cameraSide(x,z){return (x-player.x)*Math.cos(player.yaw)+(z-player.z)*Math.sin(player.yaw)}
 function findFocus(){
- const dir=forward();let shelfFocus=null,bestShelf=1e4;
+ const dir=forward();let shelfFocus=null, bestShelf=1e4;
  for(const s of shelves){
-  const f=s.fixture,dx=player.x-f.x,dz=player.z-f.z;
-  const along=dx*f.ux+dz*f.uz,near= (dx*f.nx+dz*f.nz)*s.face - f.depth/2;
-  if(near<-.3||near>4.1||Math.abs(along)>f.w/2+.95)continue;
-  const px=f.x+f.nx*s.face*f.depth/2,pz=f.z+f.nz*s.face*f.depth/2;
-  const forwardDot=(px-player.x)*dir.x+(pz-player.z)*dir.z;
-  if(forwardDot<.1)continue;
-  const dist=Math.hypot(px-player.x,pz-player.z);
-  if(dist<bestShelf){bestShelf=dist;shelfFocus={kind:'shelf',id:s.id,dist};}
+  const dist=Math.hypot(player.x-s.x,player.z-s.z);
+  const frontDist=player.z-(s.z+s.depth/2);
+  if(frontDist<-.3||frontDist>4.2||Math.abs(player.x-s.x)>s.w/2+1.1)continue;
+  const fd=(s.x-player.x)*dir.x+(s.z-player.z)*dir.z;
+  if(fd<.4)continue;
+  if(dist<bestShelf){bestShelf=dist;shelfFocus={kind:'shelf',id:s.id,dist}}
  }
- let closest=null,best=1e3;
+ let closest=null, best=1e3;
  for(const f of floor){if(!f.onFloor)continue;
   const dx=f.x-player.x,dz=f.z-player.z,dist=Math.hypot(dx,dz);
   if(dist>2.8||dist<.12)continue;
-  const fd=dx*dir.x+dz*dir.z,side=Math.abs(dx*dir.z-dz*dir.x);
+  let fd=dx*dir.x+dz*dir.z, side=Math.abs(dx*dir.z-dz*dir.x);
   if(fd<-.45||side>1.55)continue;
   const score=dist+side*.85+(fd<0?2:0);
-  if(score<best){best=score;closest={kind:'figure',id:f.id,dist};}
+  if(score<best){best=score;closest={kind:'figure',id:f.id,dist}}
  }
+ // Shelf sorting takes priority if carrying items and facing a shelf.
  if(shelfFocus&&tote.length)return shelfFocus;
- return closest||shelfFocus;
+ return closest || shelfFocus;
 }
 function interact(){if(modal){closeDrawer();return}if(!focus){notify('Walk toward a figurine or display shelf.');return}
  if(focus.kind==='figure')grabFig(focus.id);else openDrawer('shelf',focus.id);
@@ -239,7 +243,7 @@ function updateFocus(){
   $('interactDescription').textContent=`${DB.sets[figure(focus.id).setId].name} · PICK UP`;
   $('actionLabel').textContent=tote.length>=10?'TOTE FULL':'PICK UP';
  }else{
-  $('interactName').textContent=shelves[focus.id].name + ' · 5 ROWS × 10';
+  $('interactName').textContent=shelves[focus.id].name + ' · 5 DISPLAY ROWS';
   $('interactDescription').textContent='VIEW SHELF / PLACE FIGURE';
   $('actionLabel').textContent='SHELF';
  }
@@ -294,74 +298,128 @@ function line3(ax,az,ah,bx,bz,bh,col,w=1){
  ctx.strokeStyle=col;ctx.lineWidth=w;ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(q.x,q.y);ctx.stroke();
 }
 function quadAt(x1,x2,z,h1,h2,col){solidQuad(project(x1,z,h2),project(x2,z,h2),project(x2,z,h1),project(x1,z,h1),col)}
-function shelfAt(f,u,d){return {x:f.x+f.ux*u+f.nx*d,z:f.z+f.uz*u+f.nz*d}}
-function shelfProject(f,u,d,h){const a=shelfAt(f,u,d);return project(a.x,a.z,h)}
-function shelfPanel(f,d,lo,hi,color){
- solidQuad(shelfProject(f,-f.w/2,d,hi),shelfProject(f,f.w/2,d,hi),
-  shelfProject(f,f.w/2,d,lo),shelfProject(f,-f.w/2,d,lo),color);
-}
-function shelfBeam(f,u1,d1,h1,u2,d2,h2,color,width=1){
- const a=shelfAt(f,u1,d1),b=shelfAt(f,u2,d2);
- line3(a.x,a.z,h1,b.x,b.z,h2,color,width);
-}
 function drawWall(wall){
  let {x1,z1,x2,z2}=wall;const d1=cameraDepth(x1,z1),d2=cameraDepth(x2,z2);
  if(d1<.15&&d2<.15)return;
+ // Clip world segment at near camera plane.
  if(d1<.15){const t=(.15-d1)/(d2-d1);x1+=(x2-x1)*t;z1+=(z2-z1)*t;}
  else if(d2<.15){const t=(.15-d2)/(d1-d2);x2+=(x1-x2)*t;z2+=(z1-z2)*t;}
- solidQuad(project(x1,z1,4.8),project(x2,z2,4.8),project(x2,z2,0),project(x1,z1,0),
-  wall.n%2?'#433347':'#49374e');
- for(const h of [.25,4.35])line3(x1,z1,h,x2,z2,h,h===.25?'#2d2638':'#6d5365',h===4.35?2.5:2);
- // Shelves now provide the environmental detail; no giant wall slogans.
+ const a=project(x1,z1,0),b=project(x2,z2,0),c=project(x2,z2,4.8),d=project(x1,z1,4.8);
+ solidQuad(d,c,b,a,wall.n%2?'#47354b':'#49394d');
+ let subtone=wall.n%2?'#58465a':'#55425a';
+ for(const h of [.35,3.9,4.34])line3(x1,z1,h,x2,z2,h,h===.35?'#2b273c':subtone,h===4.34?3:2);
+ const tmid=.5;
+ let mx=x1+(x2-x1)*tmid,mz=z1+(z2-z1)*tmid;
+ if(cameraDepth(mx,mz)>3){
+  let lt=project(mx,mz,3.0),rt=project(mx,mz,3.65);const scale=FOCAL/Math.max(1,lt.depth);
+  if(scale>4 && Math.abs(lt.x)<W*3){
+   const signW=3.3*scale, signH=.86*scale;
+   const signX=lt.x-signW/2, signY=rt.y-.06*scale;
+   ctx.fillStyle='#5b4256';ctx.fillRect(signX,signY,signW,signH);
+   ctx.strokeStyle='#efbf83';ctx.lineWidth=clamp(scale*.045,1.5,6);ctx.strokeRect(signX,signY,signW,signH);
+   ctx.fillStyle='#715465';ctx.fillRect(signX+scale*.08,signY+scale*.08,signW-scale*.16,signH-scale*.16);
+   const text=['BUY • COLLECT','BEHOLD THE RARE','OPEN EVERY DAY','MINIATURE MAGIC'][wall.n%4];
+   ctx.textAlign='center';ctx.textBaseline='middle';
+   ctx.font=`bold ${clamp(scale*.23,8,28)}px monospace`;
+   ctx.lineWidth=clamp(scale*.08,2,6);ctx.strokeStyle='#2f2237';ctx.lineJoin='round';
+   ctx.strokeText(text,lt.x,signY+signH*.54);
+   ctx.fillStyle=wall.n%3?'#f8d694':'#b7fff1';ctx.fillText(text,lt.x,signY+signH*.54);
+   ctx.textBaseline='alphabetic';
+  }
+ }
 }
-function drawShelf(f){
- const rel=(player.x-f.x)*f.nx+(player.z-f.z)*f.nz;
- const facing=f.kind==='wall'?1:(rel>=0?1:-1);
- const d=facing*f.depth/2, depth=Math.max(.3,cameraDepth(f.x,f.z)),sz=FOCAL/depth;
- const faceId=f.kind==='wall'?40+f.wallIndex:f.id*2+(facing===1?0:1);
- const back=-d;
- shelfPanel(f,back,.12,4.15,'#594254');
- shelfPanel(f,0,.15,4.11,'#62465a');
- const p1=shelfProject(f,-f.w/2,back,4.15),p2=shelfProject(f,-f.w/2,d,4.15),
-   p3=shelfProject(f,-f.w/2,d,.12),p4=shelfProject(f,-f.w/2,back,.12);
- solidQuad(p1,p2,p3,p4,'#987053');
- solidQuad(shelfProject(f,f.w/2,d,4.15),shelfProject(f,f.w/2,back,4.15),
-  shelfProject(f,f.w/2,back,.12),shelfProject(f,f.w/2,d,.12),'#795466');
- shelfPanel(f,d,.12,4.12,'#34283c');
- const lineW=Math.max(1,sz*.018);
- for(let r=0;r<5;r++){
-  const y=.46+r*.72,board=d+facing*.045;
-  shelfPanel(f,board,y-.09,y,r%2?'#a77861':'#b78668');
-  shelfBeam(f,-f.w/2,board+facing*.008,y,f.w/2,board+facing*.008,y,'#f0c18c',Math.max(1,sz*.014));
-  shelfBeam(f,-f.w/2,d+facing*.008,y+.57,f.w/2,d+facing*.008,y+.57,'#7e5a61',Math.max(1,sz*.009));
-  if(depth<34){
-   for(let slot=1;slot<10;slot++){
-    const u=-f.w/2+slot*f.w/10;
-    shelfBeam(f,u,d+facing*.05,y+.10,u,d+facing*.05,y+.45,'#695066',Math.max(.6,sz*.006));
+function drawShelf(s){
+ const frontZ=s.z+.53,rearZ=s.z-.53,left=s.x-s.w/2,right=s.x+s.w/2;
+ const rearview=player.z<s.z-.5;
+ const faceZ=rearview?rearZ:frontZ;
+ const labelZ=rearview?rearZ-.02:frontZ+.1;
+ // side profile / rack body
+ solidQuad(project(left,rearZ,4.15),project(right,rearZ,4.15),project(right,rearZ,.1),project(left,rearZ,.1),'#261c32');
+ solidQuad(project(right,frontZ,4.15),project(right,rearZ,4.15),project(right,rearZ,.1),project(right,frontZ,.1),'#6d4752');
+ solidQuad(project(left,frontZ,4.15),project(left,rearZ,4.15),project(left,rearZ,.1),project(left,frontZ,.1),'#987055');
+ // Front and rear faces both render as finished wood so the back of the shelf reads correctly.
+ if(rearview){
+  quadAt(left,right,frontZ,.1,4.15,'#392d3c');
+  quadAt(left,right,rearZ,.1,4.15,'#6b4b56');
+ }else{
+  quadAt(left,right,rearZ,.1,4.15,'#6b4b56');
+  quadAt(left,right,frontZ,.1,4.15,'#392d3c');
+ }
+ line3(left,frontZ,4.15,right,frontZ,4.15,'#f0c58a',Math.max(1,FOCAL/Math.max(1,cameraDepth(s.x,s.z))*.065));
+ line3(left,rearZ,4.15,right,rearZ,4.15,'#d5b086',Math.max(1,FOCAL/Math.max(1,cameraDepth(s.x,s.z))*.05));
+ // The reverse face is a five-plank walnut display backing, not a bare wall.
+ if(rearview){
+  const backZ=rearZ-.02;
+  for(let r=0;r<ROWS;r++){
+   const lo=.19+r*.72,hi=lo+.67;
+   quadAt(left+.15,right-.15,backZ,lo,hi,r%2?'#704d5c':'#80596a');
+   line3(left+.15,backZ-.01,lo,right-.15,backZ-.01,lo,'#3d2e43',Math.max(1,FOCAL/Math.max(1,cameraDepth(s.x,s.z))*.027));
+   for(let i=1;i<=3;i++){
+    const gy=lo+i*.15;
+    line3(left+.35,backZ-.012,gy,right-.35,backZ-.012,gy,r%2?'#895f6c':'#99727b',Math.max(1,FOCAL/Math.max(1,cameraDepth(s.x,s.z))*.004));
    }
-   const items=rows[faceId][r];
-   for(let k=0;k<items.length;k++){
-    const u=-f.w/2+(k+.5)*f.w/10,dd=d+facing*.075;
-    const foot=shelfProject(f,u,dd,y+.04),top=shelfProject(f,u,dd,y+.55);
-    const width=Math.max(1,.42*FOCAL/Math.max(.4,foot.depth)),height=foot.y-top.y;
-    if(height>=2 && width>1 && figAtlas.width){
-     const fig=figure(items[k]);
-     ctx.drawImage(figAtlas,fig.atlasX,fig.atlasY,32,40,foot.x-width/2,top.y,width,height);
+  }
+  for(const x of [left+.14,s.x,right-.14])line3(x,backZ-.024,.15,x,backZ-.024,4.04,'#b98b73',Math.max(1,FOCAL/Math.max(1,cameraDepth(s.x,s.z))*.035));
+  for(const y of [.14,4.04])line3(left+.08,backZ-.03,y,right-.08,backZ-.03,y,'#e1ad82',Math.max(1,FOCAL/Math.max(1,cameraDepth(s.x,s.z))*.034));
+  const plate=project(s.x,backZ-.045,2.45),plateScale=FOCAL/Math.max(.3,plate.depth);
+  if(plate.depth>1 && plate.depth<65 && plate.x>-200 && plate.x<W+200){
+   const pw=2.3*plateScale,ph=.42*plateScale;
+   ctx.fillStyle='#33263f';ctx.fillRect(plate.x-pw/2,plate.y-ph/2,pw,ph);
+   ctx.strokeStyle='#f1be83';ctx.lineWidth=Math.max(1,plateScale*.026);ctx.strokeRect(plate.x-pw/2,plate.y-ph/2,pw,ph);
+   ctx.textAlign='center';ctx.textBaseline='middle';ctx.font=`bold ${clamp(plateScale*.18,9,25)}px monospace`;
+   ctx.strokeStyle='#231b2e';ctx.lineWidth=Math.max(2,plateScale*.035);
+   const plateLabel=`SHELF ${String(s.id+1).padStart(2,'0')}`;
+   ctx.strokeText(plateLabel,plate.x,plate.y);ctx.fillStyle='#ffdda5';ctx.fillText(plateLabel,plate.x,plate.y);
+   ctx.textBaseline='alphabetic';
+  }
+ }
+ // Wooden supports and five plank rows, 10 real slots each.
+ if(!rearview){
+  for(let r=0;r<ROWS;r++){
+   const y=.47+r*.72;
+   quadAt(left+.12,right-.12,frontZ+.015,y-.075,y,'#bb8861');
+   line3(left+.12,frontZ+.02,y,right-.12,frontZ+.02,y,'#ffd194',Math.max(1,FOCAL/Math.max(1,cameraDepth(s.x,s.z))*.011));
+   const depth=cameraDepth(s.x,frontZ+.05);
+   if(depth>0 && depth<32){
+    // Slot divisions stay visible even when empty.
+    for(let k=1;k<10;k++){
+     const x=left+k*s.w/10;
+     line3(x,frontZ+.026,y+.11,x,frontZ+.026,y+.43,'#594255',1);
+    }
+    const items=rows[s.id][r];
+    for(let k=0;k<items.length;k++){
+     const id=items[k],mx=left+(k+.5)*(s.w/10);
+     const foot=project(mx,frontZ+.08,y+.04),top=project(mx,frontZ+.08,y+.55);
+     const pxW=Math.max(1,.42*FOCAL/Math.max(.4,foot.depth));
+     let h=foot.y-top.y;
+     if(h>=2&&pxW>1 && img.complete&&img.naturalWidth){
+      const f=figure(id);ctx.drawImage(img,f.atlasX,f.atlasY,32,40,foot.x-pxW/2,top.y,pxW,h);
+     }
     }
    }
   }
  }
- const edge=Math.max(1,sz*.06);
- for(const u of [-f.w/2,f.w/2]){
-  shelfBeam(f,u,d,.1,u,d,4.2,u<0?'#d6a978':'#9f726d',edge);
-  shelfBeam(f,u,back,.1,u,back,4.2,'#aa805f',edge*.7);
+ // Outer oak-edged structure, gilded shelf nameplate.
+ const sz=FOCAL/Math.max(.4,cameraDepth(s.x,faceZ));
+ const edge=Math.max(1,sz*.075);
+ line3(left,frontZ,.1,left,frontZ,4.15,'#ca9d6f',edge);
+ line3(right,frontZ,.1,right,frontZ,4.15,'#8b5960',edge);
+ line3(left,rearZ,.1,left,rearZ,4.15,'#b58a65',Math.max(1,edge*.8));
+ line3(right,rearZ,.1,right,rearZ,4.15,'#7a5c61',Math.max(1,edge*.8));
+ quadAt(left-.15,right+.15,faceZ+(rearview?-.07:.07),4.13,4.5,rearview?'#775e4d':'#6e4663');
+ line3(left-.15,faceZ+(rearview?-.075:.075),4.48,right+.15,faceZ+(rearview?-.075:.075),4.48,'#f8c77e',Math.max(1,sz*.04));
+ const mid=project(s.x,labelZ,4.31);
+ if(mid.depth>1 && sz>3 && mid.x>-220 && mid.x<W+220){
+  const label=`SHELF ${String(s.id+1).padStart(2,'0')}`;
+  ctx.textAlign='center';ctx.textBaseline='middle';ctx.font=`bold ${clamp(sz*.24,9,28)}px monospace`;
+  ctx.lineWidth=Math.max(2,sz*.055);ctx.strokeStyle='#2e2235';ctx.lineJoin='round';
+  ctx.strokeText(label,mid.x,mid.y+sz*.06);
+  ctx.fillStyle='#ffe0a7';ctx.fillText(label,mid.x,mid.y+sz*.06);
+  ctx.textBaseline='alphabetic';
  }
- shelfBeam(f,-f.w/2-.12,d+facing*.06,4.18,f.w/2+.12,d+facing*.06,4.18,'#f6c986',Math.max(1,sz*.035));
- shelfBeam(f,-f.w/2-.12,d+facing*.06,.15,f.w/2+.12,d+facing*.06,.15,'#7f5366',Math.max(1,sz*.04));
- // No world-space shelf numbers: the nearby interaction prompt identifies the face.
- if(focus&&focus.kind==='shelf'&&focus.id===faceId){
-  const p=shelfProject(f,0,d+facing*.08,4.45);
-  if(p.depth>0){ctx.fillStyle='#d1ffe9';ctx.fillRect(p.x-2,p.y-2,4,4);}
+ if(focus&&focus.kind==='shelf'&&focus.id===s.id){
+  const p=project(s.x,faceZ,4.8);
+  if(p.depth>0){ctx.fillStyle='#d1ffe9';ctx.fillRect(p.x-4,p.y-4,8,8)}
  }
 }
 function drawFig(f){
@@ -371,7 +429,7 @@ function drawFig(f){
  if(wid<1||p.x+wid<0||p.x-wid>W||p.y-ht>H)return;
  // Draw a grounded pixel shadow, then full original sprite cropped from atlas.
  ctx.fillStyle='#1b1424a2';ctx.beginPath();ctx.ellipse(p.x,p.y,Math.max(1,wid*.41),Math.max(1,ht*.065),0,0,Math.PI*2);ctx.fill();
- if(figAtlas.width){const fig=figure(f.id);ctx.drawImage(figAtlas,fig.atlasX,fig.atlasY,32,40,Math.round(p.x-wid/2),Math.round(p.y-ht),Math.max(1,Math.round(wid)),Math.max(1,Math.round(ht)));}
+ if(img.complete&&img.naturalWidth){const fig=figure(f.id);ctx.drawImage(img,fig.atlasX,fig.atlasY,32,40,Math.round(p.x-wid/2),Math.round(p.y-ht),Math.max(1,Math.round(wid)),Math.max(1,Math.round(ht)));}
  if(focus&&focus.kind==='figure'&&focus.id===f.id){
   ctx.strokeStyle='#fff3b8';ctx.lineWidth=2;ctx.strokeRect(Math.round(p.x-wid/2)-2,Math.round(p.y-ht)-2,Math.max(4,Math.round(wid)+4),Math.max(4,Math.round(ht)+4));
  }
@@ -405,7 +463,7 @@ function drawRoom(){
    if(depth>-7&&depth<100)entities.push({type:'wall',depth,wall:{x1,z1,x2,z2,n:n*7+k}});
   }
  }
- for(const s of fixtures){let d=cameraDepth(s.x,s.z);if(d>-5&&d<90&&Math.abs(cameraSide(s.x,s.z))<Math.abs(d)*1.8+10)entities.push({type:'shelf',depth:d,rack:s});}
+ for(const s of shelves){let d=cameraDepth(s.x,s.z);if(d>-5&&d<90&&Math.abs(cameraSide(s.x,s.z))<Math.abs(d)*1.8+9)entities.push({type:'shelf',depth:d,rack:s});}
  for(const f of floor){if(!f.onFloor)continue;let d=cameraDepth(f.x,f.z);if(d>.1&&d<42&&Math.abs(cameraSide(f.x,f.z))<d*1.24+2)entities.push({type:'fig',depth:d,piece:f});}
  entities.sort((a,b)=>b.depth-a.depth);
  for(const e of entities){if(e.type==='wall')drawWall(e.wall);else if(e.type==='shelf')drawShelf(e.rack);else drawFig(e.piece);}
@@ -483,99 +541,13 @@ $('toteBtn').onclick=()=>modal?closeDrawer():openDrawer('tote');
 $('albumBtn').onclick=()=>modal?closeDrawer():openDrawer('album');
 $('closeDrawer').onclick=closeDrawer;$('drawerShade').onclick=closeDrawer;
 $('cancelReset').onclick=()=>$('confirm').hidden=true;
-$('doReset').onclick=()=>{localStorage.removeItem(STORE_KEY);resetState();$('confirm').hidden=true;closeDrawer();notify('Store reset: 3,000 figures scattered.');};
+$('doReset').onclick=()=>{localStorage.removeItem(STORE_KEY);resetState();$('confirm').hidden=true;closeDrawer();notify('Store reset: 1,000 figures scattered.');};
 $('startBtn').onclick=()=>{$('screen').classList.remove('shown');playing=true;save();notify('YOUR SHOP IS OPEN. FIND AND SORT THE FIGURES!')};
 // Snapshot integrity API for QA and external automation.
 window.BitBazaarQA={
- stats:()=>({floor:floor.filter(f=>f.onFloor).length,tote:tote.length,placed:rows.flat(2).length,completedRows:rows.flat(1).filter(r=>r.length===10).length,capacity:NUM_RACKS*ROWS*PER_ROW,fixtures:fixtures.length,floorFixtures:NUM_FLOOR,wallFixtures:NUM_WALL,displayFaces:shelves.length,distinctAssets:new Set(DB.figures.map(f=>`${f.atlasX}:${f.atlasY}`)).size}),
- place:(id,shelf,row)=>{if(!Number.isInteger(id)||id<0||id>=DB.figures.length)return false;const f=floor[id];if(f.onFloor){f.onFloor=false;tote.push(id)}selected=id;activeShelf=shelf;placeFig(shelf,row);return rows[shelf][row].includes(id)},
+ stats:()=>({floor:floor.filter(f=>f.onFloor).length,tote:tote.length,placed:rows.flat(2).length,completedRows:rows.flat(1).filter(r=>r.length===10).length,capacity:20*5*10,distinctAssets:new Set(DB.figures.map(f=>`${f.atlasX}:${f.atlasY}`)).size}),
+ place:(id,shelf,row)=>{if(!Number.isInteger(id)||id<0||id>=1000)return false;const f=floor[id];if(f.onFloor){f.onFloor=false;tote.push(id)}selected=id;activeShelf=shelf;placeFig(shelf,row);return rows[shelf][row].includes(id)},
  reset:resetState, get player(){return player}, shelves, dataset:DB
 };
-function buildAtlas(){
- const atlas=document.createElement('canvas');atlas.width=25*32;atlas.height=120*40;
- const ac=atlas.getContext('2d',{willReadFrequently:true});ac.imageSmoothingEnabled=false;
- ac.drawImage(img,0,0);
- const palettes=[[105,236,215],[75,86,123],[249,202,106],[170,134,241],
-  [195,98,212],[211,138,91],[155,137,195],[248,211,163]];
- for(let id=1000;id<DB.figures.length;id++){
-  const fig=DB.figures[id],original=DB.figures[fig.sourceId],tone=palettes[fig.editionVariant];
-  const x=fig.atlasX,y=fig.atlasY,variant=fig.editionVariant;
-  ac.drawImage(img,original.atlasX,original.atlasY,32,40,x,y,32,40);
-  const tile=ac.getImageData(x,y,32,40),p=tile.data;
-  for(let i=0;i<p.length;i+=4){
-   if(p[i+3]<50)continue;
-   const brightness=p[i]+p[i+1]+p[i+2];
-   if(brightness<115)continue; // Preserve the original deep-pixel outlines.
-   const tint=brightness>490?.36:.24;
-   p[i]=Math.min(255,p[i]*(1-tint)+tone[0]*tint);
-   p[i+1]=Math.min(255,p[i+1]*(1-tint)+tone[1]*tint);
-   p[i+2]=Math.min(255,p[i+2]*(1-tint)+tone[2]*tint);
-  }
-  ac.putImageData(tile,x,y);
-  // Accessories are drawn as hard-edged, 1–3 pixel 16-bit-style shapes.
-  // These change the silhouette of each of the 2,000 added miniatures.
-  const ink='#21172f',bright='rgb('+tone[0]+','+tone[1]+','+tone[2]+')';
-  const light='#ffe3a2',shade='#775576',detail=id%5,mode=(variant+detail)%8;
-  ac.fillStyle=ink;
-  if(mode===0){ // Magical wings
-   ac.fillRect(x+1,y+16,7,3);ac.fillRect(x+24,y+16,7,3);
-   ac.fillStyle=bright;ac.fillRect(x+2,y+14,5,6);ac.fillRect(x+25,y+14,5,6);
-  }else if(mode===1){ // Royal crown
-   ac.fillRect(x+9,y+3,14,7);ac.fillRect(x+8,y,3,6);ac.fillRect(x+15,y+1,3,5);ac.fillRect(x+21,y,3,6);
-   ac.fillStyle=light;ac.fillRect(x+10,y+5,12,3);ac.fillRect(x+16,y+1,2,3);
-  }else if(mode===2){ // Orbiting antenna
-   ac.fillRect(x+17,y+1,2,10);ac.fillRect(x+14,y,7,3);
-   ac.fillStyle=bright;ac.fillRect(x+15,y,4,3);ac.fillRect(x+18,y+4,2,3);
-  }else if(mode===3){ // Shield and banner
-   ac.fillRect(x+24,y+19,7,13);ac.fillStyle=shade;ac.fillRect(x+25,y+20,5,9);
-   ac.fillStyle=bright;ac.fillRect(x+26,y+21,3,5);ac.fillRect(x+27,y+30,1,3);
-  }else if(mode===4){ // Hooded mantle
-   ac.fillRect(x+5,y+10,4,12);ac.fillRect(x+23,y+10,4,12);
-   ac.fillStyle=bright;ac.fillRect(x+5,y+12,3,9);ac.fillRect(x+24,y+12,3,9);
-  }else if(mode===5){ // Horns
-   ac.fillRect(x+7,y+2,4,8);ac.fillRect(x+21,y+2,4,8);
-   ac.fillStyle=light;ac.fillRect(x+8,y+2,2,6);ac.fillRect(x+22,y+2,2,6);
-  }else if(mode===6){ // Spark and spellbook
-   ac.fillRect(x+24,y+23,7,8);ac.fillStyle=bright;ac.fillRect(x+25,y+24,5,6);
-   ac.fillStyle=light;ac.fillRect(x+27,y+19,2,3);ac.fillRect(x+26,y+18,4,1);
-  }else{ // Spiked pauldrons
-   ac.fillRect(x+3,y+15,8,7);ac.fillRect(x+21,y+15,8,7);
-   ac.fillStyle=bright;ac.fillRect(x+5,y+15,6,3);ac.fillRect(x+22,y+15,6,3);
-  }
-  // A second little accent ensures variation even within each edition.
-  ac.fillStyle=light;ac.fillRect(x+10+(id%11),y+30,2,3);
- }
- figAtlas=atlas;
- atlas.toBlob(blob=>{
-  if(!blob)return;
-  if(window.bitBazaarAtlasURL)URL.revokeObjectURL(window.bitBazaarAtlasURL);
-  window.bitBazaarAtlasURL=URL.createObjectURL(blob);
-  document.documentElement.style.setProperty('--figure-atlas','url("'+window.bitBazaarAtlasURL+'")');
- },'image/png');
-}
-function makeFixtures(){
- const fixtures=[],shelves=[];
- for(let r=0;r<5;r++)for(let a=0;a<4;a++){
-  const id=r*4+a,aisle=String.fromCharCode(65+a);
-  const f={id,kind:'floor',x:11+a*16,z:11+r*12,w:7.7,depth:1.72,nx:0,nz:1,ux:1,uz:0,aisle};
-  fixtures.push(f);
-  for(let side=0;side<2;side++)shelves.push({
-   id:id*2+side,fixture:f,face:side===0?1:-1,
-   name:'AISLE '+aisle+' · '+(side?'REVERSE':'FRONT')+' DISPLAY',
-   aisle
-  });
- }
- const wallSpots=[];
- for(const x of [9,22,35,48,61])wallSpots.push({x,z:2.5,nx:0,nz:1,ux:1,uz:0,section:'NORTH'});
- for(const x of [9,22,35,48,61])wallSpots.push({x,z:71.5,nx:0,nz:-1,ux:-1,uz:0,section:'SOUTH'});
- for(const z of [10,23,36,49,62])wallSpots.push({x:2.5,z,nx:1,nz:0,ux:0,uz:-1,section:'WEST'});
- for(const z of [10,23,36,49,62])wallSpots.push({x:67.5,z,nx:-1,nz:0,ux:0,uz:1,section:'EAST'});
- for(let i=0;i<wallSpots.length;i++){
-  const f={id:20+i,kind:'wall',wallIndex:i,w:10.5,depth:.85,aisle:'WALL',...wallSpots[i]};
-  fixtures.push(f);
-  shelves.push({id:40+i,fixture:f,face:1,name:f.section+' WALL DISPLAY',aisle:'WALL'});
- }
- return {fixtures,shelves};
-}
 restore();requestAnimationFrame(frame);
 })();
