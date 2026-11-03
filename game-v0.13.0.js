@@ -1265,6 +1265,9 @@ function renderSetDetail(sid){
   p=albumSetStatus(sid),status=p.perfect?'★ PERFECTLY ORDERED 1–10':
    p.shelved===10?'FULL · REARRANGE INTO 1–10':
    p.shelved?'COLLECTION IN PROGRESS':'COLLECTION NOT STARTED';
+ const checklist=huntSnapshot(sid);
+ const needToShelf=checklist.numbers.filter(n=>!n.shelved).map(n=>n.number);
+ const outOfOrder=checklist.numbers.filter(n=>n.shelved&&!n.correct);
  const heading=`<div class="folio-detail-top">
   <div class="folio-detail-nav">
     <button class="back folio-back" id="backAlbum">← COLLECTION LIST</button>
@@ -1296,7 +1299,21 @@ function renderSetDetail(sid){
        'A full row only counts as complete when it reads 1, 2, 3, 4, 5, 6, 7, 8, 9, 10.'}</p>
    </div>`;
  }
- let html=heading+slotsPanel+`<div class="folio-figure-heading">THE TEN MINIATURES
+ const tasks=`<div class="folio-tasks">
+   <strong class="folio-tasks-heading">YOUR COLLECTION CHECKLIST</strong>
+   <div class="folio-tasks-grid">${checklist.numbers.map(n=>{
+    const state=n.shelved?(n.correct?'correct':'misplaced'):n.held?'held':n.seen?'found':'unseen';
+    const label=n.shelved?(n.correct?'IN RIGHT SLOT':'SHELVED IN SLOT '+n.slot):
+      n.held?'IN HAND':n.seen?'DISCOVERED':'NOT YET SEEN';
+    return `<div class="folio-task ${state}" title="#${n.number} · ${label}">
+       <b>#${n.number}</b><small>${n.shelved?(n.correct?'✓':'↔'):n.held?'H':n.seen?'◇':'?'}</small></div>`;
+    }).join('')}</div>
+   <p>${checklist.perfect?'★ ALL TEN FIGURINES ARE PERFECTLY ARRANGED.':
+    needToShelf.length?'NEED ON SHELF: #'+needToShelf.join(', #'):
+    'ALL TEN ON SHELF · '+outOfOrder.length+' IN INCORRECT POSITIONS.'}</p>
+   <div class="folio-task-key">✓ RIGHT SLOT · ↔ MOVE IT · H HELD · ◇ FOUND · ? UNKNOWN</div>
+  </div>`;
+ let html=heading+tasks+slotsPanel+`<div class="folio-figure-heading">THE TEN MINIATURES
   <small>DISCOVER A FIGURE BY FINDING OR INSPECTING IT IN THE SHOP</small></div>
  <div class="folio-figure-grid">`;
  for(const id of set.memberIds){
