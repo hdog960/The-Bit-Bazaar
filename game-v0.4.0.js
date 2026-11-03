@@ -197,7 +197,8 @@ function restore(){
  }
  const old=Array.isArray(raw.tote)?raw.tote:[];
  const validCarry=old.filter(id=>Number.isInteger(id)&&id>=0&&id<DB.figures.length&&!used.has(id));
- tote=validCarry.slice(0,1);
+ const preferred=validCarry.includes(raw.selected)?raw.selected:validCarry[0];
+ tote=preferred===undefined?[]:[preferred];
  migratedCarryCount=Math.max(0,validCarry.length-tote.length);
  if(migratedCarryCount){
   try{
@@ -318,8 +319,13 @@ function placeDirect(shelfId){
 function putDown(){
  const id=currentSelected();if(id===null)return false;
  const dir=forward(),right={x:Math.cos(player.yaw),z:Math.sin(player.yaw)};
- const locations=[[dir.x,dir.z,1.25],[right.x,right.z,1.15],
-  [-right.x,-right.z,1.15],[-dir.x,-dir.z,1.4],[dir.x,dir.z,1.75]];
+ const locations=[];
+ for(const dist of [1.15,1.55,1.95,2.3]){
+  for(let i=0;i<8;i++){
+   const theta=i*Math.PI/4,co=Math.cos(theta),si=Math.sin(theta);
+   locations.push([dir.x*co+right.x*si,dir.z*co+right.z*si,dist]);
+  }
+ }
  let spot=null;
  for(const [dx,dz,dist] of locations){
   const x=player.x+dx*dist,z=player.z+dz*dist;
