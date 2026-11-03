@@ -242,6 +242,35 @@ function revealHiddenAtFace(faceId){
  moveFigureToFloor(id,where.x,where.z);
  return id;
 }
+// Tactile but lightweight: show one CSS-only brush effect per action.
+function showCleanEffect(action){
+ const burst=$('cleanBurst');
+ $('cleanBurstLabel').textContent=action;
+ burst.classList.remove('visible');
+ void burst.offsetWidth;
+ burst.classList.add('visible');
+ clearTimeout(cleanFxTimer);
+ cleanFxTimer=setTimeout(()=>burst.classList.remove('visible'),760);
+}
+function showRestorationMilestone(title,caption){
+ $('restoreBannerTitle').textContent=title;
+ $('restoreBannerCaption').textContent=caption;
+ const banner=$('restoreBanner');
+ banner.classList.remove('show');
+ void banner.offsetWidth;
+ banner.classList.add('show');
+ clearTimeout(restoreBannerTimer);
+ restoreBannerTimer=setTimeout(()=>banner.classList.remove('show'),3300);
+}
+function checkRestorationMilestone(kind){
+ if(kind==='shelf'&&cleanedFaceCount()===60)
+  showRestorationMilestone('ALL SHELVES RESTORED',
+   floorCleanedCount()===45?'THE ENTIRE SHOP IS SPOTLESS':'EVERY DISPLAY IS READY FOR YOUR COLLECTION');
+ else if(kind==='floor'&&floorCleanedCount()===45)
+  showRestorationMilestone('EVERY FLOOR MESS CLEARED',
+   cleanedFaceCount()===60?'THE ENTIRE SHOP IS SPOTLESS':'THE SHOP FLOOR IS CLEAN');
+}
+
 function cleanedFaceCount(){return faceCleaning.reduce((n,p)=>n+(p===3?1:0),0)}
 function cleanShelfFace(faceId){
  if(!Number.isInteger(faceId)||faceId<0||faceId>=NUM_RACKS)return false;
@@ -249,6 +278,7 @@ function cleanShelfFace(faceId){
  const level=faceCleaning[faceId];
  if(level>=CLEAN_STEPS.length){notify('THIS DISPLAY IS ALREADY RESTORED');return false;}
  faceCleaning[faceId]=level+1;
+ showCleanEffect(CLEAN_STEPS[level]);
  const found=faceCleaning[faceId]===3?revealHiddenAtFace(faceId):null;
  if(found!==null){
   notify('✦ HIDDEN FIGURINE FOUND! #'+setNumber(found)+'/10 · '+DB.sets[figure(found).setId].name);
@@ -257,7 +287,7 @@ function cleanShelfFace(faceId){
  }else{
   notify((level===0?'DUST CLEARED':level===1?'COBWEBS REMOVED':'PACKAGING CLEARED')+' · '+(3-faceCleaning[faceId])+' TASK(S) LEFT');
  }
- save();stats();return true;
+ save();stats();if(faceCleaning[faceId]===3)checkRestorationMilestone('shelf');return true;
 }
 function faceTask(faceId){
  return faceCleaning[faceId]<3?CLEAN_STEPS[faceCleaning[faceId]]:'RESTORED';
@@ -286,13 +316,14 @@ function cleanAmbient(id){
  }
  floorCleaning[id]=step+1;
  lastAmbientClean={id,at:performance.now()};
+ showCleanEffect(actions[step]);
  if(floorCleaning[id]===actions.length){
   notify('★ '+(m.kind===0?'TRASH GATHERED':m.kind===1?'PACKAGING REMOVED':'FLOOR POLISHED')+
     ' · '+floorCleanedCount()+'/'+ambientMess.length+' FLOOR MESSES CLEAN');
  }else{
   notify('✓ '+actions[step]+' · '+(actions.length-floorCleaning[id])+' STEP(S) REMAIN');
  }
- save();stats();return true;
+ save();stats();if(floorCleaning[id]===actions.length)checkRestorationMilestone('floor');return true;
 }
 
 // Only nearby spatial buckets are scanned. This avoids a 3,000-object scan each frame.
@@ -1066,6 +1097,14 @@ function interact(){
 function updateFocus(){
  focus=findFocus();const box=$('interact'),reticle=$('crosshair');
  reticle.classList.remove('aim-pick','aim-place','aim-denied');
+ const cleaningFocus=focus&&(focus.kind==='mess'||focus.kind==='floor-mess');
+ $('cleanStage').hidden=!cleaningFocus||!!modal||!playing;
+ if(cleaningFocus){
+  const n=focus.kind==='mess'?faceCleaning[focus.id]:floorCleaning[focus.id],
+   max=focus.kind==='mess'?3:AMBIENT_ACTIONS[ambientMess[focus.id].kind].length;
+  $('cleanStageLabel').textContent=(tote.length?'HANDS FULL · ':'')+'CLEANING '+n+'/'+max;
+  $('cleanStageFill').style.width=Math.round(n/max*100)+'%';
+ }
  const inspectable=!!tote.length||!!(focus&&(focus.kind==='figure'||focus.kind==='shelf-figure'));
  $('inspectBtn').hidden=!playing||!!modal||!inspectable;
  if(!focus||modal||!playing){
@@ -1686,6 +1725,7 @@ $('startBtn').onclick=()=>{
  $('screen').classList.remove('shown');playing=true;save();
  if(migratedCarryCount)notify(migratedCarryCount+' EXTRA FIGURES RETURNED TO THE FLOOR — CARRY ONE AT A TIME');
  else if(cleanedFaceCount()===0)notify('START RESTORING · AIM AT A DUSTY SHELF WITH EMPTY HANDS TO CLEAN');
+ else if(floorCleanedCount()===0)notify('RESTORE THE FLOOR · AIM AT PAPER, CARTONS OR STAINS WITH EMPTY HANDS');
  else notify('AIM AT A SLOT · PLACE, LIFT OR SWAP · PERFECT ORDER IS 1–10');
 };
 // Snapshot integrity API for QA and external automation.
