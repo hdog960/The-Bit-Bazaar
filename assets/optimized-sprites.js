@@ -58,7 +58,7 @@ window.createBitBazaarSprites=function(db,baseImage){
   const s=cached(id,true);
   if(!s.item)return '0 0';
   if(!s.item.url)s.item.url=s.item.canvas.toDataURL('image/png');
-  return `0 0;background-image:url("${s.item.url}")`;
+  return `0 0;background-image:url(${s.item.url})`;
  }
  function stats(){return {cacheSize:CACHE.size,maxCache:LIMIT,created,evicted,budget};}
  return {frameStart,draw,cssIcon,stats};
