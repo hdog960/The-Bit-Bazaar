@@ -527,6 +527,10 @@ function pointInQuad(cx,cy,points){
  }
  return true;
 }
+// For a double-sided rack, local positions run in opposite world-space
+// directions so slot #1 is LEFT for someone standing at either face.
+const slotEdge=(f,face,k)=>face*(-f.w/2+k*f.w/PER_ROW);
+const slotCenter=(f,face,k)=>face*(-f.w/2+(k+.5)*f.w/PER_ROW);
 function findFocus(){
  let shelfFocus=null;
  for(const shelf of shelves){
@@ -550,7 +554,7 @@ function findFocus(){
    // No extra textures; ten small perspective quads are tested only for
    // the shelf row actually crossing the center reticle.
    for(let k=0;k<PER_ROW;k++){
-    const left=-f.w/2+k*f.w/PER_ROW,right=left+f.w/PER_ROW;
+    const left=slotEdge(f,shelf.face,k),right=slotEdge(f,shelf.face,k+1);
     const corners=[
      shelfProject(f,left,dd,bottom),shelfProject(f,right,dd,bottom),
      shelfProject(f,right,dd,top),shelfProject(f,left,dd,top)
@@ -725,7 +729,7 @@ function drawShelf(f){
    const items=slots[faceId][r];
    for(let k=0;k<PER_ROW;k++){
     const id=items[k];if(!isFigure(id))continue;
-    const u=-f.w/2+(k+.5)*f.w/10,dd=d+facing*.075;
+    const u=slotCenter(f,facing,k),dd=d+facing*.075;
     const foot=shelfProject(f,u,dd,y+.04),top=shelfProject(f,u,dd,y+.55);
     const width=Math.max(1,.42*FOCAL/Math.max(.4,foot.depth)),height=foot.y-top.y;
     if(height>=2&&width>1&&foot.depth>.3){
@@ -759,7 +763,7 @@ function drawShelf(f){
  // Highlight exactly ONE cubby of the shelf row being targeted.
  if(focus&&['shelf','shelf-figure'].includes(focus.kind)&&focus.id===faceId){
   const r=focus.row,k=focus.slot,y=.44+r*.72,drawD=d+facing*.17,
-   left=-f.w/2+k*f.w/PER_ROW,right=left+f.w/PER_ROW;
+   left=slotEdge(f,facing,k),right=slotEdge(f,facing,k+1);
   const plan=focus.kind==='shelf'?placementPlan(faceId,r,k,currentSelected()):{ok:true};
   const tint=plan.ok?'#9effc7':'#ff8f9f',width=Math.max(1.4,FOCAL/Math.max(3,depth)*.016);
   shelfBeam(f,left,drawD,y,right,drawD,y,tint,width);
