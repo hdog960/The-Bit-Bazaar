@@ -1102,6 +1102,10 @@ function paintStoreMap(){
     <button class="map-zoom-btn${!mapZoom?' active':''}" data-map-zoom="fit" aria-pressed="${!mapZoom}">FIT STORE</button>
     <button class="map-zoom-btn${mapZoom?' active':''}" data-map-zoom="zoom" aria-pressed="${mapZoom}">ZOOM 2× · DRAG</button>
    </div>
+   <div class="map-center-controls">
+    <button type="button" id="mapCenterPlayer" class="map-center-btn">⌖ FIND ME</button>
+    <button type="button" id="mapCenterShelf" class="map-center-btn">◉ CENTER SELECTED SHELF</button>
+   </div>
   </div>
   <div id="storeMapFrame" class="store-map-frame${mapZoom?' zoomed':''}">${svg}</div>
   <div class="map-legend"><span>▲ PLAYER</span><span>■ DIRTY</span><span>■ IN USE</span><span>★ PERFECT</span></div>
@@ -1115,7 +1119,27 @@ function paintStoreMap(){
  $('drawerBody').innerHTML=result;
  const body=$('drawerBody');
  const nowMap=$('storeMapFrame');
- if(oldScroll&&nowMap){nowMap.scrollLeft=oldScroll.left;nowMap.scrollTop=oldScroll.top;}
+ if(nowMap){
+  if(mapPanTarget&&mapZoom){
+   const targetSvg=$('storeMapSvg'),width=targetSvg?.clientWidth||Math.max(600,(nowMap.clientWidth||300)*2),
+    height=targetSvg?.clientHeight||width*740/700,
+    viewportWidth=nowMap.clientWidth||300,viewportHeight=nowMap.clientHeight||340;
+   nowMap.scrollLeft=Math.max(0,mapPanTarget.x/70*width-viewportWidth/2);
+   nowMap.scrollTop=Math.max(0,mapPanTarget.z/74*height-viewportHeight/2);
+  }else if(oldScroll){nowMap.scrollLeft=oldScroll.left;nowMap.scrollTop=oldScroll.top;}
+ }
+ mapPanTarget=null;
+ $('mapCenterPlayer').onclick=()=>{
+  const p=mapPlayerPose();
+  let nearest=fixtures[0],best=Infinity;
+  for(const f of fixtures){
+   const d=(f.x-p.x)**2+(f.z-p.z)**2;
+   if(d<best){best=d;nearest=f;}
+  }
+  mapSelectedFixtureId=nearest.id;mapSelectedFaceId=mapFaceIds(nearest)[0];mapHighlightedSet=null;
+  centerMapOn(p.x,p.z);
+ };
+ $('mapCenterShelf').onclick=()=>centerMapOn(selected.x,selected.z);
  $('mapFindSet').onchange=()=>{
   const value=$('mapFindSet').value;
   if(value==='')return;
@@ -1125,7 +1149,7 @@ function paintStoreMap(){
   mapSelectedFaceId=selectedSet.face;
   mapSelectedFixtureId=shelves[selectedSet.face].fixture.id;
   mapHighlightedSet=selectedSet.id;
-  paintStoreMap();
+  centerMapOn(shelves[selectedSet.face].fixture.x,shelves[selectedSet.face].fixture.z);
  };
  body.querySelectorAll('[data-map-zoom]').forEach(el=>el.onclick=()=>{
   mapZoom=el.getAttribute('data-map-zoom')==='zoom';
@@ -1136,7 +1160,8 @@ function paintStoreMap(){
   const id=Number(target.getAttribute('data-map-fixture'));
   if(!Number.isInteger(id)||!fixtures[id])return;
   mapSelectedFixtureId=id;mapSelectedFaceId=mapFaceIds(fixtures[id])[0];
-  mapHighlightedSet=null;paintStoreMap();
+  mapHighlightedSet=null;
+  if(mapZoom)centerMapOn(fixtures[id].x,fixtures[id].z);else paintStoreMap();
  };
  body.querySelectorAll('[data-map-fixture]').forEach(el=>{
   el.addEventListener('click',selectFixture);
@@ -1242,6 +1267,7 @@ function renderSetDetail(sid){
  if(place)$('showOnMap').onclick=()=>{
   mapHighlightedSet=sid;mapSelectedFaceId=place[0];
   mapSelectedFixtureId=shelves[place[0]].fixture.id;
+  mapPanTarget={x:shelves[place[0]].fixture.x,z:shelves[place[0]].fixture.z};mapZoom=true;
   openDrawer('map');
  };
  $('drawerBody').querySelectorAll('[data-inspect-figure]').forEach(el=>
@@ -2031,6 +2057,7 @@ window.BitBazaarQA={
  mapFaceIds:(fixtureId)=>mapFaceIds(fixtures[fixtureId]),
  mapPlayerPose, mapSelected:()=>({fixture:mapSelectedFixtureId,face:mapSelectedFaceId,highlightedSet:mapHighlightedSet,zoomed:mapZoom}),
  mapAssignedSets:()=>mapAssignedSets().map(s=>({...s})),
+ mapAdvice:(face,row)=>mapRowAdvice(face,row),centerMap:centerMapOn,
  mapVisible:()=>modal==='map',
  inspect:openInspection,closeInspection,inspectTarget,inspectLore:figurineLore,inspectStatus:figurineLocation,
  get inspectedId(){return inspectedId},lifetime:()=>[...lifetimePerfect].sort((a,b)=>a-b),
