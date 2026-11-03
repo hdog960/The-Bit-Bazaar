@@ -1,5 +1,32 @@
 # The Bit Bazaar — The Great Figurine Sort
 
+## v0.17.0 — Phase 3 save protection and resilient iPhone offline updates (Nov 3, 2026)
+This final Phase 3 safety pass extends the approved [MASTER_ROADMAP_LOCKED.md](./MASTER_ROADMAP_LOCKED.md). No Phase 4 decoration purchases, customer systems, new currency, or collection IDs are introduced.
+
+**Save Protection in the Almanac**
+- A new **YOUR SHOP · SAVE PROTECTION** section at the bottom of COLLECTION lets the player download a local `Bit-Bazaar-Save-YYYY-MM-DD.json` snapshot and import a previous snapshot.
+- A small `assets/save-manager-v0.17.js` module handles file creation, local validation, consent and restoration; it makes no network requests or uploads. A backup contains the actual full 3,000-figure save, not just completion counts.
+- Restore validates the existing v3 shape: 60 faces × 5 rows × 10 slot positions, exact shelf membership, unique figure IDs, one carried figure, cleaning stages, 45 permanent floor messes, 18 possible hidden IDs, discovered/bookmarked sets, ground positions and player coordinates.
+- Invalid files or a cancelled confirmation leave the current save alone. A confirmed restore first copies the present save to `bit-bazaar-v3-before-file-import` in localStorage, then replaces `bit-bazaar-save-v3` and reloads.
+- The backup is manual. Players should keep downloaded files in Files/iCloud Drive or elsewhere they control; local Home Screen Safari storage alone is not a guaranteed archival backup.
+
+**iPhone session durability**
+- Both normal and low-effects engines flush the existing, unchanged save serializer on `visibilitychange` to hidden and on `pagehide` while playing. This protects the latest player position/camera direction when iOS suspends a Home Screen PWA between the regular autosave ticks.
+- The full world, figurine, discovery, cleaning and shelf-placement mechanics are untouched. All recent HUNT, Almanac, map task navigation, and low-effects recovery features remain.
+
+**Offline installation and Home Screen polish**
+- The network-first service worker is `bit-bazaar-v0.17.0`. It pre-caches only the 12 essential current files (including the save-manager module), rather than demanding decades of obsolete builds; 4 prior v0.16 files are best-effort optional fallback assets and cannot block the installation.
+- On offline misses, a navigation request can receive the cached index; missing scripts, styles and images are **not** incorrectly served HTML.
+- The PWA manifest description now correctly states **3,000 collectible figures / 300 named sets**, replacing its obsolete 1,000/100 wording.
+
+**Verification before publishing**
+- Normal and Low-FX scripts passed syntax checks. Versioned `game-v0.17.0.js`, `game-v0.17.0-lowfx.js`, `style-v0.17.0.css`, `preview-v0.17.0.html`, `baseline-v0.17.0-lowfx.html` and manager module are committed.
+- Backup validation passed **14/14** data-integrity cases. Mocked export/import behavior passed **7/7** scenarios, including refusal of malformed saves, cancelled confirmations, successful imports, and pre-import safety copies.
+- Real Safari/iPhone Home Screen file download, file picker, low-effect recovery, and background suspend must still be tested on an actual iPhone. Simulated QA is not evidence of physical-device acceptance.
+
+**Next:** review Phase 3 with a real iPhone, confirm downloads can be reopened from Files and that a manually imported backup reloads correctly, then begin carefully staged Phase 4 Sacrifice Catalog implementation under the locked 180-item design.
+
+
 ## v0.16.0 — Phase 3 store map restoration navigator and scroll-preservation (Nov 3, 2026)
 Builds on v0.15's direct HUNT-to-shelf navigation; **Phase 4 remains unstarted**. The approved [MASTER_ROADMAP_LOCKED.md](./MASTER_ROADMAP_LOCKED.md) is unchanged.
 
