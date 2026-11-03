@@ -1205,7 +1205,7 @@ function renderSetDetail(sid){
    </div>
    <div class="folio-page-turn">
     <button type="button" id="prevCollection">‹ PREVIOUS SET</button>
-    <span>${albumCatalog().findIndex(x=>x.id===sid)+1} / ${albumCatalog().length} IN CURRENT FILTER</span>
+    <span>${albumCatalog().some(x=>x.id===sid)?(albumCatalog().findIndex(x=>x.id===sid)+1)+' / '+albumCatalog().length+' IN FILTER':'OUTSIDE CURRENT FILTER'}</span>
     <button type="button" id="nextCollection">NEXT SET ›</button>
    </div>
   ${place?'<button id="showOnMap" class="map-jump">⌖ FIND THIS SHELF ON THE STORE MAP</button>':''}
@@ -1951,7 +1951,7 @@ function frame(now){
    if(lastRuntimeMs>115)extremeFrames++;else extremeFrames=Math.max(0,extremeFrames-1);
    if(extremeFrames>=3){
     playing=false;save();
-    try{window.location.replace('./baseline-v0.11.0-lowfx.html?recovery=almanac-perf')}catch(_){}
+    try{window.location.replace('./baseline-v0.12.0-lowfx.html?recovery=pinned-perf')}catch(_){}
     return;
    }
    if(lastRuntimeMs>43)slowFrames=Math.min(16,slowFrames+2);
