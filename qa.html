@@ -57,6 +57,7 @@
 <script>
 (function(){
  const out=()=>document.getElementById('qa-result');
+ out().textContent='QA: JS STARTED';
  function fail(s){out().textContent='QA_ERROR: '+s;}
  window.addEventListener('error',e=>fail(e.message||'window error'));
  window.addEventListener('unhandledrejection',e=>fail(String(e.reason)));
