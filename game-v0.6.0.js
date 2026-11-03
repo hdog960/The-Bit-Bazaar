@@ -76,7 +76,25 @@ function shelfOccludes(fig,excludeFixtureId=-1){
  return false;
 }
 let player={x:35,z:68,yaw:0,pitch:0};
-let tote=[],rows=[],selected=null, floor=[],figureById=DB.figures;
+let tote=[],rows=[],slots=[],selected=null, floor=[],figureById=DB.figures;
+// Each row has ten physical positions. rows[][] remains a compact membership
+// index for backward-compatible saves and the 3,000-figure catalog.
+const EMPTY_ROW=()=>Array(PER_ROW).fill(null);
+const isFigure=id=>Number.isInteger(id)&&id>=0&&id<DB.figures.length;
+const setNumber=id=>figure(id).number;
+const rowCount=(s,r)=>rows[s][r].length;
+function syncRow(s,r){rows[s][r]=slots[s][r].filter(isFigure);}
+function isPerfectRow(s,r){
+ const line=slots[s][r];if(!line||line.some(id=>!isFigure(id)))return false;
+ const sid=figure(line[0]).setId;
+ return line.every((id,i)=>figure(id).setId===sid&&setNumber(id)===i+1);
+}
+function completedRowCount(){let c=0;for(let s=0;s<NUM_RACKS;s++)for(let r=0;r<ROWS;r++)if(isPerfectRow(s,r))c++;return c}
+function rowStatus(s,r){
+ const count=rowCount(s,r);
+ return !count?'EMPTY':isPerfectRow(s,r)?'PERFECT':count===PER_ROW?'FULL — SORT 1–10':count+'/10 COLLECTED';
+}
+
 const groundPositions=new Map();
 let migratedCarryCount=0,lastPlacement=null;
 const CELL=6,floorGrid=new Map(),distantGrid=new Map();
@@ -178,6 +196,7 @@ function distantFloor(radius){
 
 function resetState(){
  rows=Array.from({length:NUM_RACKS},()=>Array.from({length:ROWS},()=>[]));
+ slots=Array.from({length:NUM_RACKS},()=>Array.from({length:ROWS},EMPTY_ROW));
  tote=[];selected=null;groundPositions.clear();migratedCarryCount=0;lastPlacement=null;player={x:35,z:68,yaw:0,pitch:0};setupFloor();save();stats();
 }
 function restore(){
@@ -194,8 +213,24 @@ function restore(){
  const used=new Set();
  for(const rack of rows)for(const row of rack){
   const setId=row.length?Math.floor(row[0]/10):-1;
-  for(let k=row.length-1;k>=0;k--){const id=row[k];if(used.has(id)||(id/10|0)!==setId)row.splice(k,1);else used.add(id)}
+  for(let k=row.length-1;k>=0;k--){
+   const id=row[k];if(used.has(id)||(id/10|0)!==setId)row.splice(k,1);else used.add(id);
+  }
  }
+ slots=Array.from({length:NUM_RACKS},(_,si)=>Array.from({length:ROWS},(_,ri)=>{
+  const member=rows[si][ri],saved=raw.slots?.[si]?.[ri];
+  if(Array.isArray(saved)&&saved.length===PER_ROW){
+   const compact=saved.filter(isFigure),expected=[...member].sort((a,b)=>a-b);
+   if(compact.length===member.length &&
+      compact.every((id,i,all)=>all.indexOf(id)===i) &&
+      compact.slice().sort((a,b)=>a-b).every((id,i)=>id===expected[i]))
+    return saved.map(id=>isFigure(id)?id:null);
+  }
+  const place=EMPTY_ROW();
+  for(let i=0;i<Math.min(PER_ROW,member.length);i++)place[i]=member[i];
+  return place;
+ }));
+ for(let si=0;si<NUM_RACKS;si++)for(let ri=0;ri<ROWS;ri++)syncRow(si,ri);
  const old=Array.isArray(raw.tote)?raw.tote:[];
  const validCarry=old.filter(id=>Number.isInteger(id)&&id>=0&&id<DB.figures.length&&!used.has(id));
  const preferred=validCarry.includes(raw.selected)?raw.selected:validCarry[0];
@@ -225,7 +260,7 @@ function restore(){
  // Copy the 1,000-figure save once; leave emergency recovery progress untouched.
  if(migratedCarryCount||!localStorage.getItem(STORE_KEY))save();
 }
-function save(){try{localStorage.setItem(STORE_KEY,JSON.stringify({version:1,tote,rows,selected,player,ground:[...groundPositions].map(([id,p])=>[id,p.x,p.z])}))}catch(e){}}
+function save(){try{localStorage.setItem(STORE_KEY,JSON.stringify({version:1,tote,rows,slots,selected,player,ground:[...groundPositions].map(([id,p])=>[id,p.x,p.z])}))}catch(e){}}
 function blocked(x,z,pad=.3){
  if(x<1.4+pad||x>SW-1.4-pad||z<1.4+pad||z>SD-1.4-pad)return true;
  for(const f of fixtures){const dx=x-f.x,dz=z-f.z;
@@ -234,7 +269,7 @@ function blocked(x,z,pad=.3){
 }
 function stats(){
  const placed=rows.flat(2).length;
- const completed=rows.reduce((n,r)=>n+r.filter(x=>x.length===10).length,0);
+ const completed=completedRowCount();
  $('placed').textContent=placed.toLocaleString();$('complete').textContent=completed;
  const holding=tote.length>0,id=holding?tote[0]:null;
  $('carryTitle').textContent=holding?'CARRYING 1 / 1':'EMPTY HANDS';
@@ -246,7 +281,7 @@ function stats(){
  $('putDownBtn').setAttribute('aria-label',holding?'Put held figurine on floor':'Undo last shelf placement');
  $('progress-fill').style.width=`${placed/DB.figures.length*100}%`;
  $('aisleLabel').textContent=`${nearestAisle()} · ${Math.max(0,DB.figures.length-placed)} TO SHELVE`;
- if(placed===DB.figures.length){setTimeout(()=>showVictory(),1200)}
+ if(completed===NUM_RACKS*ROWS){setTimeout(()=>showVictory(),1200)}
 }
 function nearestAisle(){const i=clamp(Math.round((player.x-11)/16),0,3);return `AISLE ${'ABCD'[i]}`;}
 function showVictory(){if(!playing)return;playing=false;$('screen').classList.add('shown');
@@ -258,7 +293,7 @@ function notify(s,kind='normal'){
  if(kind==='bad')$('toast').style.borderColor='#fb8188';else $('toast').style.borderColor='#dbab64';
  clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').classList.remove('visible'),2200);
 }
-function countSet(sid){let count=0;for(const rack of rows)for(const row of rack)for(const id of row)if((id/10|0)===sid)count++;return count;}
+function countSet(sid){let count=0;for(const rack of rows)for(const row of rack)for(const id of row)if(figure(id).setId===sid)count++;return count;}
 function rowForSet(sid){for(let s=0;s<NUM_RACKS;s++)for(let r=0;r<ROWS;r++)if(rows[s][r].length&&(rows[s][r][0]/10|0)===sid)return [s,r];return null;}
 const figure=id=>figureById[id];
 const iconHTML=id=>`<span class="sprite" aria-hidden="true" style="background-position:${sprites.cssIcon(id)}"></span>`;
