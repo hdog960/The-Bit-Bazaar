@@ -594,11 +594,13 @@ function renderSetDetail(sid){
     const at=slots[ss][rr].indexOf(id);
     if(at>=0)status='ON DISPLAY · SLOT '+(at+1);
    }
-  html+=`<div class="detail-figure">${iconHTML(id)}<div><b>#${setNumber(id)}/10 · ${figure(id).role}</b><span>${set.name}</span><div class="status">${status}</div></div></div>`;
+  html+=`<button type="button" class="detail-figure inspect-list-item" data-inspect-figure="${id}" aria-label="Inspect ${safeText(figure(id).name)}">${iconHTML(id)}<div><b>#${setNumber(id)}/10 · ${safeText(figure(id).role)}</b><span>${safeText(set.name)}</span><div class="status">${status}</div></div><span class="inspect-chevron">⌕</span></button>`;
  }
  html+='</div><div class="info-strip">A row is PERFECT only after the 10 figures are in numerical order from left to right, 1–10.</div>';
  $('drawerBody').innerHTML=html;
  $('backAlbum').onclick=()=>renderAlbum();
+ $('drawerBody').querySelectorAll('[data-inspect-figure]').forEach(el=>
+  el.onclick=()=>openInspection(+el.dataset.inspectFigure));
 }
 function grabFig(id){
  if(tote.length>=MAX_TOTE){notify('HANDS FULL — PLACE OR PUT DOWN YOUR FIGURE FIRST','bad');return}
@@ -691,6 +693,7 @@ function findFocus(){
  return shelfFocus;
 }
 function interact(){
+ if(modal==='inspect'){closeInspection();return;}
  if(modal){closeDrawer();return;}
  prepareOcclusion();focus=findFocus();
  if(!focus){notify(tote.length?'AIM AT A SHELF SLOT':'AIM AT A FIGURINE','bad');return;}
@@ -702,6 +705,8 @@ function interact(){
 function updateFocus(){
  focus=findFocus();const box=$('interact'),reticle=$('crosshair');
  reticle.classList.remove('aim-pick','aim-place','aim-denied');
+ const inspectable=!!tote.length||!!(focus&&(focus.kind==='figure'||focus.kind==='shelf-figure'));
+ $('inspectBtn').hidden=!playing||!!modal||!inspectable;
  if(!focus||modal||!playing){
   box.classList.add('hidden');
   $('actionLabel').textContent=tote.length?'PLACE':'PICK UP';return;
@@ -1079,7 +1084,7 @@ let frameNum=0;
 function frame(now){
  const dt=Math.min(Math.max(0,(now-lastFrame)/1000),.055);lastFrame=now;
  if(playing){
-  move(dt);
+  if(!modal)move(dt);
   if(!modal && now-lastDrawMs>=drawInterval){
    lastDrawMs=now;
    const begin=performance.now();
@@ -1103,14 +1108,15 @@ function frame(now){
 }
 // Desktop WASD, mouse drag (no pointer lock required); click/tap on rendered object.
 window.addEventListener('keydown',e=>{
- if(e.code==='Escape'){if(modal)closeDrawer();else if($('confirm').hidden===false)$('confirm').hidden=true;return}
+ if(e.code==='Escape'){if(modal==='inspect')closeInspection();else if(modal)closeDrawer();else if($('confirm').hidden===false)$('confirm').hidden=true;return}
  if(e.target.tagName==='INPUT')return;
  if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Space','Tab'].includes(e.code))e.preventDefault();
  keys.add(e.code);if(e.code==='ShiftLeft'||e.code==='ShiftRight')shift=true;
  if(e.repeat)return;
  if(e.code==='KeyE'||e.code==='Space')interact();
- if(e.code==='Tab')modal?closeDrawer():openDrawer('album');
- if(e.code==='KeyI')modal?closeDrawer():openDrawer('album');
+ if(e.code==='Tab'){if(modal==='inspect')closeInspection();else modal?closeDrawer():openDrawer('album');}
+ if(e.code==='KeyI'){if(modal==='inspect')closeInspection();else modal?closeDrawer():openDrawer('album');}
+ if(e.code==='KeyF'){if(modal==='inspect')closeInspection();else inspectTarget();}
 });
 window.addEventListener('keyup',e=>{keys.delete(e.code);if(e.code==='ShiftLeft'||e.code==='ShiftRight')shift=false});
 let dragging=false,lastX=0,lastY=0,downX=0,downY=0,dragSum=0;
@@ -1146,6 +1152,12 @@ function joyMove(e){const rect=joy.getBoundingClientRect(),cx=rect.left+rect.wid
 function joyEnd(e){if(e.pointerId!==touch.joyId)return;touch.axisX=touch.axisY=0;touch.joyId=null;stick.style.transform='translate(0,0)'}
 joy.addEventListener('pointerup',joyEnd);joy.addEventListener('pointercancel',joyEnd);
 $('actionBtn').addEventListener('click',()=>{if(playing)interact()});
+$('inspectBtn').onclick=inspectTarget;
+$('closeInspect').onclick=closeInspection;
+$('inspectReturn').onclick=closeInspection;
+$('inspectOverlay').addEventListener('click',e=>{
+ if(e.target===$('inspectOverlay'))closeInspection();
+});
 $('putDownBtn').onclick=()=>tote.length?putDown():undoLastPlacement();
 $('albumBtn').onclick=()=>modal?closeDrawer():openDrawer('album');
 $('closeDrawer').onclick=closeDrawer;$('drawerShade').onclick=closeDrawer;
@@ -1158,7 +1170,7 @@ $('startBtn').onclick=()=>{
 };
 // Snapshot integrity API for QA and external automation.
 window.BitBazaarQA={
- stats:()=>({floor:floor.filter(f=>f.onFloor).length,tote:tote.length,carrying:tote[0]??null,droppedPositions:groundPositions.size,migratedCarryCount,placed:rows.flat(2).length,completedRows:completedRowCount(),fullUnsortedRows:rows.flat(1).filter((r,i)=>r.length===PER_ROW&&!isPerfectRow(Math.floor(i/ROWS),i%ROWS)).length,capacity:NUM_RACKS*ROWS*PER_ROW,fixtures:fixtures.length,floorFixtures:NUM_FLOOR,wallFixtures:NUM_WALL,displayFaces:shelves.length,distinctAssets:DB.figures.length,renderedFigures,midRendered,farRendered,retainedNear,retainedMid,retainedFar,occlusionChecks,occludedCandidates,visibleSlope,midLimit,farLimit,midDistance,farDistance,nearbyExamined,farCandidatesExamined,renderFrames,renderLimit,viewDistance,drawInterval:Math.round(drawInterval),lastRuntimeMs,extremeFrames,sprites:sprites.stats()}),
+ stats:()=>({floor:floor.filter(f=>f.onFloor).length,tote:tote.length,carrying:tote[0]??null,droppedPositions:groundPositions.size,migratedCarryCount,placed:rows.flat(2).length,completedRows:completedRowCount(),lifetimePerfect:lifetimePerfect.size,fullUnsortedRows:rows.flat(1).filter((r,i)=>r.length===PER_ROW&&!isPerfectRow(Math.floor(i/ROWS),i%ROWS)).length,capacity:NUM_RACKS*ROWS*PER_ROW,fixtures:fixtures.length,floorFixtures:NUM_FLOOR,wallFixtures:NUM_WALL,displayFaces:shelves.length,distinctAssets:DB.figures.length,renderedFigures,midRendered,farRendered,retainedNear,retainedMid,retainedFar,occlusionChecks,occludedCandidates,visibleSlope,midLimit,farLimit,midDistance,farDistance,nearbyExamined,farCandidatesExamined,renderFrames,renderLimit,viewDistance,drawInterval:Math.round(drawInterval),lastRuntimeMs,extremeFrames,sprites:sprites.stats()}),
  pick:(id)=>{if(!Number.isInteger(id)||id<0||id>=DB.figures.length||tote.length||!floor[id].onFloor)return false;grabFig(id);return tote[0]===id},
  place:(id,shelf,row,slot)=>{if(!isFigure(id))return false;if(!tote.length)grabFig(id);if(tote[0]!==id)return false;return placeDirect(shelf,row,slot)},
  directPlace:(shelf,row,slot)=>placeDirect(shelf,row,slot),putDown,undoLastPlacement,
@@ -1169,6 +1181,8 @@ window.BitBazaarQA={
  perfect:(shelf,row)=>isPerfectRow(shelf,row),
  figurePosition:id=>floor[id]?{x:floor[id].x,z:floor[id].z,onFloor:floor[id].onFloor}:null,
  reset:resetState, get player(){return player}, shelves, dataset:DB,
+ inspect:openInspection,closeInspection,inspectTarget,inspectLore:figurineLore,inspectStatus:figurineLocation,
+ get inspectedId(){return inspectedId},lifetime:()=>[...lifetimePerfect].sort((a,b)=>a-b),
  target:()=>{prepareOcclusion();return findFocus()},
  horizon:()=>cameraHorizon(),aimPoint:()=>({x:AIM_X,y:AIM_Y}),
  visible:()=>({near:[...previousNear],mid:[...previousMid],far:[...previousFar]}),
