@@ -153,7 +153,7 @@ let modal='', focus=null, playing=false, shift=false, activeSet=0, albumQuery=''
 let albumFilter='all',albumSort='id',albumPage=0;
 const ALBUM_PAGE_SIZE=48;
 let seenFigures=new Set();
-let mapSelectedFixtureId=null,mapSelectedFaceId=null,mapHighlightedSet=null,cleanFxTimer=0,restoreBannerTimer=0;
+let mapSelectedFixtureId=null,mapSelectedFaceId=null,mapHighlightedSet=null,mapZoom=false,cleanFxTimer=0,restoreBannerTimer=0;
 let lastSave=0,lastFrame=performance.now(), toastTimer=0;
 const keys=new Set(), touch={lookId:null,lastX:0,lastY:0,joyId:null,axisX:0,axisY:0};
 let floorBuffer=ctx.createImageData(W,H);
@@ -485,7 +485,9 @@ function restore(){
  if(raw.player && isFinite(raw.player.x)&&isFinite(raw.player.z)&&isFinite(raw.player.yaw)&&!blocked(raw.player.x,raw.player.z,0.2)){
   player={x:clamp(raw.player.x,2,68),z:clamp(raw.player.z,2,72),yaw:raw.player.yaw,pitch:clamp(Number(raw.player.pitch)||0,-.95,.95)};
  }else player={x:35,z:68,yaw:0,pitch:0};
- setupFloor();stats();
+ setupFloor();
+ for(const id of groundPositions.keys())seenFigures.add(id);
+ stats();
  // Copy the 1,000-figure save once; leave emergency recovery progress untouched.
  if(migratedCarryCount||oldCleaning||oldAmbient||oldDiscovery||!Array.isArray(raw.revealed)||!raw.slots||!Array.isArray(raw.lifetimePerfect)||!localStorage.getItem(STORE_KEY))save();
 }
@@ -975,6 +977,14 @@ function mapFixturePoly(f){
 function mapPlayerPose(){
  return {x:player.x,z:player.z,heading:player.yaw};
 }
+function mapAssignedSets(){
+ const out=[];
+ for(const set of DB.sets){
+  const place=rowForSet(set.id);
+  if(place)out.push({id:set.id,name:set.name,face:place[0],row:place[1]});
+ }
+ return out.sort((a,b)=>a.name.localeCompare(b.name));
+}
 function renderStoreMap(){
  if(mapSelectedFixtureId===null){
   let best=fixtures[0],dist=Infinity;
@@ -992,6 +1002,8 @@ function paintStoreMap(){
  const faceIds=mapFaceIds(selected);
  if(!faceIds.includes(mapSelectedFaceId))mapSelectedFaceId=faceIds[0];
  const selectedFace=mapSelectedFaceId;
+ const previousMap=$('storeMapFrame'),
+   oldScroll=previousMap?{left:previousMap.scrollLeft,top:previousMap.scrollTop}:null;
  const p=mapPlayerPose(),heading=p.heading*180/Math.PI;
  let pieces='';
  for(const f of fixtures){
@@ -1049,10 +1061,24 @@ function paintStoreMap(){
    </div><div class="map-slot-grid" aria-label="Shelf row slots left to right">${slotList}</div>
   </div>`;
  }
+ const assigned=mapAssignedSets();
+ const options=assigned.map(item=>`<option value="${item.id}"${item.id===mapHighlightedSet?' selected':''}>
+  ${safeText(item.name)} · ${safeText(shelves[item.face].name)} · ROW ${item.row+1}</option>`).join('');
  const result=`<div class="map-note">Tap a shelf on the plan. View its front or rear face, then inspect any named collection. The map shows <b>your current location</b> but never reveals loose figurines.</div>
   <div class="map-info-strip">✦ YOU ARE IN ${safeText(nearestAisle())} · FACING ${((heading%360)+360)%360|0}°
     <span>SHELVES ${cleanedFaceCount()}/60 · FLOOR ${floorCleanedCount()}/45 · HIDDEN ${hiddenRevealed.size}/18</span></div>
-  <div class="store-map-frame">${svg}</div>
+  <div class="map-tools">
+   <label class="map-find-label" for="mapFindSet">FIND A SET ALREADY ON A SHELF</label>
+   <select id="mapFindSet" class="map-find-set" aria-label="Find an assigned collection">
+     <option value="">${assigned.length} STARTED COLLECTIONS · CHOOSE ONE</option>
+     ${options}
+   </select>
+   <div class="map-zoom-controls" role="group" aria-label="Map zoom">
+    <button class="map-zoom-btn${!mapZoom?' active':''}" data-map-zoom="fit" aria-pressed="${!mapZoom}">FIT STORE</button>
+    <button class="map-zoom-btn${mapZoom?' active':''}" data-map-zoom="zoom" aria-pressed="${mapZoom}">ZOOM 2× · DRAG</button>
+   </div>
+  </div>
+  <div id="storeMapFrame" class="store-map-frame${mapZoom?' zoomed':''}">${svg}</div>
   <div class="map-legend"><span>▲ PLAYER</span><span>■ DIRTY</span><span>■ IN USE</span><span>★ PERFECT</span></div>
   <section class="map-detail">
    <h3>${selected.kind==='floor'?'AISLE '+selected.aisle+' · UNIT '+(Math.floor(selected.id/4)+1):
@@ -1063,6 +1089,21 @@ function paintStoreMap(){
   </section>`;
  $('drawerBody').innerHTML=result;
  const body=$('drawerBody');
+ const nowMap=$('storeMapFrame');
+ if(oldScroll&&nowMap){nowMap.scrollLeft=oldScroll.left;nowMap.scrollTop=oldScroll.top;}
+ $('mapFindSet').onchange=()=>{
+  const id=Number($('mapFindSet').value);
+  const selectedSet=assigned.find(x=>x.id===id);
+  if(!selectedSet)return;
+  mapSelectedFaceId=selectedSet.face;
+  mapSelectedFixtureId=shelves[selectedSet.face].fixture.id;
+  mapHighlightedSet=selectedSet.id;
+  paintStoreMap();
+ };
+ body.querySelectorAll('[data-map-zoom]').forEach(el=>el.onclick=()=>{
+  mapZoom=el.getAttribute('data-map-zoom')==='zoom';
+  paintStoreMap();
+ });
  const selectFixture=e=>{
   const target=e.target.closest('[data-map-fixture]');if(!target)return;
   const id=Number(target.getAttribute('data-map-fixture'));
@@ -1933,7 +1974,8 @@ window.BitBazaarQA={
  },
  mapSummary:(fixtureId)=>mapFixtureSummary(fixtures[fixtureId]),
  mapFaceIds:(fixtureId)=>mapFaceIds(fixtures[fixtureId]),
- mapPlayerPose, mapSelected:()=>({fixture:mapSelectedFixtureId,face:mapSelectedFaceId,highlightedSet:mapHighlightedSet}),
+ mapPlayerPose, mapSelected:()=>({fixture:mapSelectedFixtureId,face:mapSelectedFaceId,highlightedSet:mapHighlightedSet,zoomed:mapZoom}),
+ mapAssignedSets:()=>mapAssignedSets().map(s=>({...s})),
  mapVisible:()=>modal==='map',
  inspect:openInspection,closeInspection,inspectTarget,inspectLore:figurineLore,inspectStatus:figurineLocation,
  get inspectedId(){return inspectedId},lifetime:()=>[...lifetimePerfect].sort((a,b)=>a-b),
