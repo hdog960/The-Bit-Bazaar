@@ -104,7 +104,7 @@ const HIDDEN_FACES=[1,4,7,10,13,16,19,22,25,28,31,34,37,40,43,46,51,56];
 const HIDDEN_IDS=HIDDEN_FACES.map((_,i)=>(29+i*157)%3000);
 const HIDDEN_SET=new Set(HIDDEN_IDS);
 const SECRET_BY_FACE=new Map(HIDDEN_FACES.map((face,i)=>[face,HIDDEN_IDS[i]]));
-let faceCleaning=Array(NUM_RACKS).fill(0),hiddenRevealed=new Set(),newlyRevealed=null;
+let faceCleaning=Array(NUM_RACKS).fill(0),hiddenRevealed=new Set(),newlyRevealed=null,hiddenRevealMoment=0;
 let lifetimePerfect=new Set(),inspectionReturn='',inspectedId=null;
 let perfectBannerTimer=0,slotPulse=null;
 const CELL=6,floorGrid=new Map(),distantGrid=new Map();
@@ -211,7 +211,7 @@ function revealHiddenAtFace(faceId){
  }
  // An extreme clutter density cannot prevent a collectible being revealed.
  const where=point||backup||{x:floor[id].x,z:floor[id].z};
- hiddenRevealed.add(id);newlyRevealed=id;
+ hiddenRevealed.add(id);newlyRevealed=id;hiddenRevealMoment=performance.now();
  moveFigureToFloor(id,where.x,where.z);
  return id;
 }
@@ -286,7 +286,7 @@ function resetState(){
  rows=Array.from({length:NUM_RACKS},()=>Array.from({length:ROWS},()=>[]));
  slots=Array.from({length:NUM_RACKS},()=>Array.from({length:ROWS},EMPTY_ROW));
  tote=[];selected=null;groundPositions.clear();migratedCarryCount=0;lastPlacement=null;lifetimePerfect.clear();slotPulse=null;
- faceCleaning=Array(NUM_RACKS).fill(0);hiddenRevealed.clear();newlyRevealed=null;player={x:35,z:68,yaw:0,pitch:0};setupFloor();save();stats();
+ faceCleaning=Array(NUM_RACKS).fill(0);hiddenRevealed.clear();newlyRevealed=null;hiddenRevealMoment=0;player={x:35,z:68,yaw:0,pitch:0};setupFloor();save();stats();
 }
 function restore(){
  let raw;try{raw=JSON.parse(localStorage.getItem(STORE_KEY)||localStorage.getItem(LEGACY_KEY)||'null')}catch(e){raw=null}
@@ -382,6 +382,7 @@ function stats(){
  const placed=rows.flat(2).length;
  const completed=completedRowCount();
  $('restoredCount').textContent=cleanedFaceCount();
+ $('hiddenCount').textContent=hiddenRevealed.size;
  $('placed').textContent=placed.toLocaleString();$('complete').textContent=completed;
  const holding=tote.length>0,id=holding?tote[0]:null;
  $('carryTitle').textContent=holding?'CARRYING 1 / 1':'EMPTY HANDS';
@@ -1051,6 +1052,13 @@ function drawFig(f){
  // Draw a grounded pixel shadow, then full original sprite cropped from atlas.
  ctx.fillStyle='#1b1424a2';ctx.beginPath();ctx.ellipse(p.x,p.y,Math.max(1,wid*.41),Math.max(1,ht*.065),0,0,Math.PI*2);ctx.fill();
  sprites.draw(ctx,f.id,Math.round(p.x-wid/2),Math.round(p.y-ht),Math.max(1,Math.round(wid)),Math.max(1,Math.round(ht)));
+ if(f.id===newlyRevealed&&performance.now()-hiddenRevealMoment<4000){
+  ctx.strokeStyle='#a8ffe2';ctx.lineWidth=2;
+  ctx.strokeRect(Math.round(p.x-wid/2)-3,Math.round(p.y-ht)-4,
+   Math.max(5,Math.round(wid)+6),Math.max(5,Math.round(ht)+7));
+  ctx.fillStyle='#fff3bb';ctx.font='bold 12px monospace';ctx.textAlign='center';
+  ctx.fillText('!',p.x,p.y-ht-9);
+ }
  if(focus&&focus.kind==='figure'&&focus.id===f.id){
   ctx.strokeStyle='#fff3b8';ctx.lineWidth=2;ctx.strokeRect(Math.round(p.x-wid/2)-2,Math.round(p.y-ht)-2,Math.max(4,Math.round(wid)+4),Math.max(4,Math.round(ht)+4));
  }
