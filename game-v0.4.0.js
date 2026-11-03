@@ -369,7 +369,7 @@ function renderSetDetail(sid){
  activeSet=sid;const set=DB.sets[sid],place=rowForSet(sid);
  let html=`<button class="back" id="backAlbum">← BACK TO 300 SETS</button><div class="info-strip"><b>${set.name}</b><br>${countSet(sid)} / 10 shelved · ${place?`Shelf ${place[0]+1}, Row ${place[1]+1}`:'No display row assigned yet'}</div><div class="album-detail-grid">`;
  for(const id of set.memberIds){
-  let status='SCATTERED ON FLOOR';if(tote.includes(id))status='IN TOTE';
+  let status='SCATTERED ON FLOOR';if(tote.includes(id))status='IN HAND';
   else for(const rack of rows)for(const row of rack)if(row.includes(id))status='✓ ON DISPLAY';
   html+=`<div class="detail-figure">${iconHTML(id)}<div><b>${figure(id).role}</b><span>#${String(id+1).padStart(4,'0')}</span><div class="status">${status}</div></div></div>`;
  }
@@ -378,10 +378,10 @@ function renderSetDetail(sid){
  $('backAlbum').onclick=()=>renderAlbum();
 }
 function grabFig(id){
- if(tote.length>=MAX_TOTE){notify('Tote is full! Visit a shelf to unload.','bad');return}
+ if(tote.length>=MAX_TOTE){notify('HANDS FULL — PLACE OR PUT DOWN YOUR FIGURE FIRST','bad');return}
  const f=floor[id];if(!f||!f.onFloor)return;
  f.onFloor=false;tote.push(id);selected=id;
- stats();save();notify(`FOUND #${String(id+1).padStart(4,'0')} · ${figure(id).name}`);
+ stats();save();notify('PICKED UP · '+figure(id).name+' · TAKE IT TO A SHELF');
 }
 function forward(){return {x:Math.sin(player.yaw),z:-Math.cos(player.yaw)}}
 // Depth-aware perspective is required when a shelf corner passes the camera.
@@ -419,7 +419,9 @@ function findFocus(){
  return closest||shelfFocus;
 }
 function interact(){if(modal){closeDrawer();return}if(!focus){notify('Walk toward a figurine or display shelf.');return}
- if(focus.kind==='figure')grabFig(focus.id);else openDrawer('shelf',focus.id);
+ if(focus.kind==='figure')grabFig(focus.id);
+ else if(tote.length)placeDirect(focus.id);
+ else notify('PICK UP ONE FIGURE TO DISPLAY IT');
 }
 function updateFocus(){
  focus=findFocus();const box=$('interact');
@@ -428,11 +430,20 @@ function updateFocus(){
  if(focus.kind==='figure'){
   $('interactName').textContent=figure(focus.id).name.toUpperCase();
   $('interactDescription').textContent=`${DB.sets[figure(focus.id).setId].name} · PICK UP`;
-  $('actionLabel').textContent=tote.length>=10?'TOTE FULL':'PICK UP';
+  $('actionLabel').textContent=tote.length?'HANDS FULL':'PICK UP';
  }else{
   $('interactName').textContent=shelves[focus.id].name + ' · 5 ROWS × 10';
-  $('interactDescription').textContent='VIEW SHELF / PLACE FIGURE';
-  $('actionLabel').textContent='SHELF';
+  const id=currentSelected(),plan=placementPlan(focus.id,id);
+  if(id===null){
+   $('interactDescription').textContent='PICK UP ONE FIGURE TO DISPLAY IT';
+   $('actionLabel').textContent='EMPTY';
+  }else if(plan.ok){
+   $('interactDescription').textContent='TAP TO PLACE · ROW '+(plan.row+1)+'/5 · '+DB.sets[figure(id).setId].name;
+   $('actionLabel').textContent='PLACE';
+  }else{
+   $('interactDescription').textContent=plan.message;
+   $('actionLabel').textContent='NO MATCH';
+  }
  }
 }
 // Software-rendered, gently patterned 16-bit style tile floor.
@@ -812,7 +823,8 @@ canvas.addEventListener('pointerup',e=>{
  if(dragSum<10&&Math.abs(e.clientY-downY)<12&&playing&&!modal){
   const rect=canvas.getBoundingClientRect(),scale=Math.max(rect.width/W,rect.height/H),cropX=(W*scale-rect.width)/2,cropY=(H*scale-rect.height)/2,px=(e.clientX-rect.left+cropX)/scale,py=(e.clientY-rect.top+cropY)/scale;
   let best=null;for(const b of targetBoxes)if(px>=b.x-4&&px<=b.x+b.w+4&&py>=b.y-4&&py<=b.y+b.h+6&&(best===null||b.d<best.d))best=b;
-  if(best&&Math.hypot(player.x-floor[best.id].x,player.z-floor[best.id].z)<3.2)grabFig(best.id);
+  if(best&&Math.hypot(player.x-floor[best.id].x,player.z-floor[best.id].z)<3.2&&!tote.length)grabFig(best.id);
+   else if(tote.length&&focus?.kind==='shelf')placeDirect(focus.id);
  }
 });
 canvas.addEventListener('pointercancel',()=>dragging=false);
@@ -827,16 +839,24 @@ function joyMove(e){const rect=joy.getBoundingClientRect(),cx=rect.left+rect.wid
 function joyEnd(e){if(e.pointerId!==touch.joyId)return;touch.axisX=touch.axisY=0;touch.joyId=null;stick.style.transform='translate(0,0)'}
 joy.addEventListener('pointerup',joyEnd);joy.addEventListener('pointercancel',joyEnd);
 $('actionBtn').addEventListener('click',()=>{if(playing)interact()});
-$('toteBtn').onclick=()=>modal?closeDrawer():openDrawer('tote');
+$('putDownBtn').onclick=putDown;
 $('albumBtn').onclick=()=>modal?closeDrawer():openDrawer('album');
 $('closeDrawer').onclick=closeDrawer;$('drawerShade').onclick=closeDrawer;
 $('cancelReset').onclick=()=>$('confirm').hidden=true;
 $('doReset').onclick=()=>{localStorage.removeItem(STORE_KEY);resetState();$('confirm').hidden=true;closeDrawer();notify('Store reset: 3,000 figures scattered.');};
-$('startBtn').onclick=()=>{$('screen').classList.remove('shown');playing=true;save();notify('YOUR SHOP IS OPEN. FIND AND SORT THE FIGURES!')};
+$('startBtn').onclick=()=>{
+ $('screen').classList.remove('shown');playing=true;save();
+ if(migratedCarryCount)notify(migratedCarryCount+' EXTRA FIGURES RETURNED TO THE FLOOR — CARRY ONE AT A TIME');
+ else notify('PICK UP ONE FIGURE · WALK TO A SHELF · TAP PLACE');
+};
 // Snapshot integrity API for QA and external automation.
 window.BitBazaarQA={
- stats:()=>({floor:floor.filter(f=>f.onFloor).length,tote:tote.length,placed:rows.flat(2).length,completedRows:rows.flat(1).filter(r=>r.length===10).length,capacity:NUM_RACKS*ROWS*PER_ROW,fixtures:fixtures.length,floorFixtures:NUM_FLOOR,wallFixtures:NUM_WALL,displayFaces:shelves.length,distinctAssets:DB.figures.length,renderedFigures,midRendered,farRendered,retainedNear,retainedMid,retainedFar,occlusionChecks,occludedCandidates,visibleSlope,midLimit,farLimit,midDistance,farDistance,nearbyExamined,farCandidatesExamined,renderFrames,renderLimit,viewDistance,drawInterval:Math.round(drawInterval),lastRuntimeMs,extremeFrames,sprites:sprites.stats()}),
- place:(id,shelf,row)=>{if(!Number.isInteger(id)||id<0||id>=DB.figures.length)return false;const f=floor[id];if(f.onFloor){f.onFloor=false;tote.push(id)}selected=id;activeShelf=shelf;placeFig(shelf,row);return rows[shelf][row].includes(id)},
+ stats:()=>({floor:floor.filter(f=>f.onFloor).length,tote:tote.length,carrying:tote[0]??null,droppedPositions:groundPositions.size,migratedCarryCount,placed:rows.flat(2).length,completedRows:rows.flat(1).filter(r=>r.length===10).length,capacity:NUM_RACKS*ROWS*PER_ROW,fixtures:fixtures.length,floorFixtures:NUM_FLOOR,wallFixtures:NUM_WALL,displayFaces:shelves.length,distinctAssets:DB.figures.length,renderedFigures,midRendered,farRendered,retainedNear,retainedMid,retainedFar,occlusionChecks,occludedCandidates,visibleSlope,midLimit,farLimit,midDistance,farDistance,nearbyExamined,farCandidatesExamined,renderFrames,renderLimit,viewDistance,drawInterval:Math.round(drawInterval),lastRuntimeMs,extremeFrames,sprites:sprites.stats()}),
+ pick:(id)=>{if(!Number.isInteger(id)||id<0||id>=DB.figures.length||tote.length||!floor[id].onFloor)return false;grabFig(id);return tote[0]===id},
+ place:(id,shelf,row)=>{if(!Number.isInteger(id)||id<0||id>=DB.figures.length)return false;if(!tote.length)grabFig(id);if(tote[0]!==id)return false;return placeFig(shelf,row)},
+ directPlace:shelf=>placeDirect(shelf),putDown,
+ rowContents:(shelf,row)=>[...(rows[shelf]?.[row]||[])],
+ figurePosition:id=>floor[id]?{x:floor[id].x,z:floor[id].z,onFloor:floor[id].onFloor}:null,
  reset:resetState, get player(){return player}, shelves, dataset:DB,
  visible:()=>({near:[...previousNear],mid:[...previousMid],far:[...previousFar]}),
  occludedAt:(x,z,excludeFixtureId=-1)=>shelfOccludes({x,z},excludeFixtureId),
