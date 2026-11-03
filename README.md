@@ -2,6 +2,15 @@
 
 iPhone-first pixel-art collectible-store game. Live: https://hdog960.github.io/The-Bit-Bazaar/
 
+## v0.5.0 — center-reticle interactions and vertical camera (Nov 3, 2026)
+- Players drag up/down to look vertically (about ±54°), in addition to yaw. Camera pitch is stored in the same v3 save; old saves default safely to level.
+- The fixed reticle in the physical center of the screen is now the interaction target. Look directly at a loose figure within pickup distance to select it; press PICK UP/E or tap the view. Off-center tap hitboxes are removed.
+- While holding exactly one figurine, aim at a **specific row** (bottom 1 to top 5) on the nearest visible rack face. The selected row glows mint when valid or pink/red when it holds a different set or is full; the action label reflects its state. No shelf panel appears.
+- Any **empty** row accepts the figure; a row already holding the matching set accepts another member. Incorrect sets cannot be mixed; each physical row holds at most ten. If that set was started on a different shelf, placing into an empty targeted row **moves its already-shelved pieces together** to the new row, preserving full 10-figure set completion. UNDO restores the previous set location.
+- Pitch applies to project(), clipped polygons and the floor raycast. The floor renderer uses one fixed 480×270 ImageData buffer and only writes below the current horizon; no per-frame canvas allocation.
+- The original 70 near / 30 medium / 65 far display limits, 112 small-canvas recycled sprite ceiling, shelf occlusion and sticky LOD remain unchanged. Three repeated severe (>115ms) frame stalls now recover to `previous.html` (known v0.4.0 direct-shelving build) rather than the older v0.3.0 recovery.
+- QA: five individually aimable rows on one shelf, physical floor sprite aim/pickup, rejection of wrong set, matching row insertion, group relocation/undo, portrait drag up/down, reload of pitch and collection progress, reverse-face and wall-shelf selection, 1,440 simulated ticks, and automated fallback check. Real iPhone validation still required.
+
 ## v0.4.0: one-at-a-time, direct shelving (Nov 3, 2026)
 - The player holds **exactly one figurine** at a time, not ten. A second pickup is blocked until the first figure is placed or put down.
 - The separate tote and shelf placement menus have been removed from the gameplay loop. On iPhone, approach any shelf face while carrying a figure and tap **PLACE** (or tap the shelf directly). Desktop players press **E**. Collection Almanac remains available.
