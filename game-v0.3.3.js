@@ -24,7 +24,7 @@ const {fixtures,shelves}=makeFixtures();
 // Immutable shelf bounds, with mutable camera-local coordinates refreshed per frame.
 // A ray into a solid shelf must NOT allow a figure behind that shelf to render.
 const sightBlockers=fixtures.map(f=>({
- x:f.x,z:f.z,ux:f.ux,uz:f.uz,nx:f.nx,nz:f.nz,
+ id:f.id,x:f.x,z:f.z,ux:f.ux,uz:f.uz,nx:f.nx,nz:f.nz,
  halfU:f.w/2+.06,halfN:f.depth/2+.06,
  radius2:(f.w*f.w+f.depth*f.depth)/4+.6,camU:0,camN:0,vx:0,vz:0
 }));
@@ -39,10 +39,11 @@ function prepareOcclusion(){
  occlusionChecks=0;occludedCandidates=0;
 }
 // Broad-phase ray-to-bounding-circle, then exact segment-to-oriented-box slabs.
-function shelfOccludes(fig){
+function shelfOccludes(fig,excludeFixtureId=-1){
  const dx=fig.x-player.x,dz=fig.z-player.z,ray2=dx*dx+dz*dz;
  if(ray2<.0001)return false;
  for(const b of sightBlockers){
+  if(b.id===excludeFixtureId)continue;
   occlusionChecks++;
   const t=(b.vx*dx+b.vz*dz)/ray2;
   if(t<=0||t>=1)continue;
@@ -480,7 +481,11 @@ function drawShelf(f){
     const foot=shelfProject(f,u,dd,y+.04),top=shelfProject(f,u,dd,y+.55);
     const width=Math.max(1,.42*FOCAL/Math.max(.4,foot.depth)),height=foot.y-top.y;
     if(height>=2 && width>1 && foot.depth>.3){
-     sprites.draw(ctx,items[k],foot.x-width/2,top.y,width,height);
+     // Another rack between the player and this display can obscure it;
+     // the display's own wooden body must never hide its front row.
+     const worldPos=shelfAt(f,u,dd);
+     if(!shelfOccludes(worldPos,f.id))
+      sprites.draw(ctx,items[k],foot.x-width/2,top.y,width,height);
     }
    }
   }
@@ -779,7 +784,9 @@ window.BitBazaarQA={
  place:(id,shelf,row)=>{if(!Number.isInteger(id)||id<0||id>=DB.figures.length)return false;const f=floor[id];if(f.onFloor){f.onFloor=false;tote.push(id)}selected=id;activeShelf=shelf;placeFig(shelf,row);return rows[shelf][row].includes(id)},
  reset:resetState, get player(){return player}, shelves, dataset:DB,
  visible:()=>({near:[...previousNear],mid:[...previousMid],far:[...previousFar]}),
- occludedAt:(x,z)=>shelfOccludes({x,z}),refreshOcclusion:prepareOcclusion
+ occludedAt:(x,z,excludeFixtureId=-1)=>shelfOccludes({x,z},excludeFixtureId),
+ figurePosition:id=>floor[id]?{x:floor[id].x,z:floor[id].z,onFloor:floor[id].onFloor}:null,
+ refreshOcclusion:prepareOcclusion
 };
 // The previous 4,800px-high atlas and its 2,000 synchronous pixel conversions are removed.
 
