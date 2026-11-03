@@ -354,6 +354,7 @@ function restore(){
   }catch(_){}
  }
  for(const id of tote)used.add(id);
+ for(const id of HIDDEN_IDS)if(used.has(id))hiddenRevealed.add(id);
  selected=tote[0]??null;
  groundPositions.clear();
  for(const item of (Array.isArray(raw.ground)?raw.ground:[])){
@@ -1350,7 +1351,7 @@ window.BitBazaarQA={
  horizon:()=>cameraHorizon(),aimPoint:()=>({x:AIM_X,y:AIM_Y}),
  visible:()=>({near:[...previousNear],mid:[...previousMid],far:[...previousFar]}),
  occludedAt:(x,z,excludeFixtureId=-1)=>shelfOccludes({x,z},excludeFixtureId),
- figurePosition:id=>floor[id]?{x:floor[id].x,z:floor[id].z,onFloor:floor[id].onFloor}:null,
+ figurePosition:id=>floor[id]?{x:floor[id].x,z:floor[id].z,onFloor:floor[id].onFloor,hidden:floor[id].hidden}:null,
  refreshOcclusion:prepareOcclusion
 };
 // The previous 4,800px-high atlas and its 2,000 synchronous pixel conversions are removed.
