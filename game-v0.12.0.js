@@ -153,7 +153,7 @@ let modal='', focus=null, playing=false, shift=false, activeSet=0, albumQuery=''
 let albumFilter='all',albumSort='id',albumPage=0;
 const ALBUM_PAGE_SIZE=48;
 let seenFigures=new Set(),pinnedSets=new Set(),albumReturnScroll=0;
-let mapSelectedFixtureId=null,mapSelectedFaceId=null,mapHighlightedSet=null,mapZoom=false,cleanFxTimer=0,restoreBannerTimer=0;
+let mapSelectedFixtureId=null,mapSelectedFaceId=null,mapHighlightedSet=null,mapZoom=false,mapPanTarget=null,cleanFxTimer=0,restoreBannerTimer=0;
 let lastSave=0,lastFrame=performance.now(), toastTimer=0;
 const keys=new Set(), touch={lookId:null,lastX:0,lastY:0,joyId:null,axisX:0,axisY:0};
 let floorBuffer=ctx.createImageData(W,H);
@@ -994,7 +994,20 @@ function mapAssignedSets(){
   const place=rowForSet(set.id);
   if(place)out.push({id:set.id,name:set.name,face:place[0],row:place[1]});
  }
- return out.sort((a,b)=>a.name.localeCompare(b.name));
+ return out.sort((a,b)=>Number(pinnedSets.has(b.id))-Number(pinnedSets.has(a.id))||a.name.localeCompare(b.name));
+}
+function mapRowAdvice(s,r){
+ const contents=slots[s][r],ids=contents.filter(isFigure);
+ if(!ids.length)return {missing:[],wrong:[],text:'EMPTY · READY FOR A COLLECTION'};
+ const present=new Set(ids.map(setNumber));
+ const missing=Array.from({length:10},(_,i)=>i+1).filter(n=>!present.has(n));
+ const wrong=contents.map((id,i)=>isFigure(id)&&setNumber(id)!==i+1?i+1:null).filter(Boolean);
+ return {missing,wrong,text:isPerfectRow(s,r)?'PERFECT · ALL TEN IN ORDER':
+  !missing.length?'ALL FOUND · '+wrong.length+' OUT OF ORDER':
+  'STILL NEED #'+missing.join(', #')};
+}
+function centerMapOn(x,z){
+ mapZoom=true;mapPanTarget={x,z};paintStoreMap();
 }
 function renderStoreMap(){
  if(mapSelectedFixtureId===null){
@@ -1061,20 +1074,21 @@ function paintStoreMap(){
     sid=items.length?figure(items[0]).setId:null,
     status=isPerfectRow(selectedFace,r)?'perfect':items.length===10?'unsorted':items.length?'partial':'empty',
     name=sid!==null?DB.sets[sid].name:'UNASSIGNED ROW',
-    slotList=contents.map((id,k)=>`<span class="map-slot${isFigure(id)?' occupied':''}"
+    slotList=contents.map((id,k)=>`<span class="map-slot${isFigure(id)?' occupied':''}${isFigure(id)&&setNumber(id)!==k+1?' wrong-order':''}"
       title="Position ${k+1}${isFigure(id)?', figure #'+setNumber(id):', empty'}">${isFigure(id)?setNumber(id):'·'}</span>`).join('');
   rowMarkup+=`<div class="map-row ${status}${sid===mapHighlightedSet?' highlighted':''}">
    <div class="map-row-head"><strong>ROW ${r+1}</strong>
      ${sid===null?`<span class="map-row-name">${name}</span>`:
       `<button class="map-row-name" data-map-set="${sid}" title="Open collection in almanac">
-        ${safeText(name)} <span aria-hidden="true">↗</span></button>`}
+        ${pinnedSets.has(sid)?'★ ':''}${safeText(name)} <span aria-hidden="true">↗</span></button>`}
      <span class="map-row-status">${status==='perfect'?'★ PERFECT':status==='unsorted'?'SORT 1–10':items.length+'/10'}</span>
    </div><div class="map-slot-grid" aria-label="Shelf row slots left to right">${slotList}</div>
+   ${sid!==null?`<div class="map-row-advice">${safeText(mapRowAdvice(selectedFace,r).text)}</div>`:''}
   </div>`;
  }
  const assigned=mapAssignedSets();
  const options=assigned.map(item=>`<option value="${item.id}"${item.id===mapHighlightedSet?' selected':''}>
-  ${safeText(item.name)} · ${safeText(shelves[item.face].name)} · ROW ${item.row+1}</option>`).join('');
+  ${pinnedSets.has(item.id)?'★ ':''}${safeText(item.name)} · ${safeText(shelves[item.face].name)} · ROW ${item.row+1}</option>`).join('');
  const result=`<div class="map-note">Tap a shelf on the plan. View its front or rear face, then inspect any named collection. The map shows <b>your current location</b> but never reveals loose figurines.</div>
   <div class="map-info-strip">✦ YOU ARE IN ${safeText(nearestAisle())} · FACING ${((heading%360)+360)%360|0}°
     <span>SHELVES ${cleanedFaceCount()}/60 · FLOOR ${floorCleanedCount()}/45 · HIDDEN ${hiddenRevealed.size}/18</span></div>
