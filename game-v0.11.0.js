@@ -809,24 +809,141 @@ function putDown(){
  notify('PUT DOWN · '+figure(id).name);
  return true;
 }
+// The Almanac is a browseable journal, not an omniscient GPS. New images,
+// names, micro-lore and roles are revealed only after physically observing or
+// carrying a specific figurine. Set names remain visible from the start.
+function albumSetStatus(sid){
+ const where=rowForSet(sid),shelved=countSet(sid),seen=setDiscovery(sid),
+  perfect=where!==null&&isPerfectRow(where[0],where[1]);
+ return {id:sid,where,shelved,seen,perfect,mastered:lifetimePerfect.has(sid)};
+}
+function albumSetFilter(progress){
+ if(albumFilter==='active')return progress.shelved>0&&!progress.perfect;
+ if(albumFilter==='unsorted')return progress.shelved===10&&!progress.perfect;
+ if(albumFilter==='perfect')return progress.perfect;
+ if(albumFilter==='unseen')return progress.seen===0;
+ if(albumFilter==='mastered')return progress.mastered;
+ return true;
+}
+function albumCatalog(){
+ const filter=albumQuery.toLowerCase().trim();
+ const entries=[];
+ for(const set of DB.sets){
+  if(filter&&!String(set.name+' '+set.theme+' '+(set.id+1)).toLowerCase().includes(filter))continue;
+  const p=albumSetStatus(set.id);
+  if(albumSetFilter(p))entries.push(p);
+ }
+ entries.sort((a,b)=>{
+  if(albumSort==='az')return DB.sets[a.id].name.localeCompare(DB.sets[b.id].name)||a.id-b.id;
+  if(albumSort==='closest'){
+   const rank=x=>x.shelved===10&&!x.perfect?100:
+     !x.perfect?x.shelved*10+x.seen:0;
+   return rank(b)-rank(a)||b.shelved-a.shelved||a.id-b.id;
+  }
+  if(albumSort==='discovered')return b.seen-a.seen||b.shelved-a.shelved||a.id-b.id;
+  return a.id-b.id;
+ });
+ return entries;
+}
+function albumOverview(){
+ const shelved=rows.flat(2).length,currentPerfect=completedRowCount();
+ let started=0,fullUnsorted=0;
+ for(const set of DB.sets){
+  const where=rowForSet(set.id);if(!where)continue;
+  started++;
+  if(rowCount(where[0],where[1])===10&&!isPerfectRow(where[0],where[1]))fullUnsorted++;
+ }
+ return {found:seenFigures.size,shelved,currentPerfect,mastered:lifetimePerfect.size,
+  started,fullUnsorted};
+}
 function renderAlbum(){
- let html=`<div class="info-strip">300 collectible series × 10 unique figurines. Search by a series name, or inspect any series to see what you have shelved.</div><div class="album-toolbar"><input id="albumSearch" class="search" placeholder="Search 300 collectible sets..." type="search" value="${albumQuery.replace(/["<>&]/g,'')}" /></div>`;
- html+='<div id="albumResults"></div><div class="footer-actions"><button class="reset-button" id="resetBtn">RESET SAVED STORE</button><span class="label">PROGRESS SAVES AUTOMATICALLY</span></div>';
+ const snap=albumOverview();
+ let html=`<div class="folio-head">
+   <span class="folio-eyebrow">THE COLLECTOR'S ALMANAC · 300 COLLECTIONS</span>
+   <div class="folio-overview">
+    <div><strong>${snap.found.toLocaleString()}</strong><small>/ 3,000 DISCOVERED</small></div>
+    <div><strong>${snap.shelved.toLocaleString()}</strong><small>/ 3,000 ON DISPLAY</small></div>
+    <div><strong>${snap.currentPerfect}</strong><small>/ 300 PERFECT NOW</small></div>
+    <div><strong>${snap.mastered}</strong><small>/ 300 MASTERED EVER</small></div>
+   </div>
+   <div class="folio-meter" title="${snap.found} of 3,000 figures physically discovered">
+    <span style="width:${(snap.found/3000*100).toFixed(2)}%"></span>
+   </div>
+   <div class="folio-substats">${snap.started} STARTED SETS · ${snap.fullUnsorted} FULL BUT NEED SORTING</div>
+  </div>
+  <div class="album-toolbar folio-toolbar">
+   <label for="albumSearch" class="folio-input-label">FIND A COLLECTION</label>
+   <input id="albumSearch" class="search" placeholder="Collection name, theme or number…" type="search" value="${safeText(albumQuery)}" />
+   <label for="albumSort" class="folio-input-label">SORT THE SHELVES</label>
+   <select id="albumSort" class="folio-sort" aria-label="Sort collector's sets">
+    <option value="id" ${albumSort==='id'?'selected':''}>COLLECTION NUMBER</option>
+    <option value="closest" ${albumSort==='closest'?'selected':''}>CLOSEST TO COMPLETION</option>
+    <option value="discovered" ${albumSort==='discovered'?'selected':''}>MOST DISCOVERED</option>
+    <option value="az" ${albumSort==='az'?'selected':''}>NAME A–Z</option>
+   </select>
+  </div>
+  <div class="folio-filters" role="group" aria-label="Filter collections">
+   ${[['all','ALL 300'],['active','IN PROGRESS'],['unsorted','NEEDS SORTING'],
+      ['perfect','PERFECT NOW'],['unseen','UNDISCOVERED'],['mastered','MASTERED EVER']]
+    .map(([id,label])=>`<button type="button" data-album-filter="${id}"
+      class="folio-chip${albumFilter===id?' active':''}" aria-pressed="${albumFilter===id}">${label}</button>`).join('')}
+  </div>
+  <div id="albumResults"></div>
+  <div class="footer-actions"><button class="reset-button" id="resetBtn">RESET SAVED STORE</button>
+    <span class="label">YOUR DISCOVERY JOURNAL SAVES AUTOMATICALLY</span></div>`;
  $('drawerBody').innerHTML=html;
- const search=$('albumSearch');search.oninput=()=>{albumQuery=search.value;paintAlbumList()};
+ $('albumSearch').oninput=()=>{
+  albumQuery=$('albumSearch').value;albumPage=0;paintAlbumList();
+ };
+ $('albumSort').onchange=()=>{albumSort=$('albumSort').value;albumPage=0;paintAlbumList()};
+ $('drawerBody').querySelectorAll('[data-album-filter]').forEach(el=>el.onclick=()=>{
+  albumFilter=el.getAttribute('data-album-filter');albumPage=0;
+  $('drawerBody').querySelectorAll('[data-album-filter]').forEach(button=>{
+   const active=button.getAttribute('data-album-filter')===albumFilter;
+   button.classList.toggle('active',active);
+   button.setAttribute('aria-pressed',String(active));
+  });
+  paintAlbumList();
+ });
  $('resetBtn').onclick=()=>$('confirm').hidden=false;
  paintAlbumList();
 }
-function paintAlbumList(){const dest=$('albumResults');if(!dest)return;
- const filter=albumQuery.toLowerCase().trim();let html='';
- for(const set of DB.sets){if(filter&&!`${set.name} ${set.theme} ${set.id+1}`.toLowerCase().includes(filter))continue;
-  const cnt=countSet(set.id),perfect=isSetPerfect(set.id);
-   const status=perfect?'★ PERFECT':cnt===10?'10/10 · SORT!':cnt+'/10';
-   html+=`<button class="album-card" data-albumset="${set.id}"><div><b>${String(set.id+1).padStart(3,'0')} · ${set.name}</b><span>${set.theme} miniatures</span></div><div class="meter">${status}</div></button>`;
+function paintAlbumList(){
+ const dest=$('albumResults');if(!dest)return;
+ const found=albumCatalog(),shown=found.slice(0,(albumPage+1)*ALBUM_PAGE_SIZE);
+ let html=`<div class="folio-result-total">${found.length} MATCHING COLLECTIONS · SHOWING ${shown.length}</div>`;
+ for(const p of shown){
+  const set=DB.sets[p.id],known=set.memberIds.find(id=>seenFigures.has(id)),
+   previewId=known??set.memberIds[0],
+   status=p.perfect?'★ PERFECT ORDER':
+    p.shelved===10?'⚒ SORT 1–10':
+    p.shelved?'IN PROGRESS':'NOT STARTED',
+   sub=p.where?`${safeText(shelves[p.where[0]].name)} · ROW ${p.where[1]+1}`:'NO SHELF ASSIGNED';
+  html+=`<button class="album-card folio-card" data-albumset="${p.id}"
+     aria-label="${safeText(set.name)}, ${p.seen} of 10 discovered, ${p.shelved} of 10 displayed">
+     <span class="folio-card-art${known===undefined?' mystery':''}">${iconHTML(previewId)}</span>
+     <span class="folio-card-copy"><strong>${String(p.id+1).padStart(3,'0')} · ${safeText(set.name)}</strong>
+      <span class="folio-card-theme">${safeText(set.theme)} · ${p.seen}/10 DISCOVERED</span>
+      <span class="folio-card-location">${sub}</span>
+      <span class="folio-card-meter"><i style="width:${p.shelved*10}%"></i></span>
+     </span>
+     <span class="folio-card-state${p.perfect?' perfect':''}${p.shelved===10&&!p.perfect?' unsorted':''}">
+       ${status}<small>${p.shelved}/10</small>
+     </span>
+   </button>`;
  }
- dest.innerHTML=html||'<div class="empty">No matching collectible series.</div>';
- dest.querySelectorAll('[data-albumset]').forEach(el=>el.onclick=()=>renderSetDetail(+el.dataset.albumset));
+ if(found.length===0)html+='<div class="folio-empty">NO MATCHES · TRY A DIFFERENT FILTER OR SEARCH</div>';
+ if(shown.length<found.length)html+=`<button id="albumMore" class="folio-more" type="button">
+   SHOW ${Math.min(ALBUM_PAGE_SIZE,found.length-shown.length)} MORE COLLECTIONS</button>`;
+ dest.innerHTML=html;
+ dest.querySelectorAll('[data-albumset]').forEach(el=>el.onclick=()=>{
+  renderSetDetail(Number(el.getAttribute('data-albumset')));
+ });
+ if(shown.length<found.length)$('albumMore').onclick=()=>{
+  albumPage++;paintAlbumList();
+ };
 }
+
 // Phase 3's actual player-centered store plan. Nothing on the map ever
 // discloses loose/hidden figurine coordinates: only the fixed 40 fixtures,
 // their assigned set rows and the player's current x/z and facing direction.
