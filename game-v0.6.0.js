@@ -315,78 +315,104 @@ function currentSelected(){return tote[0]??null;}
 // The targeted physical row decides placement. An empty row accepts a new
 // set even if that set has figures on other shelves; occupied rows accept
 // ONLY the matching set. Mixing sets in one row remains prohibited.
-function placementPlan(shelfId,rowId,id){
+function placementPlan(shelfId,rowId,slotId,id){
  if(id===null||id===undefined)return {ok:false,message:'PICK UP ONE FIGURE FIRST'};
  if(!Number.isInteger(shelfId)||shelfId<0||shelfId>=NUM_RACKS||
-    !Number.isInteger(rowId)||rowId<0||rowId>=ROWS)return {ok:false,message:'AIM AT A SHELF ROW'};
- const target=rows[shelfId][rowId],sid=figure(id).setId;
- if(target.length>=PER_ROW)return {ok:false,message:'ROW FULL · 10 / 10'};
- if(target.length && figure(target[0]).setId!==sid)
-  return {ok:false,message:'WRONG SET · '+DB.sets[figure(target[0]).setId].name};
- const assigned=rowForSet(sid);
- const relocate=(!target.length&&assigned&&(assigned[0]!==shelfId||assigned[1]!==rowId))?assigned:null;
- return {ok:true,row:rowId,continuing:target.length>0,relocate};
+    !Number.isInteger(rowId)||rowId<0||rowId>=ROWS ||
+    !Number.isInteger(slotId)||slotId<0||slotId>=PER_ROW)
+  return {ok:false,message:'AIM AT ONE OF TEN POSITIONS'};
+ const target=slots[shelfId][rowId],old=target[slotId],setId=figure(id).setId;
+ if(rows[shelfId][rowId].length && figure(rows[shelfId][rowId][0]).setId!==setId)
+  return {ok:false,message:'WRONG SET · '+DB.sets[figure(rows[shelfId][rowId][0]).setId].name};
+ if(old!==null&&figure(old).setId!==setId)
+  return {ok:false,message:'WRONG SET · NO MIXING'};
+ const assigned=rowForSet(setId);
+ const relocate=(!rows[shelfId][rowId].length&&assigned&&
+  (assigned[0]!==shelfId||assigned[1]!==rowId))?assigned:null;
+ if(relocate&&rowCount(assigned[0],assigned[1])>=PER_ROW)
+  return {ok:false,message:'SET ALREADY FULL · PICK ONE UP TO REORDER'};
+ return {ok:true,row:rowId,slot:slotId,exchange:old!==null,relocate};
 }
-function placeFig(shelfId,rowId){
- const id=currentSelected();
- if(id===null){notify('PICK UP ONE FIGURE FIRST','bad');return false;}
- if(!Number.isInteger(shelfId)||shelfId<0||shelfId>=NUM_RACKS||
-    !Number.isInteger(rowId)||rowId<0||rowId>=ROWS){
-  notify('INVALID DISPLAY ROW','bad');return false;
+function placeFig(shelfId,rowId,slotId){
+ const id=currentSelected(),plan=placementPlan(shelfId,rowId,slotId,id);
+ if(!plan.ok){notify(plan.message,'bad');return false;}
+ const target=slots[shelfId][rowId],targetBefore=target.slice();
+ const from=plan.relocate?slots[plan.relocate[0]][plan.relocate[1]]:null;
+ const fromBefore=from?from.slice():null;
+ if(from){
+  const moved=from.filter(isFigure);
+  if(moved.length>=PER_ROW){notify('NO ROOM TO MOVE THIS SET','bad');return false;}
+  // Preserve old positions wherever possible. The aimed target slot is
+  // reserved for the single held piece, never silently moved elsewhere.
+  const next=from.slice(),displaced=next[slotId];
+  next[slotId]=null;
+  if(isFigure(displaced)){
+   const empty=next.findIndex((v,i)=>i!==slotId&&v===null);
+   if(empty<0){notify('THIS ROW HAS NO ROOM','bad');return false;}
+   next[empty]=displaced;
+  }
+  for(let i=0;i<PER_ROW;i++){target[i]=next[i];from[i]=null;}
+  syncRow(plan.relocate[0],plan.relocate[1]);
  }
- const target=rows[shelfId][rowId],sid=figure(id).setId;
- if(target.length>=PER_ROW){notify('THIS DISPLAY ROW IS FULL','bad');return false;}
- if(target.length&&figure(target[0]).setId!==sid){
-  notify('WRONG SET — YOU CANNOT MIX COLLECTIONS','bad');return false;
+ const displaced=target[slotId];
+ target[slotId]=id;
+ syncRow(shelfId,rowId);
+ if(isFigure(displaced)){
+  // The occupied figure goes directly into the single hand; never use a tote.
+  tote[0]=displaced;selected=displaced;lastPlacement=null;
+  notify('SWAPPED · #'+setNumber(id)+' FOR #'+setNumber(displaced));
+ }else{
+  tote.length=0;selected=null;
+  lastPlacement={shelfId,rowId,slotId,id,targetBefore,
+   source:plan.relocate?plan.relocate.slice():null,sourceBefore:fromBefore};
+  if(isPerfectRow(shelfId,rowId))
+   notify('★ PERFECT SET! '+DB.sets[figure(id).setId].name+' · 1–10');
+  else if(rowCount(shelfId,rowId)===PER_ROW)
+   notify('FULL BUT UNSORTED · ARRANGE 1–10');
+  else notify('PLACED #'+setNumber(id)+'/10 · POSITION '+(slotId+1));
  }
- // Moving a partially completed set to a DIFFERENT empty row transfers its
- // existing pieces as a group. This preserves the 300 sets of 10 goal,
- // rather than irreversibly fragmenting collections across shelves.
- const plan=placementPlan(shelfId,rowId,id);
- const relocate=plan.relocate;
- const moved=relocate?[...rows[relocate[0]][relocate[1]]]:[];
- if(relocate){
-  rows[relocate[0]][relocate[1]].length=0;
-  target.push(...moved);
- }
- target.push(id);tote.length=0;selected=null;groundPositions.delete(id);
- lastPlacement={shelfId,rowId,id,relocate,moved};
- save();stats();
- if(target.length===PER_ROW)notify('★ SET COMPLETE! '+DB.sets[sid].name);
- else notify('PLACED · ROW '+(rowId+1)+' · '+target.length+'/10 · '+DB.sets[sid].name);
+ groundPositions.delete(id);save();stats();
  return true;
 }
-function placeDirect(shelfId,rowId){
+function placeDirect(shelfId,rowId,slotId){
+ // Reticle-driven play always passes both row and exact slot.
+ // QA may supply the shelf alone for older automated tests.
  const id=currentSelected();
- // Only the QA legacy shorthand finds a row automatically; gameplay must
- // always pass the exact row the player's center reticle intersects.
  if(rowId===undefined){
-  rowId=rows[shelfId]?.findIndex(r=>r.length>0 && figure(r[0]).setId===figure(id??0).setId && r.length<PER_ROW);
+  if(id===null)return false;
+  rowId=rows[shelfId]?.findIndex(r=>r.length>0&&figure(r[0]).setId===figure(id).setId&&r.length<PER_ROW);
   if(rowId<0)rowId=rows[shelfId]?.findIndex(r=>r.length===0);
  }
- const plan=placementPlan(shelfId,rowId,id);
- if(!plan.ok){notify(plan.message,'bad');return false;}
- return placeFig(shelfId,plan.row);
+ if(slotId===undefined&&rows[shelfId]?.[rowId])
+  slotId=slots[shelfId][rowId].findIndex(v=>v===null);
+ return placeFig(shelfId,rowId,slotId);
 }
-// Explicit PUT DOWN moves the single held figure onto the actual floor.
-// Save the position; never respawn or duplicate it when the app reopens.
-// One-tap undo replaces the old long shelf-menu 'take back' action.
-// Only the last placed figurine can be reclaimed; it still occupies one hand.
-function undoLastPlacement(){
- if(tote.length||!lastPlacement)return false;
- const {shelfId,rowId,id}=lastPlacement,row=rows[shelfId]?.[rowId];
- if(!row||row[row.length-1]!==id){lastPlacement=null;stats();return false;}
- row.pop();
- if(lastPlacement.relocate){
-  const from=rows[lastPlacement.relocate[0]][lastPlacement.relocate[1]];
-  const {moved}=lastPlacement;
-  for(let i=0;i<moved.length;i++)row.splice(row.indexOf(moved[i]),1);
-  from.push(...moved);
- }
- tote.push(id);selected=id;lastPlacement=null;
- save();stats();notify('BACK IN HAND · '+figure(id).name);
+function grabShelfFig(shelfId,rowId,slotId){
+ if(tote.length){notify('YOUR HAND IS FULL','bad');return false;}
+ const row=slots[shelfId]?.[rowId],id=row?.[slotId];
+ if(!isFigure(id))return false;
+ row[slotId]=null;syncRow(shelfId,rowId);
+ tote[0]=id;selected=id;lastPlacement=null;
+ save();stats();notify('LIFTED #'+setNumber(id)+'/10 · '+DB.sets[figure(id).setId].name);
  return true;
 }
+function undoLastPlacement(){
+ if(tote.length||!lastPlacement)return false;
+ const {shelfId,rowId,slotId,id,targetBefore,source,sourceBefore}=lastPlacement;
+ if(slots[shelfId]?.[rowId]?.[slotId]!==id){lastPlacement=null;stats();return false;}
+ const target=slots[shelfId][rowId];
+ for(let i=0;i<PER_ROW;i++)target[i]=targetBefore[i];
+ syncRow(shelfId,rowId);
+ if(source){
+  const from=slots[source[0]][source[1]];
+  for(let i=0;i<PER_ROW;i++)from[i]=sourceBefore[i];
+  syncRow(source[0],source[1]);
+ }
+ tote[0]=id;selected=id;lastPlacement=null;
+ save();stats();notify('BACK IN HAND · #'+setNumber(id));
+ return true;
+}
+
 function putDown(){
  const id=currentSelected();if(id===null)return false;
  const dir=forward(),right={x:Math.cos(player.yaw),z:Math.sin(player.yaw)};
