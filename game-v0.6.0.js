@@ -1041,11 +1041,15 @@ $('startBtn').onclick=()=>{
 };
 // Snapshot integrity API for QA and external automation.
 window.BitBazaarQA={
- stats:()=>({floor:floor.filter(f=>f.onFloor).length,tote:tote.length,carrying:tote[0]??null,droppedPositions:groundPositions.size,migratedCarryCount,placed:rows.flat(2).length,completedRows:rows.flat(1).filter(r=>r.length===10).length,capacity:NUM_RACKS*ROWS*PER_ROW,fixtures:fixtures.length,floorFixtures:NUM_FLOOR,wallFixtures:NUM_WALL,displayFaces:shelves.length,distinctAssets:DB.figures.length,renderedFigures,midRendered,farRendered,retainedNear,retainedMid,retainedFar,occlusionChecks,occludedCandidates,visibleSlope,midLimit,farLimit,midDistance,farDistance,nearbyExamined,farCandidatesExamined,renderFrames,renderLimit,viewDistance,drawInterval:Math.round(drawInterval),lastRuntimeMs,extremeFrames,sprites:sprites.stats()}),
+ stats:()=>({floor:floor.filter(f=>f.onFloor).length,tote:tote.length,carrying:tote[0]??null,droppedPositions:groundPositions.size,migratedCarryCount,placed:rows.flat(2).length,completedRows:completedRowCount(),fullUnsortedRows:rows.flat(1).filter((r,i)=>r.length===PER_ROW&&!isPerfectRow(Math.floor(i/ROWS),i%ROWS)).length,capacity:NUM_RACKS*ROWS*PER_ROW,fixtures:fixtures.length,floorFixtures:NUM_FLOOR,wallFixtures:NUM_WALL,displayFaces:shelves.length,distinctAssets:DB.figures.length,renderedFigures,midRendered,farRendered,retainedNear,retainedMid,retainedFar,occlusionChecks,occludedCandidates,visibleSlope,midLimit,farLimit,midDistance,farDistance,nearbyExamined,farCandidatesExamined,renderFrames,renderLimit,viewDistance,drawInterval:Math.round(drawInterval),lastRuntimeMs,extremeFrames,sprites:sprites.stats()}),
  pick:(id)=>{if(!Number.isInteger(id)||id<0||id>=DB.figures.length||tote.length||!floor[id].onFloor)return false;grabFig(id);return tote[0]===id},
- place:(id,shelf,row)=>{if(!Number.isInteger(id)||id<0||id>=DB.figures.length)return false;if(!tote.length)grabFig(id);if(tote[0]!==id)return false;return placeFig(shelf,row)},
- directPlace:(shelf,row)=>placeDirect(shelf,row),putDown,undoLastPlacement,
+ place:(id,shelf,row,slot)=>{if(!isFigure(id))return false;if(!tote.length)grabFig(id);if(tote[0]!==id)return false;return placeDirect(shelf,row,slot)},
+ directPlace:(shelf,row,slot)=>placeDirect(shelf,row,slot),putDown,undoLastPlacement,
+ takeFromSlot:(shelf,row,slot)=>grabShelfFig(shelf,row,slot),
  rowContents:(shelf,row)=>[...(rows[shelf]?.[row]||[])],
+ slotContents:(shelf,row)=>[...(slots[shelf]?.[row]||[])],
+ rowStatus:(shelf,row)=>rowStatus(shelf,row),
+ perfect:(shelf,row)=>isPerfectRow(shelf,row),
  figurePosition:id=>floor[id]?{x:floor[id].x,z:floor[id].z,onFloor:floor[id].onFloor}:null,
  reset:resetState, get player(){return player}, shelves, dataset:DB,
  target:()=>{prepareOcclusion();return findFocus()},
