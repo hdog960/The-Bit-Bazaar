@@ -1,5 +1,25 @@
 # The Bit Bazaar — The Great Figurine Sort
 
+## v0.10.0 — Phase 2 polish + Phase 3 interactive floor-plan milestone
+The six-phase creative plan is defined by [MASTER_ROADMAP_LOCKED.md](./MASTER_ROADMAP_LOCKED.md). This release finishes an initial **Phase 2 cleaning-feedback pass** and begins **Phase 3**; it does not claim Phase 3's entire almanac and mapping work is finished.
+
+**Cleaning and restoration polish:**
+- New reticle-targeted step meter: **CLEANING 0/1, 0/2 or 0/3** as appropriate for papers, cartons, stains and dirty shelf faces. Context adapts to a held figurine and still requires **empty hands**.
+- Brief, CSS-only brush/sparkle feedback identifies the specific completed action (e.g. WIPE DUST, FLATTEN CARDBOARD, POLISH FLOOR), with no new texture atlases, canvas allocations, timer-driven chores, or ability to clean dirt multiple times.
+- Completing **all 60 shelf faces** or **all 45 permanent floor messes** triggers a short milestone banner. If both are restored, it recognizes the **entire shop as spotless**. All 18 previously hidden figurines remain within the original 3,000 and discovery/save tracking remains untouched.
+
+**The Store Map (first Phase 3 milestone):**
+- New **▦ MAP** button in the iPhone top bar and **M** on desktop. The existing **COLLECTION** button remains accessible.
+- Overhead, interactive SVG layout is built **directly from the 40 existing fixture records**, not a generic invented map: 20 double-sided freestanding racks + 20 wall displays, containing all **60 real display faces** and five rows per face.
+- Shows the player's saved/current x/z position and heading as a bright directional arrow, updated whenever the map is opened. Selecting any fixture displays front/rear face controls (where relevant), current clean/dirty status, five individual rows, their assigned collection names, occupied slot numbers 1–10, current/perfect/sort-needed states and overall row totals.
+- Tap a set on the map to open it in the existing collector almanac. From a set's almanac detail page, **SHOW SHELF ON STORE MAP** jumps back to the exact fixture, face and highlighted set row.
+- Intentionally **does not reveal any loose or hidden figure locations**; the locator is only for already-shelved collections. SVG is created only when the map drawer opens or selection changes, so there are no continuous map-frame redraws.
+- Map and cleaning feedback are presentation-only additions to the existing `bit-bazaar-save-v3` schema: no migration or player progress reset required.
+
+**QA / release:** verified 40 clickable fixture shapes, 60 physical faces, real two-sided row assignments, saved figure slot order, player coordinates/heading, two-way map/almanac links, and 60-shelf + 45-floor + 18-hidden restoration milestones. Replayed 1,440 simulated animation ticks (480 drawn frames) with **≤112 cached sprite canvases** and unchanged 70/30/65 near/mid/far rendering limits. Existing [v0.9 low-effects recovery](./baseline-v0.9.0-lowfx.html) remains save-compatible and was exercised under simulated high frame latency. Real-device iPhone QA is still needed.
+
+**Next Phase 3 work:** expand the illustrated Almanac and store-map readability, discoverability and selection polish; do not start decorations before Phase 3 is reviewed.
+
 ## Phase 2 environmental restoration milestone — v0.9.0 (Nov 3, 2026)
 This is the next playable Phase 2 increment under [MASTER_ROADMAP_LOCKED.md](./MASTER_ROADMAP_LOCKED.md). The game still has no customers, sales, timers, or automatic dirt respawns.
 
