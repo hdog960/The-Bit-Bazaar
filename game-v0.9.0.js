@@ -105,6 +105,23 @@ const HIDDEN_IDS=HIDDEN_FACES.map((_,i)=>(29+i*157)%3000);
 const HIDDEN_SET=new Set(HIDDEN_IDS);
 const SECRET_BY_FACE=new Map(HIDDEN_FACES.map((face,i)=>[face,HIDDEN_IDS[i]]));
 let faceCleaning=Array(NUM_RACKS).fill(0),hiddenRevealed=new Set(),newlyRevealed=null,hiddenRevealMoment=0;
+// Permanent environmental floor cleanup. The 45 patches are not figurines.
+const AMBIENT_KINDS=['PAPER','CARTON','SCUFF'];
+const AMBIENT_ACTIONS=[
+ ['GATHER SCRAPS'],['FLATTEN CARDBOARD','REMOVE PACKING'],
+ ['SWEEP GRIT','SCRUB STAIN','POLISH FLOOR']
+];
+function buildAmbientMess(){
+ const out=[],random=srand(20261104);
+ for(let row=0;row<9;row++)for(let col=0;col<5;col++){
+  let x=6+col*14+(random()-.5)*2.2,z=6+row*7.5+(random()-.5)*2.2;
+  if(blocked(x,z,1)){x=6+col*14;z=6+row*7.5;}
+  const id=row*5+col,kind=(id*7+row*2)%3;
+  out.push({id,kind,x,z,angle:random()*Math.PI*2});
+ }
+ return out;
+}
+let floorCleaning=[],lastAmbientClean=null;
 let lifetimePerfect=new Set(),inspectionReturn='',inspectedId=null;
 let perfectBannerTimer=0,slotPulse=null;
 const CELL=6,floorGrid=new Map(),distantGrid=new Map();
@@ -135,6 +152,8 @@ const clamp=(n,a,b)=>Math.min(b,Math.max(a,n));
 const sqr=n=>n*n;
 function srand(seed){ let s=seed>>>0;return ()=>{s=(s*1664525+1013904223)>>>0;return s/4294967296;}; }
 const rng=srand(20261102);
+const ambientMess=buildAmbientMess();
+floorCleaning=Array(ambientMess.length).fill(0);
 function setupFloor(){
  floor=[];floorGrid.clear();distantGrid.clear();previousNear.clear();previousMid.clear();previousFar.clear();
  const used=allUsed(),random=srand(20261102);
@@ -286,7 +305,8 @@ function resetState(){
  rows=Array.from({length:NUM_RACKS},()=>Array.from({length:ROWS},()=>[]));
  slots=Array.from({length:NUM_RACKS},()=>Array.from({length:ROWS},EMPTY_ROW));
  tote=[];selected=null;groundPositions.clear();migratedCarryCount=0;lastPlacement=null;lifetimePerfect.clear();slotPulse=null;
- faceCleaning=Array(NUM_RACKS).fill(0);hiddenRevealed.clear();newlyRevealed=null;hiddenRevealMoment=0;player={x:35,z:68,yaw:0,pitch:0};setupFloor();save();stats();
+ faceCleaning=Array(NUM_RACKS).fill(0);hiddenRevealed.clear();newlyRevealed=null;hiddenRevealMoment=0;
+ floorCleaning=Array(ambientMess.length).fill(0);lastAmbientClean=null;player={x:35,z:68,yaw:0,pitch:0};setupFloor();save();stats();
 }
 function restore(){
  let raw;try{raw=JSON.parse(localStorage.getItem(STORE_KEY)||localStorage.getItem(LEGACY_KEY)||'null')}catch(e){raw=null}
