@@ -150,6 +150,9 @@ const DARK_PIXEL='#20172f',LIGHT_PIXEL='#edd6a7';
 let renderLimit=70,viewDistance=19,midStart=9,midLimit=30,midDistance=29,farLimit=65,farDistance=39,renderFrames=0,lastDrawMs=-1e6,drawInterval=1000/24,slowFrames=0,extremeFrames=0,lastRuntimeMs=0,nearbyExamined=0,farCandidatesExamined=0,renderedFigures=0,midRendered=0,farRendered=0;
 const cellKey=(x,z)=>Math.floor(x/CELL)+','+Math.floor(z/CELL);
 let modal='', focus=null, playing=false, shift=false, activeSet=0, albumQuery='';
+let albumFilter='all',albumSort='id',albumPage=0;
+const ALBUM_PAGE_SIZE=48;
+let seenFigures=new Set();
 let mapSelectedFixtureId=null,mapSelectedFaceId=null,mapHighlightedSet=null,cleanFxTimer=0,restoreBannerTimer=0;
 let lastSave=0,lastFrame=performance.now(), toastTimer=0;
 const keys=new Set(), touch={lookId:null,lastX:0,lastY:0,joyId:null,axisX:0,axisY:0};
@@ -376,6 +379,7 @@ function resetState(){
  rows=Array.from({length:NUM_RACKS},()=>Array.from({length:ROWS},()=>[]));
  slots=Array.from({length:NUM_RACKS},()=>Array.from({length:ROWS},EMPTY_ROW));
  tote=[];selected=null;groundPositions.clear();migratedCarryCount=0;lastPlacement=null;lifetimePerfect.clear();slotPulse=null;
+ seenFigures.clear();albumFilter='all';albumSort='id';albumQuery='';albumPage=0;
  faceCleaning=Array(NUM_RACKS).fill(0);hiddenRevealed.clear();newlyRevealed=null;hiddenRevealMoment=0;
  floorCleaning=Array(ambientMess.length).fill(0);lastAmbientClean=null;player={x:35,z:68,yaw:0,pitch:0};setupFloor();save();stats();
 }
@@ -464,6 +468,11 @@ function restore(){
  }
  for(const id of tote)used.add(id);
  for(const id of HIDDEN_IDS)if(used.has(id))hiddenRevealed.add(id);
+ // v0.10 and older have no discovery ledger. Existing shelved or carried
+ // figures remain discovered without guessing prior loose-figure pickups.
+ const oldDiscovery=!Array.isArray(raw.seenFigures);
+ seenFigures=new Set((oldDiscovery?[]:raw.seenFigures).filter(isFigure));
+ for(const id of used)seenFigures.add(id);
  selected=tote[0]??null;
  groundPositions.clear();
  for(const item of (Array.isArray(raw.ground)?raw.ground:[])){
@@ -478,9 +487,9 @@ function restore(){
  }else player={x:35,z:68,yaw:0,pitch:0};
  setupFloor();stats();
  // Copy the 1,000-figure save once; leave emergency recovery progress untouched.
- if(migratedCarryCount||oldCleaning||oldAmbient||!Array.isArray(raw.revealed)||!raw.slots||!Array.isArray(raw.lifetimePerfect)||!localStorage.getItem(STORE_KEY))save();
+ if(migratedCarryCount||oldCleaning||oldAmbient||oldDiscovery||!Array.isArray(raw.revealed)||!raw.slots||!Array.isArray(raw.lifetimePerfect)||!localStorage.getItem(STORE_KEY))save();
 }
-function save(){try{localStorage.setItem(STORE_KEY,JSON.stringify({version:1,tote,rows,slots,lifetimePerfect:[...lifetimePerfect],selected,player,ground:[...groundPositions].map(([id,p])=>[id,p.x,p.z]),cleaning:faceCleaning,revealed:[...hiddenRevealed],floorCleaning}))}catch(e){}}
+function save(){try{localStorage.setItem(STORE_KEY,JSON.stringify({version:1,tote,rows,slots,lifetimePerfect:[...lifetimePerfect],seenFigures:[...seenFigures],selected,player,ground:[...groundPositions].map(([id,p])=>[id,p.x,p.z]),cleaning:faceCleaning,revealed:[...hiddenRevealed],floorCleaning}))}catch(e){}}
 function blocked(x,z,pad=.3){
  if(x<1.4+pad||x>SW-1.4-pad||z<1.4+pad||z>SD-1.4-pad)return true;
  for(const f of fixtures){const dx=x-f.x,dz=z-f.z;
@@ -515,6 +524,15 @@ function notify(s,kind='normal'){
  $('toast').textContent=s;$('toast').classList.add('visible');
  if(kind==='bad')$('toast').style.borderColor='#fb8188';else $('toast').style.borderColor='#dbab64';
  clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').classList.remove('visible'),2200);
+}
+function markFigSeen(id){
+ if(!isFigure(id)||seenFigures.has(id))return false;
+ seenFigures.add(id);return true;
+}
+function setDiscovery(sid){
+ let observed=0;
+ for(const id of DB.sets[sid].memberIds)if(seenFigures.has(id))observed++;
+ return observed;
 }
 function countSet(sid){let count=0;for(const rack of rows)for(const row of rack)for(const id of row)if(figure(id).setId===sid)count++;return count;}
 function rowForSet(sid){for(let s=0;s<NUM_RACKS;s++)for(let r=0;r<ROWS;r++)if(rows[s][r].length&&figure(rows[s][r][0]).setId===sid)return [s,r];return null;}
@@ -563,6 +581,9 @@ function figurineLocation(id){
 }
 function openInspection(id){
  if(!isFigure(id)||modal==='inspect')return false;
+ // Browsing the book does not magically reveal a mystery figure.
+ if(modal==='album'&&!seenFigures.has(id))return false;
+ if(modal!=='album'&&markFigSeen(id))save();
  const fig=figure(id),set=DB.sets[fig.setId];
  inspectionReturn=modal==='album'?'album':'';
  inspectedId=id;modal='inspect';
@@ -727,6 +748,7 @@ function grabShelfFig(shelfId,rowId,slotId){
  row[slotId]=null;syncRow(shelfId,rowId);
  slotPulse={shelfId,rowId,slotId,at:performance.now()};pulseReticle();
  tote[0]=id;selected=id;lastPlacement=null;
+ markFigSeen(id);
  save();stats();notify('LIFTED #'+setNumber(id)+'/10 · '+DB.sets[figure(id).setId].name);
  return true;
 }
@@ -974,7 +996,8 @@ function grabFig(id){
  if(tote.length>=MAX_TOTE){notify('HANDS FULL — PLACE OR PUT DOWN YOUR FIGURE FIRST','bad');return}
  const f=floor[id];if(!f||!f.onFloor||f.hidden)return;
  f.onFloor=false;tote.push(id);selected=id;lastPlacement=null;pulseReticle();
- stats();save();notify('PICKED UP · '+figure(id).name+' · TAKE IT TO A SHELF');
+ const newFind=markFigSeen(id);
+ stats();save();notify((newFind?'✦ NEW DISCOVERY · ':'PICKED UP · ')+figure(id).name+' · '+DB.sets[figure(id).setId].name);
 }
 function forward(){return {x:Math.sin(player.yaw),z:-Math.cos(player.yaw)}}
 // Depth-aware perspective is required when a shelf corner passes the camera.
@@ -1754,6 +1777,7 @@ window.BitBazaarQA={
  mapVisible:()=>modal==='map',
  inspect:openInspection,closeInspection,inspectTarget,inspectLore:figurineLore,inspectStatus:figurineLocation,
  get inspectedId(){return inspectedId},lifetime:()=>[...lifetimePerfect].sort((a,b)=>a-b),
+ seen:()=>[...seenFigures].sort((a,b)=>a-b),seenCount:(sid)=>sid===undefined?seenFigures.size:setDiscovery(sid),
  pulse:()=>slotPulse,
  target:()=>{prepareOcclusion();return findFocus()},
  horizon:()=>cameraHorizon(),aimPoint:()=>({x:AIM_X,y:AIM_Y}),
