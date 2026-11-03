@@ -297,6 +297,12 @@ function restore(){
  // Existing progress predates shelf cleaning: grandfather all faces as
  // restored and leave all existing figures discoverable on the floor.
  const oldCleaning=!Array.isArray(raw.cleaning)||raw.cleaning.length!==NUM_RACKS;
+ if(oldCleaning){
+  try{
+   if(!localStorage.getItem('bit-bazaar-v3-before-cleaning'))
+    localStorage.setItem('bit-bazaar-v3-before-cleaning',JSON.stringify(raw));
+  }catch(_){}
+ }
  faceCleaning=oldCleaning?Array(NUM_RACKS).fill(3):raw.cleaning.map(v=>clamp(Math.floor(Number(v)||0),0,3));
  hiddenRevealed=new Set(oldCleaning?HIDDEN_IDS:(Array.isArray(raw.revealed)?raw.revealed:[]).filter(id=>HIDDEN_SET.has(id)));
  for(const [face,id] of SECRET_BY_FACE)if(faceCleaning[face]===3)hiddenRevealed.add(id);
@@ -1263,7 +1269,7 @@ function frame(now){
    if(lastRuntimeMs>115)extremeFrames++;else extremeFrames=Math.max(0,extremeFrames-1);
    if(extremeFrames>=3){
     playing=false;save();
-    try{window.location.replace('./baseline-v0.6.0.html?recovery=inspector-perf')}catch(_){}
+    try{window.location.replace('./baseline-v0.8.0-lowfx.html?recovery=cleaning-perf')}catch(_){}
     return;
    }
    if(lastRuntimeMs>43)slowFrames=Math.min(16,slowFrames+2);
