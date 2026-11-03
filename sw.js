@@ -1,6 +1,6 @@
 /* Network-first so every future update appears on the same home-screen URL. */
-const CACHE="bit-bazaar-v0.4.0";
-const PRELOAD=["./","./index.html","./style-v0.4.0.css","./style.css","./game-v0.4.0.js","./game-v0.3.3.js","./game-v0.3.2.js","./game-v0.3.1.js","./game-v0.3.js","./game.js","./safe.html","./stable.html","./assets/collection.js","./assets/collection-extension.js","./assets/optimized-sprites.js","./assets/figurines.png","./manifest.webmanifest","./icon.png"];
+const CACHE="bit-bazaar-v0.5.0";
+const PRELOAD=["./","./index.html","./style-v0.5.0.css","./style-v0.4.0.css","./style.css","./game-v0.5.0.js","./game-v0.4.0.js","./game-v0.3.3.js","./game-v0.3.2.js","./game-v0.3.1.js","./game-v0.3.js","./game.js","./safe.html","./previous.html","./stable.html","./assets/collection.js","./assets/collection-extension.js","./assets/optimized-sprites.js","./assets/figurines.png","./manifest.webmanifest","./icon.png"];
 self.addEventListener("install",event=>{
   event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(PRELOAD)).then(()=>self.skipWaiting()));
 });
