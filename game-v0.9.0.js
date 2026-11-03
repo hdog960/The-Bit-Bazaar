@@ -255,6 +255,38 @@ function faceTask(faceId){
  return faceCleaning[faceId]<3?CLEAN_STEPS[faceCleaning[faceId]]:'RESTORED';
 }
 
+// Each environmental mess is a physical, fixed position in the store.
+// 1–3 interactions depending on type; no timers, respawns, or currency.
+function ambientCompleted(m){
+ return floorCleaning[m.id]>=AMBIENT_ACTIONS[m.kind].length;
+}
+function floorCleanedCount(){
+ let n=0;for(const m of ambientMess)if(ambientCompleted(m))n++;
+ return n;
+}
+function floorTask(id){
+ const m=ambientMess[id];
+ return m?AMBIENT_ACTIONS[m.kind][floorCleaning[id]]||'CLEAN':'';
+}
+function cleanAmbient(id){
+ if(!Number.isInteger(id)||id<0||id>=ambientMess.length)return false;
+ if(tote.length){notify('PUT DOWN YOUR FIGURINE BEFORE CLEANING','bad');return false;}
+ const m=ambientMess[id],actions=AMBIENT_ACTIONS[m.kind],step=floorCleaning[id];
+ if(step>=actions.length)return false;
+ if(Math.hypot(player.x-m.x,player.z-m.z)>5.3){
+  notify('MOVE CLOSER TO THE MESS TO CLEAN IT','bad');return false;
+ }
+ floorCleaning[id]=step+1;
+ lastAmbientClean={id,at:performance.now()};
+ if(floorCleaning[id]===actions.length){
+  notify('★ '+(m.kind===0?'TRASH GATHERED':m.kind===1?'PACKAGING REMOVED':'FLOOR POLISHED')+
+    ' · '+floorCleanedCount()+'/'+ambientMess.length+' FLOOR MESSES CLEAN');
+ }else{
+  notify('✓ '+actions[step]+' · '+(actions.length-floorCleaning[id])+' STEP(S) REMAIN');
+ }
+ save();stats();return true;
+}
+
 // Only nearby spatial buckets are scanned. This avoids a 3,000-object scan each frame.
 function nearbyFloor(radius,angleCull){
  const out=[],cx=player.x,cz=player.z,r2=radius*radius;
