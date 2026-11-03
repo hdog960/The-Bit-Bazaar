@@ -546,5 +546,30 @@ window.BitBazaarQA={
 };
 // The previous 4,800px-high atlas and its 2,000 synchronous pixel conversions are removed.
 
+function makeFixtures(){
+ const fixtures=[],shelves=[];
+ for(let r=0;r<5;r++)for(let a=0;a<4;a++){
+  const id=r*4+a,aisle=String.fromCharCode(65+a);
+  const f={id,kind:'floor',x:11+a*16,z:11+r*12,w:7.7,depth:1.72,nx:0,nz:1,ux:1,uz:0,aisle};
+  fixtures.push(f);
+  for(let side=0;side<2;side++)shelves.push({
+   id:id*2+side,fixture:f,face:side===0?1:-1,
+   name:'AISLE '+aisle+' · '+(side?'REVERSE':'FRONT')+' DISPLAY',
+   aisle
+  });
+ }
+ const wallSpots=[];
+ for(const x of [9,22,35,48,61])wallSpots.push({x,z:2.5,nx:0,nz:1,ux:1,uz:0,section:'NORTH'});
+ for(const x of [9,22,35,48,61])wallSpots.push({x,z:71.5,nx:0,nz:-1,ux:-1,uz:0,section:'SOUTH'});
+ for(const z of [10,23,36,49,62])wallSpots.push({x:2.5,z,nx:1,nz:0,ux:0,uz:-1,section:'WEST'});
+ for(const z of [10,23,36,49,62])wallSpots.push({x:67.5,z,nx:-1,nz:0,ux:0,uz:1,section:'EAST'});
+ for(let i=0;i<wallSpots.length;i++){
+  const f={id:20+i,kind:'wall',wallIndex:i,w:10.5,depth:.85,aisle:'WALL',...wallSpots[i]};
+  fixtures.push(f);
+  shelves.push({id:40+i,fixture:f,face:1,name:f.section+' WALL DISPLAY',aisle:'WALL'});
+ }
+ return {fixtures,shelves};
+}
+
 restore();requestAnimationFrame(frame);
 })();
