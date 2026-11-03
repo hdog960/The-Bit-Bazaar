@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8" /><meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover" />
+<meta name="theme-color" content="#161327" />
+<meta name="application-name" content="The Bit Bazaar" />
+<meta name="apple-mobile-web-app-title" content="Bit Bazaar" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="description" content="A first-person pixel-art figurine store sorting adventure. Collect all 1,000 figurines in 100 complete sets." />
+<link rel="manifest" href="./manifest.webmanifest" />
+<link rel="icon" type="image/png" href="./icon.png" />
+<link rel="apple-touch-icon" href="./icon.png" />
+<title>The Bit Bazaar — The Great Figurine Sort</title>
+<link rel="stylesheet" href="./style.css" />
+</head><body>
+<div id="game">
+ <canvas id="world" width="480" height="270" aria-label="First-person view of a pixel-art figurine shop"></canvas>
+ <div class="vignette"></div>
+ <div id="crosshair" aria-hidden="true"><i></i><i></i></div>
+ <header id="topbar">
+  <div class="brand"><div class="brand-mark">★</div><div><b>THE BIT BAZAAR</b><small>THE GREAT FIGURINE SORT</small></div></div>
+  <div class="top-stats"><div class="stat"><b id="placed">0</b><span>/ 1,000 SHELVED</span></div><div class="stat"><b id="complete">0</b><span>/ 100 SETS</span></div></div>
+  <button id="albumBtn" class="chrome small" aria-label="Open collectible almanac">✦ COLLECTION</button>
+ </header>
+ <div id="progress-track"><div id="progress-fill"></div></div>
+ <div id="hud-left">
+  <div class="tag" id="aisleLabel">ENTRANCE · MAIN FLOOR</div>
+  <div class="mission"><span class="tinycaps">YOUR NEW SHOP</span><strong>One thousand lost treasures.</strong><span>Every set deserves its own row.</span></div>
+ </div>
+ <div id="interact" class="interact hidden"><span id="interactName">OBJECT</span><small id="interactDescription">PRESS E TO INTERACT</small></div>
+ <div id="bottom">
+  <div class="hint" id="desktopHint">WASD MOVE&nbsp; · &nbsp;DRAG TO LOOK&nbsp; · &nbsp;E INTERACT&nbsp; · &nbsp;TAB COLLECTION</div>
+  <button id="toteBtn" class="tote-toggle"><span class="tote-icon">▦</span><span><b>POCKET TOTE</b><small id="toteCount">0 / 10 FIGURES</small></span><span class="carat">⌃</span></button>
+ </div>
+ <div id="mobileControls" aria-label="Touch game controls">
+  <div id="joystick"><div id="stick"></div></div>
+  <button id="actionBtn" class="action"><span>✦</span><b id="actionLabel">PICK UP</b></button>
+ </div>
+ <div id="toast" role="status"></div>
+ <!-- Menus -->
+ <div id="screen" class="screen shown">
+  <div class="title-card"><div class="eyebrow">★ CONGRATULATIONS ON YOUR NEW BUSINESS ★</div><h1>THE BIT<br><em>BAZAAR</em></h1><div class="pixel-stripes"></div><p>You inherited a nerdy figurine shop. Unfortunately, its entire collection is scattered across the floor.</p><div class="three-nums"><span><b>1,000</b><small>UNIQUE FIGURES</small></span><span><b>100</b><small>COMPLETE SETS</small></span><span><b>20</b><small>DISPLAY SHELVES</small></span></div><p class="mission-text">Find every figure. Each shelf has <b>5 rows</b>, and each row must contain the <b>10 characters from the same set</b>.</p><button id="startBtn" class="primary large">OPEN THE SHOP <span>→</span></button><small class="instructions">iPhone: left joystick to walk, drag right side to look. Desktop: WASD + drag to look.</small></div>
+ </div>
+ <div id="drawer" class="drawer" aria-hidden="true">
+  <div class="drawer-head"><span id="drawerKicker">STORE SYSTEM</span><button id="closeDrawer" class="chrome close" aria-label="Close panel">✕</button></div>
+  <h2 id="drawerTitle">POCKET TOTE</h2><div class="drawer-body" id="drawerBody"></div>
+ </div>
+ <div class="drawer-shade" id="drawerShade"></div>
+ <div id="confirm" class="confirm" hidden><div><h3>START A FRESH SHOP?</h3><p>This deletes your current sorting progress. Your 1,000 figurines will be scattered again.</p><button id="cancelReset" class="chrome">CANCEL</button><button id="doReset" class="danger">RESET STORE</button></div></div>
+</div>
+<script src="./assets/collection.js"></script>
+<script src="./game.js" defer></script>
+<script>
+if ("serviceWorker" in navigator) {
+  addEventListener("load", () => navigator.serviceWorker.register("./sw.js", {updateViaCache:"none"}).catch(() => {}));
+}
+</script>
+</body></html>

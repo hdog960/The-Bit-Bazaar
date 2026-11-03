@@ -1,0 +1,19 @@
+{
+  "name": "The Bit Bazaar — The Great Figurine Sort",
+  "short_name": "Bit Bazaar",
+  "id": "./",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#161327",
+  "theme_color": "#161327",
+  "description": "Sort 1,000 unique pixel-art figurines into 100 sets across 20 shelves.",
+  "icons": [
+    {
+      "src": "./icon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
