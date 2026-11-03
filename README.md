@@ -1,5 +1,27 @@
 # The Bit Bazaar — The Great Figurine Sort
 
+## v0.12.0 — Phase 3 pinned collecting, faster browsing and precise shelf map navigation
+Under the approved [MASTER_ROADMAP_LOCKED.md](./MASTER_ROADMAP_LOCKED.md), this is an additional **Phase 3 UI and usability milestone**. No customers, store sales, resource currencies or Sacrifice Catalog decoration mechanics have been introduced.
+
+**Persistent pinned collections:**
+- Pin/unpin any of the 300 named collectible sets directly from its illustrated Almanac detail. Add a seventh, horizontally scrollable **★ PINNED** filter, stars in the list and map, and a pinned count in the collector overview.
+- `pinnedSets: number[]` is an optional backward-compatible property in the same `bit-bazaar-save-v3` JSON, validated against actual collection IDs. Older v0.11 and earlier saves load with an empty pin list and retain their figure locations, discovered IDs, clean faces, floor mess stages, hidden figures and lifetime mastered sets.
+- Pinned sets are prioritized in the map's existing **FIND A SET ALREADY ON A SHELF** dropdown. Pinning is organization only: it never reveals the location of any loose or hidden figurine.
+
+**Almanac navigation:**
+- **PREVIOUS SET / NEXT SET** move through the currently searched, sorted or filtered 300-set list without rebuilding the entire book. When a set is removed from the PINNED filter, the next/previous controls still choose a valid remaining set.
+- Returning to **COLLECTION LIST** restores the previously loaded results (48 per page) and the exact scroll position instead of sending an iPhone player back to the beginning of 300 entries.
+- Mobile-friendly pixel-art pin, list-turn and navigation controls with clearly defined tap targets and focus indicators.
+
+**Store Map:**
+- New **⌖ FIND ME** button zooms and pans the overhead floor plan to the current player coordinates and chooses the nearest shelving unit. **◉ CENTER SELECTED SHELF** centers the currently inspected rack.
+- Selecting a named set from the map dropdown or following **FIND THIS SHELF ON THE STORE MAP** from the Almanac selects the correct shelf/face, highlights the set, and automatically pans the 2× zoom view to that physical fixture. The map remains non-navigational for scattered/hidden figures.
+- Real shelf rows show exactly which set numbers are **still missing** (e.g. NEED #2, #3, #4) and highlight existing figurines sitting in a wrong numbered slot. Full, disorderly rows show the number of misplaced figures. These hints only derive from set membership and in-shelf figure numbering, never from floor positions.
+
+**Safety and QA:** Version-specific new assets and offline cache `bit-bazaar-v0.12.0`; the emergency fallback [baseline-v0.12.0-lowfx.html](./baseline-v0.12.0-lowfx.html) uses the same `pinnedSets` and existing save format with 20fps rendering and simplified floor geometry. Automated tests verified pin/unpin and reload, the seventh Almanac filter, 48/96-item paginated scrolling, next/previous/detail return, missing-number and wrong-slot map feedback, auto-centering on assigned shelf/player, old-save migration, low-effects continuity and severe-frame fallback. A 1,440-tick render simulation produced **480 drawn frames** with 112 cached canvases and the existing near/mid/far caps. **Physical iPhone playtesting remains necessary.**
+
+**Next:** continue Phase 3's visual/readability and collection-navigation QA before evaluating readiness for the 180-item Phase 4 Sacrifice Catalog.
+
 ## v0.11.0 — Phase 3 Collection Almanac discovery journal & iPhone map zoom
 Roadmap: [MASTER_ROADMAP_LOCKED.md](./MASTER_ROADMAP_LOCKED.md). **Phase 3 is still in progress**; do not begin Phase 4 Sacrifice Catalog prematurely. No customers or in-game shop sales.
 
