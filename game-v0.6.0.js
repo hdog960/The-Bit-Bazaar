@@ -205,6 +205,14 @@ function restore(){
  // Migrate the legacy 1,000-figure save once into a NEW save key; the safety build remains untouched.
  // Original twenty one-sided shelves become the FRONT faces of the same fixtures.
  const previous=raw.rows.length===20;
+ // Non-destructive v0.6 migration. Preserve the original compact shelf save
+ // before adding physical slot positions, so the user can always recover it.
+ if(!raw.slots){
+  try{
+   if(!localStorage.getItem('bit-bazaar-v3-before-ordered-slots'))
+    localStorage.setItem('bit-bazaar-v3-before-ordered-slots',JSON.stringify(raw));
+  }catch(_){}
+ }
  rows=Array.from({length:NUM_RACKS},(_,a)=>Array.from({length:ROWS},(_,b)=>{
   const oldIndex=previous?(a<40&&a%2===0?a/2:-1):a;
   const v=oldIndex>=0&&raw.rows[oldIndex]&&raw.rows[oldIndex][b];
@@ -258,7 +266,7 @@ function restore(){
  }else player={x:35,z:68,yaw:0,pitch:0};
  setupFloor();stats();
  // Copy the 1,000-figure save once; leave emergency recovery progress untouched.
- if(migratedCarryCount||!localStorage.getItem(STORE_KEY))save();
+ if(migratedCarryCount||!raw.slots||!localStorage.getItem(STORE_KEY))save();
 }
 function save(){try{localStorage.setItem(STORE_KEY,JSON.stringify({version:1,tote,rows,slots,selected,player,ground:[...groundPositions].map(([id,p])=>[id,p.x,p.z])}))}catch(e){}}
 function blocked(x,z,pad=.3){
@@ -1037,7 +1045,7 @@ $('doReset').onclick=()=>{localStorage.removeItem(STORE_KEY);resetState();$('con
 $('startBtn').onclick=()=>{
  $('screen').classList.remove('shown');playing=true;save();
  if(migratedCarryCount)notify(migratedCarryCount+' EXTRA FIGURES RETURNED TO THE FLOOR — CARRY ONE AT A TIME');
- else notify('PICK UP ONE FIGURE · WALK TO A SHELF · TAP PLACE');
+ else notify('AIM AT A SLOT · PLACE, LIFT OR SWAP · PERFECT ORDER IS 1–10');
 };
 // Snapshot integrity API for QA and external automation.
 window.BitBazaarQA={
