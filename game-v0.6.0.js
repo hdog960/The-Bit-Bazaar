@@ -294,7 +294,8 @@ function notify(s,kind='normal'){
  clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').classList.remove('visible'),2200);
 }
 function countSet(sid){let count=0;for(const rack of rows)for(const row of rack)for(const id of row)if(figure(id).setId===sid)count++;return count;}
-function rowForSet(sid){for(let s=0;s<NUM_RACKS;s++)for(let r=0;r<ROWS;r++)if(rows[s][r].length&&(rows[s][r][0]/10|0)===sid)return [s,r];return null;}
+function rowForSet(sid){for(let s=0;s<NUM_RACKS;s++)for(let r=0;r<ROWS;r++)if(rows[s][r].length&&figure(rows[s][r][0]).setId===sid)return [s,r];return null;}
+function isSetPerfect(sid){const where=rowForSet(sid);return !!where&&isPerfectRow(where[0],where[1]);}
 const figure=id=>figureById[id];
 const iconHTML=id=>`<span class="sprite" aria-hidden="true" style="background-position:${sprites.cssIcon(id)}"></span>`;
 // Collection browsing is the ONLY remaining modal. Physical shelves are used in-world.
@@ -463,20 +464,26 @@ function renderAlbum(){
 function paintAlbumList(){const dest=$('albumResults');if(!dest)return;
  const filter=albumQuery.toLowerCase().trim();let html='';
  for(const set of DB.sets){if(filter&&!`${set.name} ${set.theme} ${set.id+1}`.toLowerCase().includes(filter))continue;
-  const cnt=countSet(set.id);html+=`<button class="album-card" data-albumset="${set.id}"><div><b>${String(set.id+1).padStart(3,'0')} · ${set.name}</b><span>${set.theme} miniatures</span></div><div class="meter">${cnt}/10 ${cnt===10?'★':''}</div></button>`;
+  const cnt=countSet(set.id),perfect=isSetPerfect(set.id);
+   const status=perfect?'★ PERFECT':cnt===10?'10/10 · SORT!':cnt+'/10';
+   html+=`<button class="album-card" data-albumset="${set.id}"><div><b>${String(set.id+1).padStart(3,'0')} · ${set.name}</b><span>${set.theme} miniatures</span></div><div class="meter">${status}</div></button>`;
  }
  dest.innerHTML=html||'<div class="empty">No matching collectible series.</div>';
  dest.querySelectorAll('[data-albumset]').forEach(el=>el.onclick=()=>renderSetDetail(+el.dataset.albumset));
 }
 function renderSetDetail(sid){
  activeSet=sid;const set=DB.sets[sid],place=rowForSet(sid);
- let html=`<button class="back" id="backAlbum">← BACK TO 300 SETS</button><div class="info-strip"><b>${set.name}</b><br>${countSet(sid)} / 10 shelved · ${place?`Shelf ${place[0]+1}, Row ${place[1]+1}`:'No display row assigned yet'}</div><div class="album-detail-grid">`;
+ const perfect=isSetPerfect(sid),state=perfect?'★ PERFECT 1–10':countSet(sid)===10?'FULL · STILL NEEDS SORTING':countSet(sid)+'/10 COLLECTED';
+ let html=`<button class="back" id="backAlbum">← BACK TO 300 SETS</button><div class="info-strip"><b>${set.name}</b><br>${state} · ${place?`Shelf ${place[0]+1}, Row ${place[1]+1}`:'No display row assigned yet'}<br>Place figures in ANY slot and arrange their numbers 1–10 to complete the row.</div><div class="album-detail-grid">`;
  for(const id of set.memberIds){
   let status='SCATTERED ON FLOOR';if(tote.includes(id))status='IN HAND';
-  else for(const rack of rows)for(const row of rack)if(row.includes(id))status='✓ ON DISPLAY';
-  html+=`<div class="detail-figure">${iconHTML(id)}<div><b>${figure(id).role}</b><span>#${String(id+1).padStart(4,'0')}</span><div class="status">${status}</div></div></div>`;
+  else for(let ss=0;ss<NUM_RACKS;ss++)for(let rr=0;rr<ROWS;rr++){
+    const at=slots[ss][rr].indexOf(id);
+    if(at>=0)status='ON DISPLAY · SLOT '+(at+1);
+   }
+  html+=`<div class="detail-figure">${iconHTML(id)}<div><b>#${setNumber(id)}/10 · ${figure(id).role}</b><span>${set.name}</span><div class="status">${status}</div></div></div>`;
  }
- html+='</div><div class="info-strip">All ten figures are original to this series, with distinct pixel-art silhouettes or equipment and individual collection identifiers.</div>';
+ html+='</div><div class="info-strip">A row is PERFECT only after the 10 figures are in numerical order from left to right, 1–10.</div>';
  $('drawerBody').innerHTML=html;
  $('backAlbum').onclick=()=>renderAlbum();
 }
