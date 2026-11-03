@@ -327,6 +327,18 @@ function restore(){
  hiddenRevealed=new Set(oldCleaning?HIDDEN_IDS:(Array.isArray(raw.revealed)?raw.revealed:[]).filter(id=>HIDDEN_SET.has(id)));
  for(const [face,id] of SECRET_BY_FACE)if(faceCleaning[face]===3)hiddenRevealed.add(id);
  newlyRevealed=null;
+ // Older saves gain new ambient-floor restoration without disturbing any
+ // shelf placement, figure, or earlier hidden-discovery progress.
+ const oldAmbient=!Array.isArray(raw.floorCleaning)||raw.floorCleaning.length!==ambientMess.length;
+ if(oldAmbient){
+  try{
+   if(!localStorage.getItem('bit-bazaar-v3-before-floor-cleaning'))
+    localStorage.setItem('bit-bazaar-v3-before-floor-cleaning',JSON.stringify(raw));
+  }catch(_){}
+ }
+ floorCleaning=oldAmbient?Array(ambientMess.length).fill(0):
+  raw.floorCleaning.map((n,i)=>clamp(Math.floor(Number(n)||0),0,AMBIENT_ACTIONS[ambientMess[i].kind].length));
+ lastAmbientClean=null;
  // Non-destructive v0.6 migration. Preserve the original compact shelf save
  // before adding physical slot positions, so the user can always recover it.
  if(!raw.slots){
@@ -395,9 +407,9 @@ function restore(){
  }else player={x:35,z:68,yaw:0,pitch:0};
  setupFloor();stats();
  // Copy the 1,000-figure save once; leave emergency recovery progress untouched.
- if(migratedCarryCount||oldCleaning||!Array.isArray(raw.revealed)||!raw.slots||!Array.isArray(raw.lifetimePerfect)||!localStorage.getItem(STORE_KEY))save();
+ if(migratedCarryCount||oldCleaning||oldAmbient||!Array.isArray(raw.revealed)||!raw.slots||!Array.isArray(raw.lifetimePerfect)||!localStorage.getItem(STORE_KEY))save();
 }
-function save(){try{localStorage.setItem(STORE_KEY,JSON.stringify({version:1,tote,rows,slots,lifetimePerfect:[...lifetimePerfect],selected,player,ground:[...groundPositions].map(([id,p])=>[id,p.x,p.z]),cleaning:faceCleaning,revealed:[...hiddenRevealed]}))}catch(e){}}
+function save(){try{localStorage.setItem(STORE_KEY,JSON.stringify({version:1,tote,rows,slots,lifetimePerfect:[...lifetimePerfect],selected,player,ground:[...groundPositions].map(([id,p])=>[id,p.x,p.z]),cleaning:faceCleaning,revealed:[...hiddenRevealed],floorCleaning}))}catch(e){}}
 function blocked(x,z,pad=.3){
  if(x<1.4+pad||x>SW-1.4-pad||z<1.4+pad||z>SD-1.4-pad)return true;
  for(const f of fixtures){const dx=x-f.x,dz=z-f.z;
@@ -409,6 +421,7 @@ function stats(){
  const completed=completedRowCount();
  $('restoredCount').textContent=cleanedFaceCount();
  $('hiddenCount').textContent=hiddenRevealed.size;
+ $('floorCleanCount').textContent=floorCleanedCount();
  $('placed').textContent=placed.toLocaleString();$('complete').textContent=completed;
  const holding=tote.length>0,id=holding?tote[0]:null;
  $('carryTitle').textContent=holding?'CARRYING 1 / 1':'EMPTY HANDS';
@@ -1366,11 +1379,11 @@ $('startBtn').onclick=()=>{
 };
 // Snapshot integrity API for QA and external automation.
 window.BitBazaarQA={
- stats:()=>({floor:floor.filter(f=>f.onFloor).length,tote:tote.length,carrying:tote[0]??null,droppedPositions:groundPositions.size,migratedCarryCount,placed:rows.flat(2).length,completedRows:completedRowCount(),lifetimePerfect:lifetimePerfect.size,cleanedFaces:cleanedFaceCount(),hiddenFound:hiddenRevealed.size,hiddenRemaining:HIDDEN_IDS.length-hiddenRevealed.size,fullUnsortedRows:rows.flat(1).filter((r,i)=>r.length===PER_ROW&&!isPerfectRow(Math.floor(i/ROWS),i%ROWS)).length,capacity:NUM_RACKS*ROWS*PER_ROW,fixtures:fixtures.length,floorFixtures:NUM_FLOOR,wallFixtures:NUM_WALL,displayFaces:shelves.length,distinctAssets:DB.figures.length,renderedFigures,midRendered,farRendered,retainedNear,retainedMid,retainedFar,occlusionChecks,occludedCandidates,visibleSlope,midLimit,farLimit,midDistance,farDistance,nearbyExamined,farCandidatesExamined,renderFrames,renderLimit,viewDistance,drawInterval:Math.round(drawInterval),lastRuntimeMs,extremeFrames,sprites:sprites.stats()}),
+ stats:()=>({floor:floor.filter(f=>f.onFloor).length,tote:tote.length,carrying:tote[0]??null,droppedPositions:groundPositions.size,migratedCarryCount,placed:rows.flat(2).length,completedRows:completedRowCount(),lifetimePerfect:lifetimePerfect.size,cleanedFaces:cleanedFaceCount(),floorCleaned:floorCleanedCount(),floorMessTotal:ambientMess.length,hiddenFound:hiddenRevealed.size,hiddenRemaining:HIDDEN_IDS.length-hiddenRevealed.size,fullUnsortedRows:rows.flat(1).filter((r,i)=>r.length===PER_ROW&&!isPerfectRow(Math.floor(i/ROWS),i%ROWS)).length,capacity:NUM_RACKS*ROWS*PER_ROW,fixtures:fixtures.length,floorFixtures:NUM_FLOOR,wallFixtures:NUM_WALL,displayFaces:shelves.length,distinctAssets:DB.figures.length,renderedFigures,midRendered,farRendered,retainedNear,retainedMid,retainedFar,occlusionChecks,occludedCandidates,visibleSlope,midLimit,farLimit,midDistance,farDistance,nearbyExamined,farCandidatesExamined,renderFrames,renderLimit,viewDistance,drawInterval:Math.round(drawInterval),lastRuntimeMs,extremeFrames,sprites:sprites.stats()}),
  pick:(id)=>{if(!Number.isInteger(id)||id<0||id>=DB.figures.length||tote.length||!floor[id].onFloor)return false;grabFig(id);return tote[0]===id},
  place:(id,shelf,row,slot)=>{if(!isFigure(id))return false;if(!tote.length)grabFig(id);if(tote[0]!==id)return false;return placeDirect(shelf,row,slot)},
  directPlace:(shelf,row,slot)=>placeDirect(shelf,row,slot),putDown,undoLastPlacement,
- clean:(face)=>cleanShelfFace(face),cleanLevels:()=>[...faceCleaning],hiddenIds:()=>[...HIDDEN_IDS],revealed:()=>[...hiddenRevealed],
+ clean:(face)=>cleanShelfFace(face),cleanFloor:(id)=>cleanAmbient(id),floorPatches:()=>ambientMess.map(m=>({...m,stage:floorCleaning[m.id],steps:AMBIENT_ACTIONS[m.kind].length})),cleanLevels:()=>[...faceCleaning],hiddenIds:()=>[...HIDDEN_IDS],revealed:()=>[...hiddenRevealed],
  takeFromSlot:(shelf,row,slot)=>grabShelfFig(shelf,row,slot),
  rowContents:(shelf,row)=>[...(rows[shelf]?.[row]||[])],
  slotContents:(shelf,row)=>[...(slots[shelf]?.[row]||[])],
