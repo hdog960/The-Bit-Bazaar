@@ -99,6 +99,8 @@ function restore(){
   player={x:clamp(raw.player.x,2,68),z:clamp(raw.player.z,2,72),yaw:raw.player.yaw};
  }else player={x:35,z:68,yaw:0};
  setupFloor();stats();
+ // Copy the 1,000-figure save once; leave emergency recovery progress untouched.
+ if(!localStorage.getItem(STORE_KEY))save();
 }
 function save(){try{localStorage.setItem(STORE_KEY,JSON.stringify({version:1,tote,rows,selected,player}))}catch(e){}}
 function blocked(x,z,pad=.3){
