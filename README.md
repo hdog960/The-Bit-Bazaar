@@ -8,6 +8,7 @@ This final Phase 3 safety pass extends the approved [MASTER_ROADMAP_LOCKED.md](.
 - A small `assets/save-manager-v0.17.js` module handles file creation, local validation, consent and restoration; it makes no network requests or uploads. A backup contains the actual full 3,000-figure save, not just completion counts.
 - Restore validates the existing v3 shape: 60 faces × 5 rows × 10 slot positions, exact shelf membership, unique figure IDs, one carried figure, cleaning stages, 45 permanent floor messes, 18 possible hidden IDs, discovered/bookmarked sets, ground positions and player coordinates.
 - Invalid files or a cancelled confirmation leave the current save alone. A confirmed restore first copies the present save to `bit-bazaar-v3-before-file-import` in localStorage, then replaces `bit-bazaar-save-v3` and reloads.
+- During that restore reload, engine saves are temporarily suppressed so an iOS `pagehide` or final animation tick cannot overwrite the imported snapshot with the old in-memory shop.
 - The backup is manual. Players should keep downloaded files in Files/iCloud Drive or elsewhere they control; local Home Screen Safari storage alone is not a guaranteed archival backup.
 
 **iPhone session durability**
@@ -20,6 +21,7 @@ This final Phase 3 safety pass extends the approved [MASTER_ROADMAP_LOCKED.md](.
 - The PWA manifest description now correctly states **3,000 collectible figures / 300 named sets**, replacing its obsolete 1,000/100 wording.
 
 **Verification before publishing**
+- Final repository integrity checks passed **20/20**, and the auto-save import guard was behavior-tested to prevent stale re-saves during page reload.
 - Normal and Low-FX scripts passed syntax checks. Versioned `game-v0.17.0.js`, `game-v0.17.0-lowfx.js`, `style-v0.17.0.css`, `preview-v0.17.0.html`, `baseline-v0.17.0-lowfx.html` and manager module are committed.
 - Backup validation passed **14/14** data-integrity cases. Mocked export/import behavior passed **7/7** scenarios, including refusal of malformed saves, cancelled confirmations, successful imports, and pre-import safety copies.
 - Real Safari/iPhone Home Screen file download, file picker, low-effect recovery, and background suspend must still be tested on an actual iPhone. Simulated QA is not evidence of physical-device acceptance.
