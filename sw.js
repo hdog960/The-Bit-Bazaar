@@ -1,6 +1,6 @@
 /* Network-first so every future update appears on the same home-screen URL. */
-const CACHE="bit-bazaar-v0.1.2";
-const PRELOAD=["./","./index.html","./style.css","./game.js","./assets/collection.js","./assets/figurines.png","./manifest.webmanifest","./icon.png"];
+const CACHE="bit-bazaar-v0.2.0";
+const PRELOAD=["./","./index.html","./style.css","./game.js","./assets/collection.js","./assets/collection-extension.js","./assets/figurines.png","./manifest.webmanifest","./icon.png"];
 self.addEventListener("install",event=>{
   event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(PRELOAD)).then(()=>self.skipWaiting()));
 });
