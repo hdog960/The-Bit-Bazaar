@@ -78,7 +78,7 @@ function shelfOccludes(fig,excludeFixtureId=-1){
 let player={x:35,z:68,yaw:0};
 let tote=[],rows=[],selected=null, floor=[],figureById=DB.figures;
 const groundPositions=new Map();
-let migratedCarryCount=0;
+let migratedCarryCount=0,lastPlacement=null;
 const CELL=6,floorGrid=new Map(),distantGrid=new Map();
 // Small bounded sets remember actual selected FIGURE IDs from the previous frame.
 // No persistent canvas allocations, and no full-collection sorting during gameplay.
@@ -177,7 +177,7 @@ function distantFloor(radius){
 
 function resetState(){
  rows=Array.from({length:NUM_RACKS},()=>Array.from({length:ROWS},()=>[]));
- tote=[];selected=null;groundPositions.clear();migratedCarryCount=0;player={x:35,z:68,yaw:0};setupFloor();save();stats();
+ tote=[];selected=null;groundPositions.clear();migratedCarryCount=0;lastPlacement=null;player={x:35,z:68,yaw:0};setupFloor();save();stats();
 }
 function restore(){
  let raw;try{raw=JSON.parse(localStorage.getItem(STORE_KEY)||localStorage.getItem(LEGACY_KEY)||'null')}catch(e){raw=null}
@@ -200,6 +200,7 @@ function restore(){
  const preferred=validCarry.includes(raw.selected)?raw.selected:validCarry[0];
  tote=preferred===undefined?[]:[preferred];
  migratedCarryCount=Math.max(0,validCarry.length-tote.length);
+ lastPlacement=null;
  if(migratedCarryCount){
   try{
    if(!localStorage.getItem('bit-bazaar-v3-before-single-carry'))
@@ -239,7 +240,9 @@ function stats(){
  $('carryDetail').textContent=holding?figure(id).name:'PICK UP ONE FIGURE';
  $('carrySet').textContent=holding?DB.sets[figure(id).setId].name:'WALK UP TO A FIGURINE';
  $('carryThumb').innerHTML=holding?iconHTML(id):'<span class="empty-hand-icon">✦</span>';
- $('putDownBtn').hidden=!holding;
+ $('putDownBtn').hidden=!holding&&!lastPlacement;
+ $('putDownBtn').textContent=holding?'PUT DOWN':'UNDO';
+ $('putDownBtn').setAttribute('aria-label',holding?'Put held figurine on floor':'Undo last shelf placement');
  $('progress-fill').style.width=`${placed/DB.figures.length*100}%`;
  $('aisleLabel').textContent=`${nearestAisle()} · ${Math.max(0,DB.figures.length-placed)} TO SHELVE`;
  if(placed===DB.figures.length){setTimeout(()=>showVictory(),1200)}
@@ -304,6 +307,7 @@ function placeFig(shelfId,rowId){
   notify('THIS SET BELONGS ON DISPLAY '+(existing[0]+1)+' · ROW '+(existing[1]+1),'bad');return false;
  }
  target.push(id);tote.length=0;selected=null;groundPositions.delete(id);
+ lastPlacement={shelfId,rowId,id};
  save();stats();
  if(target.length===PER_ROW)notify('★ SET COMPLETE! '+DB.sets[sid].name);
  else notify('PLACED · ROW '+(rowId+1)+' · '+target.length+'/10 · '+DB.sets[sid].name);
@@ -316,6 +320,16 @@ function placeDirect(shelfId){
 }
 // Explicit PUT DOWN moves the single held figure onto the actual floor.
 // Save the position; never respawn or duplicate it when the app reopens.
+// One-tap undo replaces the old long shelf-menu 'take back' action.
+// Only the last placed figurine can be reclaimed; it still occupies one hand.
+function undoLastPlacement(){
+ if(tote.length||!lastPlacement)return false;
+ const {shelfId,rowId,id}=lastPlacement,row=rows[shelfId]?.[rowId];
+ if(!row||row[row.length-1]!==id){lastPlacement=null;stats();return false;}
+ row.pop();tote.push(id);selected=id;lastPlacement=null;
+ save();stats();notify('BACK IN HAND · '+figure(id).name);
+ return true;
+}
 function putDown(){
  const id=currentSelected();if(id===null)return false;
  const dir=forward(),right={x:Math.cos(player.yaw),z:Math.sin(player.yaw)};
@@ -351,7 +365,7 @@ function putDown(){
   distantGrid.set(key,choices);
  }
  groundPositions.set(id,spot);
- tote.length=0;selected=null;save();stats();
+ tote.length=0;selected=null;lastPlacement=null;save();stats();
  notify('PUT DOWN · '+figure(id).name);
  return true;
 }
@@ -386,7 +400,7 @@ function renderSetDetail(sid){
 function grabFig(id){
  if(tote.length>=MAX_TOTE){notify('HANDS FULL — PLACE OR PUT DOWN YOUR FIGURE FIRST','bad');return}
  const f=floor[id];if(!f||!f.onFloor)return;
- f.onFloor=false;tote.push(id);selected=id;
+ f.onFloor=false;tote.push(id);selected=id;lastPlacement=null;
  stats();save();notify('PICKED UP · '+figure(id).name+' · TAKE IT TO A SHELF');
 }
 function forward(){return {x:Math.sin(player.yaw),z:-Math.cos(player.yaw)}}
@@ -845,7 +859,7 @@ function joyMove(e){const rect=joy.getBoundingClientRect(),cx=rect.left+rect.wid
 function joyEnd(e){if(e.pointerId!==touch.joyId)return;touch.axisX=touch.axisY=0;touch.joyId=null;stick.style.transform='translate(0,0)'}
 joy.addEventListener('pointerup',joyEnd);joy.addEventListener('pointercancel',joyEnd);
 $('actionBtn').addEventListener('click',()=>{if(playing)interact()});
-$('putDownBtn').onclick=putDown;
+$('putDownBtn').onclick=()=>tote.length?putDown():undoLastPlacement();
 $('albumBtn').onclick=()=>modal?closeDrawer():openDrawer('album');
 $('closeDrawer').onclick=closeDrawer;$('drawerShade').onclick=closeDrawer;
 $('cancelReset').onclick=()=>$('confirm').hidden=true;
@@ -860,7 +874,7 @@ window.BitBazaarQA={
  stats:()=>({floor:floor.filter(f=>f.onFloor).length,tote:tote.length,carrying:tote[0]??null,droppedPositions:groundPositions.size,migratedCarryCount,placed:rows.flat(2).length,completedRows:rows.flat(1).filter(r=>r.length===10).length,capacity:NUM_RACKS*ROWS*PER_ROW,fixtures:fixtures.length,floorFixtures:NUM_FLOOR,wallFixtures:NUM_WALL,displayFaces:shelves.length,distinctAssets:DB.figures.length,renderedFigures,midRendered,farRendered,retainedNear,retainedMid,retainedFar,occlusionChecks,occludedCandidates,visibleSlope,midLimit,farLimit,midDistance,farDistance,nearbyExamined,farCandidatesExamined,renderFrames,renderLimit,viewDistance,drawInterval:Math.round(drawInterval),lastRuntimeMs,extremeFrames,sprites:sprites.stats()}),
  pick:(id)=>{if(!Number.isInteger(id)||id<0||id>=DB.figures.length||tote.length||!floor[id].onFloor)return false;grabFig(id);return tote[0]===id},
  place:(id,shelf,row)=>{if(!Number.isInteger(id)||id<0||id>=DB.figures.length)return false;if(!tote.length)grabFig(id);if(tote[0]!==id)return false;return placeFig(shelf,row)},
- directPlace:shelf=>placeDirect(shelf),putDown,
+ directPlace:shelf=>placeDirect(shelf),putDown,undoLastPlacement,
  rowContents:(shelf,row)=>[...(rows[shelf]?.[row]||[])],
  figurePosition:id=>floor[id]?{x:floor[id].x,z:floor[id].z,onFloor:floor[id].onFloor}:null,
  reset:resetState, get player(){return player}, shelves, dataset:DB,
