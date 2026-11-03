@@ -1092,7 +1092,9 @@ function paintStoreMap(){
  const nowMap=$('storeMapFrame');
  if(oldScroll&&nowMap){nowMap.scrollLeft=oldScroll.left;nowMap.scrollTop=oldScroll.top;}
  $('mapFindSet').onchange=()=>{
-  const id=Number($('mapFindSet').value);
+  const value=$('mapFindSet').value;
+  if(value==='')return;
+  const id=Number(value);
   const selectedSet=assigned.find(x=>x.id===id);
   if(!selectedSet)return;
   mapSelectedFaceId=selectedSet.face;
