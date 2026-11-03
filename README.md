@@ -1,5 +1,20 @@
 # The Bit Bazaar — The Great Figurine Sort
 
+## v0.13.0 — Phase 3 in-store pinned hunt tracker and numbered collection checklists
+Continues the approved [MASTER_ROADMAP_LOCKED.md](./MASTER_ROADMAP_LOCKED.md), with **no customers, no shop sales, and no decoration currency**. Phase 4 Sacrifice Catalog is deliberately not implemented yet.
+
+**In-store HUNT tracker:** an optional, collapsible **★ HUNT** panel under the existing restoration counters. On an unpinned store, tapping it offers a button to open the Collection Almanac. Once sets are pinned, the tracker displays one chosen set at a time: actual name, pinned-set index, 0–10 genuinely discovered, 0–10 physically shelved, number correctly placed, and ten numbered tiles showing `CORRECT`, `WRONG SLOT`, `IN HAND`, `DISCOVERED` or `UNKNOWN` status. PREVIOUS/NEXT cycles the pinned collection list; COLLECTION opens its full illustrated page. The panel can be collapsed at any point and does not give even approximate loose-figurine coordinates.
+
+**Much clearer detail checklist:** each individual collection now opens with a 10-cell numbered overview identifying which figures remain off the shelf and which already displayed figures are in incorrect numbered slots. It is derived from real stored figure numbers, not generated guesses, so it remains correct after drops, lifts, swaps, relocation and reordering.
+
+**Save compatibility:** a single optional `trackedSetId` is added to the existing `bit-bazaar-save-v3` JSON. On reload, this value is accepted only if its set remains pinned; old v0.12 and earlier saves fall back to the lowest numbered pinned set. Removing the tracked set automatically chooses another bookmarked set, or returns the tracker to its empty state. The optional panel itself starts collapsed on reload so it never blocks the world view unexpectedly. Existing `pinnedSets`, `seenFigures`, 3,000-figure layout, 18 secrets, 60 shelf cleaning faces, 45 floor messes and permanent mastery data remain intact.
+
+**Mobile visual work:** separate bright pixel-number tiles for correctly shelved pieces, misplaced items, held items, discovered-but-unshelved miniatures and unknowns; large touch targets for hunt cycling. After starting play, the original instructional mission paragraph collapses to free screen space; the optional tracker opens only when the player chooses to use it. All HUD art is CSS, not a new sprite atlas or canvas.
+
+**QA:** staging and JavaScript syntax checks passed. Automated in-browser-simulation checks covered fresh stores, no-pins behavior, HUNT-to-Almanac access, pin/cycle/open controls, pickup/drop/placement live updates, a misplaced figure #1 in physical slot 8, valid figure numbers, saved hunt and shelf restoration after reload, unpinning active set, old-save fallback, matching low-effects build and extreme slow-frame recovery. A 1,440-tick 60fps simulation rendered 480 frames within the existing **112-canvas sprite cache** and 70/30/65 near/mid/far figure caps. **Real-device iPhone usability testing remains necessary.**
+
+**Next:** finish Phase 3 quality/visual review on a physical iPhone, then assess readiness to begin the major 180-piece Sacrifice Catalog. Do not prematurely report Phase 4 completed.
+
 ## v0.12.0 — Phase 3 pinned collecting, faster browsing and precise shelf map navigation
 Under the approved [MASTER_ROADMAP_LOCKED.md](./MASTER_ROADMAP_LOCKED.md), this is an additional **Phase 3 UI and usability milestone**. No customers, store sales, resource currencies or Sacrifice Catalog decoration mechanics have been introduced.
 
