@@ -457,7 +457,7 @@ function findFocus(){
   for(const s of shelves){
    const f=s.fixture,dx=player.x-f.x,dz=player.z-f.z;
    const u=dx*f.ux+dz*f.uz,front=(dx*f.nx+dz*f.nz)*s.face;
-   if(Math.abs(u)>f.w/2+.25||front<f.depth/2-.2||front>f.depth/2+4.8)continue;
+   if(Math.abs(u)>f.w/2+.25||front<f.depth/2-.2||front>f.depth/2+5.9)continue;
    const dd=s.face*(f.depth/2+.11);
    const facePos=shelfAt(f,0,dd);
    if(shelfOccludes(facePos,f.id))continue;
