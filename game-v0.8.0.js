@@ -920,6 +920,45 @@ function drawWall(wall){
  for(const h of [.25,4.35])line3(x1,z1,h,x2,z2,h,h===.25?'#2d2638':'#6d5365',h===4.35?2.5:2);
  // Shelves now provide the environmental detail; no giant wall slogans.
 }
+// Dust, cobweb and packaging are procedural lightweight world geometry.
+// No atlas, texture, or canvas allocation is added to the renderer.
+function drawShelfGrime(f,faceId,facing,front,depth){
+ const progress=faceCleaning[faceId];
+ if(progress>=3||depth>25)return;
+ const dd=front+facing*.15,w=f.w/2;
+ if(progress===0){
+  ctx.globalAlpha=.31;
+  shelfPanel(f,dd,.19,4.1,'#aaa0a8');
+  ctx.globalAlpha=1;
+  for(let r=0;r<5;r++)for(let n=0;n<4;n++){
+   const u=-w+(n+.35+(r%2)*.2)*f.w/4,y=.49+r*.72;
+   shelfBeam(f,u,dd+facing*.02,y,u+.31,dd+facing*.02,y+.016,
+    n%2?'#b2aaa0':'#cab9a3',Math.max(1,FOCAL/Math.max(4,depth)*.012));
+  }
+ }
+ if(progress<=1){
+  for(const side of [-1,1]){
+   const u=side*w,span=Math.min(1.35,f.w*.16);
+   for(let t=1;t<=3;t++)
+    shelfBeam(f,u,dd,4.08,u-side*span*t/3,dd,4.08-span*(4-t)/4,
+     '#d5c6c7',Math.max(.8,FOCAL/Math.max(5,depth)*.009));
+   for(let t=1;t<=2;t++)
+    shelfBeam(f,u-side*span*t/3,dd,4.08,u-side*span,dd,4.08-span*t/3,
+     '#afa7b5',Math.max(.75,FOCAL/Math.max(5,depth)*.007));
+  }
+ }
+ if(progress<=2){
+  for(let i=0;i<3;i++){
+   const u=-w+(i+.65)*f.w/3,p=shelfProject(f,u,dd,.26);
+   if(p.depth<=.3)continue;
+   const size=Math.max(2,FOCAL/Math.max(5,p.depth)*.23);
+   ctx.fillStyle=i%2?'#896d63':'#be9a70';
+   ctx.fillRect(Math.round(p.x-size*.5),Math.round(p.y-size),size,size*.8);
+   ctx.fillStyle='#dbbd88';
+   ctx.fillRect(Math.round(p.x-size*.32),Math.round(p.y-size*.7),size*.54,Math.max(1,size*.08));
+  }
+ }
+}
 function drawShelf(f){
  const rel=(player.x-f.x)*f.nx+(player.z-f.z)*f.nz;
  const facing=f.kind==='wall'?1:(rel>=0?1:-1);
@@ -979,6 +1018,7 @@ function drawShelf(f){
  }
  shelfBeam(f,-f.w/2-.12,d+facing*.06,4.18,f.w/2+.12,d+facing*.06,4.18,'#f6c986',Math.max(1,sz*.035));
  shelfBeam(f,-f.w/2-.12,d+facing*.06,.15,f.w/2+.12,d+facing*.06,.15,'#7f5366',Math.max(1,sz*.04));
+ drawShelfGrime(f,faceId,facing,d,depth);
  // Short-lived physical slot highlight; just four beams on the affected rack.
  if(slotPulse&&slotPulse.shelfId===faceId){
   const age=performance.now()-slotPulse.at;
@@ -991,11 +1031,11 @@ function drawShelf(f){
   }
  }
  // Highlight exactly ONE cubby of the shelf row being targeted.
- if(focus&&['shelf','shelf-figure'].includes(focus.kind)&&focus.id===faceId){
+ if(focus&&['shelf','shelf-figure','mess'].includes(focus.kind)&&focus.id===faceId){
   const r=focus.row,k=focus.slot,y=.44+r*.72,drawD=d+facing*.17,
    left=slotEdge(f,facing,k),right=slotEdge(f,facing,k+1);
   const plan=focus.kind==='shelf'?placementPlan(faceId,r,k,currentSelected()):{ok:true};
-  const tint=plan.ok?'#9effc7':'#ff8f9f',width=Math.max(1.4,FOCAL/Math.max(3,depth)*.016);
+  const tint=focus.kind==='mess'?'#b9f7ee':plan.ok?'#9effc7':'#ff8f9f',width=Math.max(1.4,FOCAL/Math.max(3,depth)*.016);
   shelfBeam(f,left,drawD,y,right,drawD,y,tint,width);
   shelfBeam(f,left,drawD,y+.68,right,drawD,y+.68,tint,width);
   shelfBeam(f,left,drawD,y,left,drawD,y+.68,tint,width);
