@@ -11,7 +11,7 @@
 <link rel="icon" type="image/png" href="./icon.png" />
 <link rel="apple-touch-icon" href="./icon.png" />
 <title>The Bit Bazaar — The Great Figurine Sort</title>
-<link rel="stylesheet" href="./style-v0.4.0.css" />
+<link rel="stylesheet" href="./style-v0.5.0.css" />
 </head><body>
 <div id="game">
  <canvas id="world" width="480" height="270" aria-label="First-person view of a pixel-art figurine shop"></canvas>
@@ -43,7 +43,7 @@
  <div id="toast" role="status"></div>
  <!-- Menus -->
  <div id="screen" class="screen shown">
-  <div class="title-card"><div class="eyebrow">★ CONGRATULATIONS ON YOUR NEW BUSINESS ★</div><h1>THE BIT<br><em>BAZAAR</em></h1><div class="pixel-stripes"></div><p>You inherited a nerdy figurine shop. Unfortunately, its entire collection is scattered across the floor.</p><div class="three-nums"><span><b>3,000</b><small>UNIQUE FIGURES</small></span><span><b>300</b><small>COMPLETE SETS</small></span><span><b>40</b><small>SHELF UNITS</small></span></div><p class="mission-text">Pick up <b>one figurine at a time</b>, approach a shelf, and tap <b>PLACE</b>. Rows automatically group figures into their correct sets of ten. Your shop has 20 double-sided floor racks and 20 wall shelves.</p><button id="startBtn" class="primary large">OPEN THE SHOP <span>→</span></button><small class="instructions">iPhone: left joystick to walk, drag to look, tap PLACE at a shelf. Desktop: WASD, drag to look, E to pick up/place.</small></div>
+  <div class="title-card"><div class="eyebrow">★ CONGRATULATIONS ON YOUR NEW BUSINESS ★</div><h1>THE BIT<br><em>BAZAAR</em></h1><div class="pixel-stripes"></div><p>You inherited a nerdy figurine shop. Unfortunately, its entire collection is scattered across the floor.</p><div class="three-nums"><span><b>3,000</b><small>UNIQUE FIGURES</small></span><span><b>300</b><small>COMPLETE SETS</small></span><span><b>40</b><small>SHELF UNITS</small></span></div><p class="mission-text">Use the <b>center reticle</b> to pick up one figurine, then look up or down at the <b>exact shelf row</b> where you want to place it. Empty rows and matching-set rows accept figures; an in-progress set can be moved to an empty row on a different shelf.</p><button id="startBtn" class="primary large">OPEN THE SHOP <span>→</span></button><small class="instructions">iPhone: drag to look left/right/up/down, aim the center reticle, tap PICK UP or PLACE. Desktop: drag to look, WASD to walk, E to interact.</small></div>
  </div>
  <div id="drawer" class="drawer" aria-hidden="true">
   <div class="drawer-head"><span id="drawerKicker">STORE SYSTEM</span><button id="closeDrawer" class="chrome close" aria-label="Close panel">✕</button></div>
@@ -55,10 +55,10 @@
 <script src="./assets/collection.js"></script>
 <script src="./assets/collection-extension.js"></script>
 <script src="./assets/optimized-sprites.js"></script>
-<script src="./game-v0.4.0.js?v=0.4.0" defer></script>
+<script src="./game-v0.5.0.js?v=0.5.0" defer></script>
 <script>
 if ("serviceWorker" in navigator) {
-  addEventListener("load", () => navigator.serviceWorker.register("./sw.js?v=0.4.0", {updateViaCache:"none"}).catch(() => {}));
+  addEventListener("load", () => navigator.serviceWorker.register("./sw.js?v=0.5.0", {updateViaCache:"none"}).catch(() => {}));
 }
 </script>
 </body></html>
