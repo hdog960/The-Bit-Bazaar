@@ -97,6 +97,8 @@ function rowStatus(s,r){
 
 const groundPositions=new Map();
 let migratedCarryCount=0,lastPlacement=null;
+let lifetimePerfect=new Set(),inspectionReturn='',inspectedId=null;
+let perfectBannerTimer=0,slotPulse=null;
 const CELL=6,floorGrid=new Map(),distantGrid=new Map();
 // Small bounded sets remember actual selected FIGURE IDs from the previous frame.
 // No persistent canvas allocations, and no full-collection sorting during gameplay.
@@ -197,7 +199,7 @@ function distantFloor(radius){
 function resetState(){
  rows=Array.from({length:NUM_RACKS},()=>Array.from({length:ROWS},()=>[]));
  slots=Array.from({length:NUM_RACKS},()=>Array.from({length:ROWS},EMPTY_ROW));
- tote=[];selected=null;groundPositions.clear();migratedCarryCount=0;lastPlacement=null;player={x:35,z:68,yaw:0,pitch:0};setupFloor();save();stats();
+ tote=[];selected=null;groundPositions.clear();migratedCarryCount=0;lastPlacement=null;lifetimePerfect.clear();slotPulse=null;player={x:35,z:68,yaw:0,pitch:0};setupFloor();save();stats();
 }
 function restore(){
  let raw;try{raw=JSON.parse(localStorage.getItem(STORE_KEY)||localStorage.getItem(LEGACY_KEY)||'null')}catch(e){raw=null}
@@ -239,6 +241,12 @@ function restore(){
   return place;
  }));
  for(let si=0;si<NUM_RACKS;si++)for(let ri=0;ri<ROWS;ri++)syncRow(si,ri);
+ // Older saves predate lifetime mastery. Preserve and infer perfection
+ // from their existing physical rows, never revoke mastered sets on reload.
+ lifetimePerfect=new Set((Array.isArray(raw.lifetimePerfect)?raw.lifetimePerfect:[])
+   .filter(id=>Number.isInteger(id)&&id>=0&&id<DB.sets.length));
+ for(let ss=0;ss<NUM_RACKS;ss++)for(let rr=0;rr<ROWS;rr++)
+  if(isPerfectRow(ss,rr))lifetimePerfect.add(figure(slots[ss][rr][0]).setId);
  const old=Array.isArray(raw.tote)?raw.tote:[];
  const validCarry=old.filter(id=>Number.isInteger(id)&&id>=0&&id<DB.figures.length&&!used.has(id));
  const preferred=validCarry.includes(raw.selected)?raw.selected:validCarry[0];
@@ -266,9 +274,9 @@ function restore(){
  }else player={x:35,z:68,yaw:0,pitch:0};
  setupFloor();stats();
  // Copy the 1,000-figure save once; leave emergency recovery progress untouched.
- if(migratedCarryCount||!raw.slots||!localStorage.getItem(STORE_KEY))save();
+ if(migratedCarryCount||!raw.slots||!Array.isArray(raw.lifetimePerfect)||!localStorage.getItem(STORE_KEY))save();
 }
-function save(){try{localStorage.setItem(STORE_KEY,JSON.stringify({version:1,tote,rows,slots,selected,player,ground:[...groundPositions].map(([id,p])=>[id,p.x,p.z])}))}catch(e){}}
+function save(){try{localStorage.setItem(STORE_KEY,JSON.stringify({version:1,tote,rows,slots,lifetimePerfect:[...lifetimePerfect],selected,player,ground:[...groundPositions].map(([id,p])=>[id,p.x,p.z])}))}catch(e){}}
 function blocked(x,z,pad=.3){
  if(x<1.4+pad||x>SW-1.4-pad||z<1.4+pad||z>SD-1.4-pad)return true;
  for(const f of fixtures){const dx=x-f.x,dz=z-f.z;
@@ -345,6 +353,7 @@ function placementPlan(shelfId,rowId,slotId,id){
 function placeFig(shelfId,rowId,slotId){
  const id=currentSelected(),plan=placementPlan(shelfId,rowId,slotId,id);
  if(!plan.ok){notify(plan.message,'bad');return false;}
+ const wasPerfect=isPerfectRow(shelfId,rowId);
  const target=slots[shelfId][rowId],targetBefore=target.slice();
  const from=plan.relocate?slots[plan.relocate[0]][plan.relocate[1]]:null;
  const fromBefore=from?from.slice():null;
@@ -366,6 +375,13 @@ function placeFig(shelfId,rowId,slotId){
  const displaced=target[slotId];
  target[slotId]=id;
  syncRow(shelfId,rowId);
+ slotPulse={shelfId,rowId,slotId,at:performance.now()};
+ const nowPerfect=isPerfectRow(shelfId,rowId);
+ if(nowPerfect&&!wasPerfect){
+  const firstTime=!lifetimePerfect.has(figure(id).setId);
+  lifetimePerfect.add(figure(id).setId);
+  showPerfectBanner(figure(id).setId,firstTime);
+ }
  if(isFigure(displaced)){
   // The occupied figure goes directly into the single hand; never use a tote.
   tote[0]=displaced;selected=displaced;lastPlacement=null;
@@ -374,8 +390,8 @@ function placeFig(shelfId,rowId,slotId){
   tote.length=0;selected=null;
   lastPlacement={shelfId,rowId,slotId,id,targetBefore,
    source:plan.relocate?plan.relocate.slice():null,sourceBefore:fromBefore};
-  if(isPerfectRow(shelfId,rowId))
-   notify('★ PERFECT SET! '+DB.sets[figure(id).setId].name+' · 1–10');
+  if(nowPerfect)
+   notify('★ PERFECT 1–10! '+DB.sets[figure(id).setId].name);
   else if(rowCount(shelfId,rowId)===PER_ROW)
    notify('FULL BUT UNSORTED · ARRANGE 1–10');
   else notify('PLACED #'+setNumber(id)+'/10 · POSITION '+(slotId+1));
@@ -401,6 +417,7 @@ function grabShelfFig(shelfId,rowId,slotId){
  const row=slots[shelfId]?.[rowId],id=row?.[slotId];
  if(!isFigure(id))return false;
  row[slotId]=null;syncRow(shelfId,rowId);
+ slotPulse={shelfId,rowId,slotId,at:performance.now()};
  tote[0]=id;selected=id;lastPlacement=null;
  save();stats();notify('LIFTED #'+setNumber(id)+'/10 · '+DB.sets[figure(id).setId].name);
  return true;
@@ -418,6 +435,7 @@ function undoLastPlacement(){
   syncRow(source[0],source[1]);
  }
  tote[0]=id;selected=id;lastPlacement=null;
+ slotPulse={shelfId,rowId,slotId,at:performance.now()};
  save();stats();notify('BACK IN HAND · #'+setNumber(id));
  return true;
 }
