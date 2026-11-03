@@ -2,6 +2,14 @@
 
 iPhone-first pixel-art collectible-store game. Live: https://hdog960.github.io/The-Bit-Bazaar/
 
+## v0.3.1: optional-distance upgrade to the stable 3,000-figure expansion
+- Full unique pixel sprites still render with a hard 70-figure cap to 19 store units.
+- Farther away, an additional **30** figures render as tiny sprites from the **already-loaded original atlas** (no extra sprite texture generation) between roughly 9 and 29 store units; selected figures are distributed across near/middle/outer depth bands.
+- Beyond 29 units, up to **65** lightweight pixel silhouettes are visible out to **39 store units**, about twice the original view distance. These are simple colored rectangles, not new images.
+- The distant renderer samples no more than 7 real figure references per six-unit spatial tile, so camera rotation doesn't scan all 3,000 figures.
+- If the added distance causes repeated severe frame stalls, the game switches to [stable.html](https://hdog960.github.io/The-Bit-Bazaar/stable.html), the previously verified 3,000-figure v0.3.0 engine, which uses the SAME v3 save. That engine can still fall back to safe.html, the 1,000-figure recovery game, if needed.
+- This was tested in 1,200 simulated animation iterations with 112 small sprite canvases maximum. Physical iPhone testing remains necessary to verify comfort and stability.
+
 ## v0.3.0: safe 3,000-figure expansion
 - **3,000 unique collectible IDs and names**, distributed across **300 themed sets of exactly ten**.
 - **20 freestanding racks with TWO usable faces**: 20 × 2 × 5 × 10 = **2,000 shelf slots**.
