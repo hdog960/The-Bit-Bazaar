@@ -1,3 +1,4 @@
+/* Bit Bazaar visual revision 0.1.2: clipped shelf geometry, walnut rear panels, readable distance signs. */
 /* THE BIT BAZAAR — no framework, no remote services, no external dependencies.
    First-person software projection; 1,000 real, separate collectibles.
    World coordinates are in store floor units. Figures never respawn when shelved. */
@@ -26,7 +27,8 @@ let tote=[],rows=[],selected=null, floor=[], figureById=DB.figures;
 let modal='', focus=null, playing=false, shift=false, activeSet=0, albumQuery='';
 let lastSave=0,lastFrame=performance.now(), toastTimer=0;
 const keys=new Set(), touch={lookId:null,lastX:0,lastY:0,joyId:null,axisX:0,axisY:0};
-let targetBoxes=[], floorBuffer=ctx.createImageData(W,H-HORIZON);const allUsed=()=>new Set([...tote,...rows.flat(2)]);
+let targetBoxes=[], floorBuffer=ctx.createImageData(W,H-HORIZON);
+const allUsed=()=>new Set([...tote,...rows.flat(2)]);
 const clamp=(n,a,b)=>Math.min(b,Math.max(a,n));
 const sqr=n=>n*n;
 function srand(seed){ let s=seed>>>0;return ()=>{s=(s*1664525+1013904223)>>>0;return s/4294967296;}; }
@@ -190,11 +192,13 @@ function grabFig(id){
  stats();save();notify(`FOUND #${String(id+1).padStart(4,'0')} · ${figure(id).name}`);
 }
 function forward(){return {x:Math.sin(player.yaw),z:-Math.cos(player.yaw)}}
+// Depth-aware perspective is required when a shelf corner passes the camera.
 function project(x,z,h){
  const dx=x-player.x,dz=z-player.z,sy=Math.sin(player.yaw),cy=Math.cos(player.yaw);
- const dep=dx*sy-dz*cy;
- return {x:W/2+(dx*cy+dz*sy)*FOCAL/Math.max(.13,dep),y:HORIZON+(EYE-h)*FOCAL/Math.max(.13,dep),depth:dep};
+ const dep=dx*sy-dz*cy,side=dx*cy+dz*sy,d=Math.max(.18,dep);
+ return {x:W/2+side*FOCAL/d,y:HORIZON+(EYE-h)*FOCAL/d,depth:dep,side,height:h};
 }
+function screenPoint(v){const d=Math.max(.18,v.depth);return {x:W/2+v.side*FOCAL/d,y:HORIZON+(EYE-v.height)*FOCAL/d};}
 function cameraDepth(x,z){return (x-player.x)*Math.sin(player.yaw)-(z-player.z)*Math.cos(player.yaw)}
 function cameraSide(x,z){return (x-player.x)*Math.cos(player.yaw)+(z-player.z)*Math.sin(player.yaw)}
 function findFocus(){
@@ -263,12 +267,28 @@ function drawFloor(){
  ctx.putImageData(floorBuffer,0,HORIZON);
 }
 function solidQuad(a,b,c,d,color){
- if([a,b,c,d].every(v=>v.depth<.15))return;
- ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.lineTo(c.x,c.y);ctx.lineTo(d.x,d.y);ctx.closePath();ctx.fillStyle=color;ctx.fill();
+ const near=.24,poly=[a,b,c,d],clipped=[];
+ for(let i=0;i<poly.length;i++){
+  const curr=poly[i],prev=poly[(i+poly.length-1)%poly.length];
+  const inside=curr.depth>=near,wasInside=prev.depth>=near;
+  if(inside!==wasInside){
+   const t=(near-prev.depth)/(curr.depth-prev.depth);
+   clipped.push({side:prev.side+(curr.side-prev.side)*t,height:prev.height+(curr.height-prev.height)*t,depth:near});
+  }
+  if(inside)clipped.push(curr);
+ }
+ if(clipped.length<3)return;
+ ctx.beginPath();const first=screenPoint(clipped[0]);ctx.moveTo(first.x,first.y);
+ for(let i=1;i<clipped.length;i++){const v=screenPoint(clipped[i]);ctx.lineTo(v.x,v.y);}
+ ctx.closePath();ctx.fillStyle=color;ctx.fill();
 }
 function line3(ax,az,ah,bx,bz,bh,col,w=1){
- const a=project(ax,az,ah),b=project(bx,bz,bh);if(a.depth<.15&&b.depth<.15)return;
- ctx.strokeStyle=col;ctx.lineWidth=w;ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();
+ let a=project(ax,az,ah),b=project(bx,bz,bh);const near=.24;
+ if(a.depth<near&&b.depth<near)return;
+ if(a.depth<near){const t=(near-a.depth)/(b.depth-a.depth);a={side:a.side+(b.side-a.side)*t,height:a.height+(b.height-a.height)*t,depth:near};}
+ else if(b.depth<near){const t=(near-b.depth)/(a.depth-b.depth);b={side:b.side+(a.side-b.side)*t,height:b.height+(a.height-b.height)*t,depth:near};}
+ const p=screenPoint(a),q=screenPoint(b);
+ ctx.strokeStyle=col;ctx.lineWidth=w;ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(q.x,q.y);ctx.stroke();
 }
 function quadAt(x1,x2,z,h1,h2,col){solidQuad(project(x1,z,h2),project(x2,z,h2),project(x2,z,h1),project(x1,z,h1),col)}
 function drawWall(wall){
@@ -285,24 +305,67 @@ function drawWall(wall){
  let mx=x1+(x2-x1)*tmid,mz=z1+(z2-z1)*tmid;
  if(cameraDepth(mx,mz)>3){
   let lt=project(mx,mz,3.0),rt=project(mx,mz,3.65);const scale=FOCAL/Math.max(1,lt.depth);
-  if(scale>6 && Math.abs(lt.x)<W*3){
-   ctx.fillStyle='#5f4459';ctx.fillRect(lt.x-1.25*scale,rt.y,2.5*scale,.65*scale);
-   ctx.strokeStyle='#b88b79';ctx.lineWidth=clamp(scale*.035,1,5);ctx.strokeRect(lt.x-1.25*scale,rt.y,2.5*scale,.65*scale);
-   ctx.fillStyle=wall.n%3?'#efc58b':'#9ce7db';
-   ctx.font=`bold ${clamp(scale*.17,4,20)}px monospace`;ctx.textAlign='center';
-   ctx.fillText(['BUY • COLLECT','BEHOLD THE RARE','OPEN EVERY DAY','MINIATURE MAGIC'][wall.n%4],lt.x,rt.y+scale*.38);
+  if(scale>4 && Math.abs(lt.x)<W*3){
+   const signW=3.3*scale, signH=.86*scale;
+   const signX=lt.x-signW/2, signY=rt.y-.06*scale;
+   ctx.fillStyle='#5b4256';ctx.fillRect(signX,signY,signW,signH);
+   ctx.strokeStyle='#efbf83';ctx.lineWidth=clamp(scale*.045,1.5,6);ctx.strokeRect(signX,signY,signW,signH);
+   ctx.fillStyle='#715465';ctx.fillRect(signX+scale*.08,signY+scale*.08,signW-scale*.16,signH-scale*.16);
+   const text=['BUY • COLLECT','BEHOLD THE RARE','OPEN EVERY DAY','MINIATURE MAGIC'][wall.n%4];
+   ctx.textAlign='center';ctx.textBaseline='middle';
+   ctx.font=`bold ${clamp(scale*.23,8,28)}px monospace`;
+   ctx.lineWidth=clamp(scale*.08,2,6);ctx.strokeStyle='#2f2237';ctx.lineJoin='round';
+   ctx.strokeText(text,lt.x,signY+signH*.54);
+   ctx.fillStyle=wall.n%3?'#f8d694':'#b7fff1';ctx.fillText(text,lt.x,signY+signH*.54);
+   ctx.textBaseline='alphabetic';
   }
  }
 }
 function drawShelf(s){
  const frontZ=s.z+.53,rearZ=s.z-.53,left=s.x-s.w/2,right=s.x+s.w/2;
  const rearview=player.z<s.z-.5;
+ const faceZ=rearview?rearZ:frontZ;
+ const labelZ=rearview?rearZ-.02:frontZ+.1;
  // side profile / rack body
  solidQuad(project(left,rearZ,4.15),project(right,rearZ,4.15),project(right,rearZ,.1),project(left,rearZ,.1),'#261c32');
  solidQuad(project(right,frontZ,4.15),project(right,rearZ,4.15),project(right,rearZ,.1),project(right,frontZ,.1),'#6d4752');
  solidQuad(project(left,frontZ,4.15),project(left,rearZ,4.15),project(left,rearZ,.1),project(left,frontZ,.1),'#987055');
- quadAt(left,right,frontZ,.1,4.15,rearview?'#544053':'#392d3c');
+ // Front and rear faces both render as finished wood so the back of the shelf reads correctly.
+ if(rearview){
+  quadAt(left,right,frontZ,.1,4.15,'#392d3c');
+  quadAt(left,right,rearZ,.1,4.15,'#6b4b56');
+ }else{
+  quadAt(left,right,rearZ,.1,4.15,'#6b4b56');
+  quadAt(left,right,frontZ,.1,4.15,'#392d3c');
+ }
  line3(left,frontZ,4.15,right,frontZ,4.15,'#f0c58a',Math.max(1,FOCAL/Math.max(1,cameraDepth(s.x,s.z))*.065));
+ line3(left,rearZ,4.15,right,rearZ,4.15,'#d5b086',Math.max(1,FOCAL/Math.max(1,cameraDepth(s.x,s.z))*.05));
+ // The reverse face is a five-plank walnut display backing, not a bare wall.
+ if(rearview){
+  const backZ=rearZ-.02;
+  for(let r=0;r<ROWS;r++){
+   const lo=.19+r*.72,hi=lo+.67;
+   quadAt(left+.15,right-.15,backZ,lo,hi,r%2?'#704d5c':'#80596a');
+   line3(left+.15,backZ-.01,lo,right-.15,backZ-.01,lo,'#3d2e43',Math.max(1,FOCAL/Math.max(1,cameraDepth(s.x,s.z))*.027));
+   for(let i=1;i<=3;i++){
+    const gy=lo+i*.15;
+    line3(left+.35,backZ-.012,gy,right-.35,backZ-.012,gy,r%2?'#895f6c':'#99727b',Math.max(1,FOCAL/Math.max(1,cameraDepth(s.x,s.z))*.004));
+   }
+  }
+  for(const x of [left+.14,s.x,right-.14])line3(x,backZ-.024,.15,x,backZ-.024,4.04,'#b98b73',Math.max(1,FOCAL/Math.max(1,cameraDepth(s.x,s.z))*.035));
+  for(const y of [.14,4.04])line3(left+.08,backZ-.03,y,right-.08,backZ-.03,y,'#e1ad82',Math.max(1,FOCAL/Math.max(1,cameraDepth(s.x,s.z))*.034));
+  const plate=project(s.x,backZ-.045,2.45),plateScale=FOCAL/Math.max(.3,plate.depth);
+  if(plate.depth>1 && plate.depth<65 && plate.x>-200 && plate.x<W+200){
+   const pw=2.3*plateScale,ph=.42*plateScale;
+   ctx.fillStyle='#33263f';ctx.fillRect(plate.x-pw/2,plate.y-ph/2,pw,ph);
+   ctx.strokeStyle='#f1be83';ctx.lineWidth=Math.max(1,plateScale*.026);ctx.strokeRect(plate.x-pw/2,plate.y-ph/2,pw,ph);
+   ctx.textAlign='center';ctx.textBaseline='middle';ctx.font=`bold ${clamp(plateScale*.18,9,25)}px monospace`;
+   ctx.strokeStyle='#231b2e';ctx.lineWidth=Math.max(2,plateScale*.035);
+   const plateLabel=`SHELF ${String(s.id+1).padStart(2,'0')}`;
+   ctx.strokeText(plateLabel,plate.x,plate.y);ctx.fillStyle='#ffdda5';ctx.fillText(plateLabel,plate.x,plate.y);
+   ctx.textBaseline='alphabetic';
+  }
+ }
  // Wooden supports and five plank rows, 10 real slots each.
  if(!rearview){
   for(let r=0;r<ROWS;r++){
@@ -330,20 +393,26 @@ function drawShelf(s){
   }
  }
  // Outer oak-edged structure, gilded shelf nameplate.
- const sz=FOCAL/Math.max(.4,cameraDepth(s.x,frontZ));
+ const sz=FOCAL/Math.max(.4,cameraDepth(s.x,faceZ));
  const edge=Math.max(1,sz*.075);
  line3(left,frontZ,.1,left,frontZ,4.15,'#ca9d6f',edge);
  line3(right,frontZ,.1,right,frontZ,4.15,'#8b5960',edge);
- quadAt(left-.15,right+.15,frontZ+.07,4.13,4.5,'#6e4663');
- line3(left-.15,frontZ+.075,4.48,right+.15,frontZ+.075,4.48,'#f8c77e',Math.max(1,sz*.035));
- const mid=project(s.x,frontZ+.1,4.31);
- if(mid.depth>1 && sz>4 && mid.x>-200 && mid.x<W+200){
-  ctx.textAlign='center';ctx.fillStyle='#fbd998';ctx.font=`bold ${clamp(sz*.17,5,20)}px monospace`;
-  ctx.fillText(`SHELF ${String(s.id+1).padStart(2,'0')}`,mid.x,mid.y+sz*.06);
+ line3(left,rearZ,.1,left,rearZ,4.15,'#b58a65',Math.max(1,edge*.8));
+ line3(right,rearZ,.1,right,rearZ,4.15,'#7a5c61',Math.max(1,edge*.8));
+ quadAt(left-.15,right+.15,faceZ+(rearview?-.07:.07),4.13,4.5,rearview?'#775e4d':'#6e4663');
+ line3(left-.15,faceZ+(rearview?-.075:.075),4.48,right+.15,faceZ+(rearview?-.075:.075),4.48,'#f8c77e',Math.max(1,sz*.04));
+ const mid=project(s.x,labelZ,4.31);
+ if(mid.depth>1 && sz>3 && mid.x>-220 && mid.x<W+220){
+  const label=`SHELF ${String(s.id+1).padStart(2,'0')}`;
+  ctx.textAlign='center';ctx.textBaseline='middle';ctx.font=`bold ${clamp(sz*.24,9,28)}px monospace`;
+  ctx.lineWidth=Math.max(2,sz*.055);ctx.strokeStyle='#2e2235';ctx.lineJoin='round';
+  ctx.strokeText(label,mid.x,mid.y+sz*.06);
+  ctx.fillStyle='#ffe0a7';ctx.fillText(label,mid.x,mid.y+sz*.06);
+  ctx.textBaseline='alphabetic';
  }
  if(focus&&focus.kind==='shelf'&&focus.id===s.id){
-  const p=project(s.x,frontZ,4.8);
-  if(p.depth>0){ctx.fillStyle='#d1ffe9';ctx.fillRect(p.x-3,p.y-3,6,6)}
+  const p=project(s.x,faceZ,4.8);
+  if(p.depth>0){ctx.fillStyle='#d1ffe9';ctx.fillRect(p.x-4,p.y-4,8,8)}
  }
 }
 function drawFig(f){
@@ -392,7 +461,7 @@ function drawRoom(){
  entities.sort((a,b)=>b.depth-a.depth);
  for(const e of entities){if(e.type==='wall')drawWall(e.wall);else if(e.type==='shelf')drawShelf(e.rack);else drawFig(e.piece);}
  // Crisp screen-space scanline / colorband effect, sparse enough for mobile.
- ctx.fillStyle='#0a071221';for(let y=2;y<H;y+=4)ctx.fillRect(0,y,W,1);
+ ctx.fillStyle='#0a071210';for(let y=2;y<H;y+=4)ctx.fillRect(0,y,W,1);
 }
 function move(dt){
  if(modal||!playing)return;
