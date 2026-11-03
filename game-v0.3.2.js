@@ -29,6 +29,14 @@ const CELL=6,floorGrid=new Map(),distantGrid=new Map();
 let previousNear=new Set(),previousMid=new Set(),previousFar=new Set();
 let retainedNear=0,retainedMid=0,retainedFar=0;
 const stableHash=id=>Math.imul(id+1,2654435761)>>>0;
+// In portrait, object-fit:cover crops most of the 480x270 world canvas.
+// Culling to a fixed 16:9 FOV spent the figure budget on OFFSCREEN objects.
+let visibleSlope=W/(2*FOCAL);
+function updateVisibleSlope(){
+ const width=Math.max(1,window.innerWidth||W),height=Math.max(1,window.innerHeight||H);
+ const visibleHalfWidth=Math.min(W/2,(H*width/height)/2);
+ visibleSlope=visibleHalfWidth/FOCAL;
+}
 const DISTANT_COLORS=['#78d9b8','#bd8cdf','#f2bf75','#b27d9d','#72afc6','#df8d8b','#c6ce76','#ae8dd1'];
 const DARK_PIXEL='#20172f',LIGHT_PIXEL='#edd6a7';
 let renderLimit=70,viewDistance=19,midStart=9,midLimit=30,midDistance=29,farLimit=65,farDistance=39,renderFrames=0,lastDrawMs=-1e6,drawInterval=1000/24,slowFrames=0,extremeFrames=0,lastRuntimeMs=0,nearbyExamined=0,farCandidatesExamined=0,renderedFigures=0,midRendered=0,farRendered=0;
@@ -79,7 +87,7 @@ function nearbyFloor(radius,angleCull){
    if(dx*dx+dz*dz>r2)continue;
    if(angleCull){
     const dep=dx*sy-dz*cy,side=dx*cy+dz*sy;
-    if(dep<.22||dep>radius||Math.abs(side)>dep*1.15+1.5)continue;
+    if(dep<.22||dep>radius||Math.abs(side)>dep*visibleSlope+1.45)continue;
    }
    out.push(f);
   }
@@ -102,7 +110,7 @@ function distantFloor(radius){
    const dx=f.x-cx,dz=f.z-cz;
    if(dx*dx+dz*dz>r2)continue;
    const depth=dx*sy-dz*cy,side=dx*cy+dz*sy;
-   if(depth<=midStart || depth>radius || Math.abs(side)>depth*.89+1.5)continue;
+   if(depth<=midStart || depth>radius || Math.abs(side)>depth*visibleSlope+1.1)continue;
    out.push({type:depth<=midDistance?'mid':'far',depth,piece:f});
   }
  }
@@ -511,6 +519,7 @@ function stableSelect(pool,previous,limit,bands,low,high,incoming){
  return chosen;
 }
 function drawRoom(){
+ updateVisibleSlope();
  ctx.fillStyle='#252137';ctx.fillRect(0,0,W,H);
  // Flat posterized ceiling tiles and warmly glowing neon ceiling bulbs.
  for(let y=0;y<HORIZON;y+=18){ctx.fillStyle=y%36===0?'#252036':'#29233b';ctx.fillRect(0,y,W,1)}
@@ -574,7 +583,7 @@ function drawRoom(){
   if(nearIds.has(id)||candidates.has(id))continue;
   const f=floor[id];if(!f||!f.onFloor)continue;
   const depth=cameraDepth(f.x,f.z),side=cameraSide(f.x,f.z);
-  if(depth<midStart-1.6||depth>farDistance+viewPadding||Math.abs(side)>depth*.89+1.5)continue;
+  if(depth<midStart-1.6||depth>farDistance+viewPadding||Math.abs(side)>depth*visibleSlope+1.1)continue;
   candidates.set(id,{type:'mid',depth,piece:f});
  }
  const midPool=[],farPool=[],incomingMid=new Set(),incomingFar=new Set();
@@ -709,7 +718,7 @@ $('doReset').onclick=()=>{localStorage.removeItem(STORE_KEY);resetState();$('con
 $('startBtn').onclick=()=>{$('screen').classList.remove('shown');playing=true;save();notify('YOUR SHOP IS OPEN. FIND AND SORT THE FIGURES!')};
 // Snapshot integrity API for QA and external automation.
 window.BitBazaarQA={
- stats:()=>({floor:floor.filter(f=>f.onFloor).length,tote:tote.length,placed:rows.flat(2).length,completedRows:rows.flat(1).filter(r=>r.length===10).length,capacity:NUM_RACKS*ROWS*PER_ROW,fixtures:fixtures.length,floorFixtures:NUM_FLOOR,wallFixtures:NUM_WALL,displayFaces:shelves.length,distinctAssets:DB.figures.length,renderedFigures,midRendered,farRendered,retainedNear,retainedMid,retainedFar,midLimit,farLimit,midDistance,farDistance,nearbyExamined,farCandidatesExamined,renderFrames,renderLimit,viewDistance,drawInterval:Math.round(drawInterval),lastRuntimeMs,extremeFrames,sprites:sprites.stats()}),
+ stats:()=>({floor:floor.filter(f=>f.onFloor).length,tote:tote.length,placed:rows.flat(2).length,completedRows:rows.flat(1).filter(r=>r.length===10).length,capacity:NUM_RACKS*ROWS*PER_ROW,fixtures:fixtures.length,floorFixtures:NUM_FLOOR,wallFixtures:NUM_WALL,displayFaces:shelves.length,distinctAssets:DB.figures.length,renderedFigures,midRendered,farRendered,retainedNear,retainedMid,retainedFar,visibleSlope,midLimit,farLimit,midDistance,farDistance,nearbyExamined,farCandidatesExamined,renderFrames,renderLimit,viewDistance,drawInterval:Math.round(drawInterval),lastRuntimeMs,extremeFrames,sprites:sprites.stats()}),
  place:(id,shelf,row)=>{if(!Number.isInteger(id)||id<0||id>=DB.figures.length)return false;const f=floor[id];if(f.onFloor){f.onFloor=false;tote.push(id)}selected=id;activeShelf=shelf;placeFig(shelf,row);return rows[shelf][row].includes(id)},
  reset:resetState, get player(){return player}, shelves, dataset:DB,
  visible:()=>({near:[...previousNear],mid:[...previousMid],far:[...previousFar]})
