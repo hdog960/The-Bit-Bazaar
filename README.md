@@ -1,5 +1,18 @@
 # The Bit Bazaar — The Great Figurine Sort
 
+## Phase 1 inspection & presentation milestone — v0.7.0
+The [locked master roadmap](./MASTER_ROADMAP_LOCKED.md) remains in effect. Development is continuing Phase 1 only: no customers, no shop sales, and no new high-memory sprite sheets.
+
+**Implemented in v0.7.0:**
+- **Figurine CLOSE-UP** inspection from the **⌕ LOOK** button when holding or aiming at a loose / shelved figure, desktop **F**, and now-tappable individual entries in the collector's almanac.
+- A single lightweight inspection card magnifies the existing 32×40 pixel sprite; includes original figurine name, themed collection name, set and individual #1–10, role/codename, current hand/shelf status, and a distinct short dynamically generated lore vignette. It never reveals loose figures' map coordinates.
+- Large **PERFECT 1–10** CSS-only celebration, naming the just-finished collection. It distinguishes the first time a set is perfected from perfecting it again. Short-lived reticle and highlighted shelf-cubby feedback on picking up, swapping, placing and undo.
+- Persistently track **lifetime first-perfect sets** separately from *currently perfect rows*, preparing for future permanent achievements and Sacrifice Catalog re-scatters. Old v0.6 saves infer previously perfect sets and migrate automatically without modifying the old recovery save; new saves store `lifetimePerfect` as an array of 0–299 IDs.
+- While the inspection overlay is open, walking and world drawing are paused. Closing returns to normal play, or to the previous almanac panel if inspection started there.
+- Slow-render emergency recovery now loads [baseline-v0.6.0.html](./baseline-v0.6.0.html), which uses the former ordered-slot renderer; its recovery script preserves the new lifetime mastery property and ten-slot save positions instead of silently discarding them.
+- QA verified a shuffled ten-figure row is NOT complete, one-handed sorting yields first-ever completion, reverting and re-perfecting retains lifetime count, in-game inspection content and 3,000 distinct micro-lore snippets, save reload and legacy mastery migration. Further 720 simulated animation ticks verified 240 rendered frames, 112-canvas ceiling, 70/30/65 visibility caps; severe slow-frame fallback was exercised successfully. **A physical iPhone browser test is still necessary.**
+- **Still pending for Phase 1:** visual/art review of the individual figure inspection display and refinements based on real-device feedback. Phase 2 cleaning/cobwebs and 18 hidden figurines have not yet been implemented.
+
 ## Phase 1 first playable milestone — v0.6.0
 Master scope and stage gates are locked in [MASTER_ROADMAP_LOCKED.md](./MASTER_ROADMAP_LOCKED.md). No customers, no standard store sales.
 
