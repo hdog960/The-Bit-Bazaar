@@ -388,6 +388,12 @@ function inspectTarget(){
  return id===null||id===undefined?false:openInspection(id);
 }
 // A CSS-only celebration (5 simple diamonds, no particles/canvases).
+function pulseReticle(){
+ const mark=$('crosshair');
+ mark.classList.remove('interact-pop');
+ void mark.offsetWidth;
+ mark.classList.add('interact-pop');
+}
 function showPerfectBanner(setId,firstTime){
  const set=DB.sets[setId],banner=$('perfectBanner');
  $('perfectSetName').textContent=set.name;
@@ -462,7 +468,7 @@ function placeFig(shelfId,rowId,slotId){
  const displaced=target[slotId];
  target[slotId]=id;
  syncRow(shelfId,rowId);
- slotPulse={shelfId,rowId,slotId,at:performance.now()};
+ slotPulse={shelfId,rowId,slotId,at:performance.now()};pulseReticle();
  const nowPerfect=isPerfectRow(shelfId,rowId);
  if(nowPerfect&&!wasPerfect){
   const firstTime=!lifetimePerfect.has(figure(id).setId);
@@ -504,7 +510,7 @@ function grabShelfFig(shelfId,rowId,slotId){
  const row=slots[shelfId]?.[rowId],id=row?.[slotId];
  if(!isFigure(id))return false;
  row[slotId]=null;syncRow(shelfId,rowId);
- slotPulse={shelfId,rowId,slotId,at:performance.now()};
+ slotPulse={shelfId,rowId,slotId,at:performance.now()};pulseReticle();
  tote[0]=id;selected=id;lastPlacement=null;
  save();stats();notify('LIFTED #'+setNumber(id)+'/10 · '+DB.sets[figure(id).setId].name);
  return true;
@@ -605,7 +611,7 @@ function renderSetDetail(sid){
 function grabFig(id){
  if(tote.length>=MAX_TOTE){notify('HANDS FULL — PLACE OR PUT DOWN YOUR FIGURE FIRST','bad');return}
  const f=floor[id];if(!f||!f.onFloor)return;
- f.onFloor=false;tote.push(id);selected=id;lastPlacement=null;
+ f.onFloor=false;tote.push(id);selected=id;lastPlacement=null;pulseReticle();
  stats();save();notify('PICKED UP · '+figure(id).name+' · TAKE IT TO A SHELF');
 }
 function forward(){return {x:Math.sin(player.yaw),z:-Math.cos(player.yaw)}}
@@ -870,6 +876,17 @@ function drawShelf(f){
  }
  shelfBeam(f,-f.w/2-.12,d+facing*.06,4.18,f.w/2+.12,d+facing*.06,4.18,'#f6c986',Math.max(1,sz*.035));
  shelfBeam(f,-f.w/2-.12,d+facing*.06,.15,f.w/2+.12,d+facing*.06,.15,'#7f5366',Math.max(1,sz*.04));
+ // Short-lived physical slot highlight; just four beams on the affected rack.
+ if(slotPulse&&slotPulse.shelfId===faceId){
+  const age=performance.now()-slotPulse.at;
+  if(age>=0&&age<650){
+   const r=slotPulse.rowId,k=slotPulse.slotId,y=.44+r*.72,
+    dd=d+facing*.18,left=slotEdge(f,facing,k),right=slotEdge(f,facing,k+1),
+    size=Math.max(1.5,(1-age/650)*4.2);
+   shelfBeam(f,left,dd,y,right,dd,y,'#fff4b7',size);
+   shelfBeam(f,left,dd,y+.68,right,dd,y+.68,'#8bffe0',size);
+  }
+ }
  // Highlight exactly ONE cubby of the shelf row being targeted.
  if(focus&&['shelf','shelf-figure'].includes(focus.kind)&&focus.id===faceId){
   const r=focus.row,k=focus.slot,y=.44+r*.72,drawD=d+facing*.17,
@@ -1183,6 +1200,7 @@ window.BitBazaarQA={
  reset:resetState, get player(){return player}, shelves, dataset:DB,
  inspect:openInspection,closeInspection,inspectTarget,inspectLore:figurineLore,inspectStatus:figurineLocation,
  get inspectedId(){return inspectedId},lifetime:()=>[...lifetimePerfect].sort((a,b)=>a-b),
+ pulse:()=>slotPulse,
  target:()=>{prepareOcclusion();return findFocus()},
  horizon:()=>cameraHorizon(),aimPoint:()=>({x:AIM_X,y:AIM_Y}),
  visible:()=>({near:[...previousNear],mid:[...previousMid],far:[...previousFar]}),
