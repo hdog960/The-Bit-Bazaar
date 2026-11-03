@@ -106,10 +106,16 @@ async function importFile(file){
   // The backup write must succeed before the user's progress is replaced.
   const existing=localStorage.getItem(KEY);
   if(existing)localStorage.setItem(PREVIOUS,existing);
+  // Freeze engine autosave before starting reload: otherwise pagehide could
+  // write the old running shop over the newly imported backup.
+  window.BitBazaarImportInProgress=true;
   localStorage.setItem(KEY,JSON.stringify(raw));
   window.location.reload();
   return true;
- }catch(e){message('RESTORE CANCELLED · '+(e.message||'Invalid save'),true);return false;}
+ }catch(e){
+  window.BitBazaarImportInProgress=false;
+  message('RESTORE CANCELLED · '+(e.message||'Invalid save'),true);return false;
+ }
 }
 document.addEventListener('click',event=>{
  if(event.target.closest('#downloadSaveFile')){exportFile();return;}
