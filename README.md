@@ -1,5 +1,29 @@
 # The Bit Bazaar — The Great Figurine Sort
 
+## v0.16.0 — Phase 3 store map restoration navigator and scroll-preservation (Nov 3, 2026)
+Builds on v0.15's direct HUNT-to-shelf navigation; **Phase 4 remains unstarted**. The approved [MASTER_ROADMAP_LOCKED.md](./MASTER_ROADMAP_LOCKED.md) is unchanged.
+
+**Faster, purposeful map navigation**
+- The real 40-fixture map now includes **PREV UNIT / NEXT UNIT** controls to inspect every actual rack and wall unit without accurately tapping tiny SVG shelf shapes on a phone. When the map is zoomed, navigation recenters on the chosen fixture.
+- **FIND DIRTY SHELF** cycles through actual unfinished faces of the 60 existing shelf faces, selects the specific face and recenters the map. The button disables itself when all shelves are clean.
+- **FIND UNSORTED SET** finds the next real 10/10-filled but incorrectly ordered row, selects its physical shelf face, and highlights its assigned collection. Fully sorted and partly filled rows do not qualify. The button disables itself when no such rows remain.
+- The map shows live **remaining dirty faces / full rows needing sorting**. These are derived from real saved cleaning stages, slot numbers and perfect-row validation, not invented objectives. No ground, hidden, or loose figurine coordinates are revealed.
+
+**iPhone scroll fix**
+- Rebuilding the map after tapping a fixture, switching faces, zooming or using a task shortcut now restores the `drawerBody` scroll offset, instead of jumping the entire map panel to the top. The existing map viewport's own scroll/pan position is also retained when appropriate. Opening a map from another screen starts cleanly at the top.
+- New task controls have minimum 48px tap height; unit browsing buttons have minimum 44px tap height.
+
+**Safety**
+- New release files: `game-v0.16.0.js`, `game-v0.16.0-lowfx.js`, `style-v0.16.0.css`, `preview-v0.16.0.html`, `baseline-v0.16.0-lowfx.html`.
+- Main `index.html` and the network-first `bit-bazaar-v0.16.0` service worker cache reference the release; the previous v0.15 assets remain for rollback.
+- Existing `bit-bazaar-save-v3` serialization, 3,000 figures, 300 sets, dirty face records, 18 hidden IDs, 45 floor messes, pins, HUNT features, map-to-collection links and 112-canvas rendering cap remain unchanged. Task scanning happens only on opening or interacting with the map, never once per rendered frame.
+- Normal and Low FX scripts passed JavaScript parsing and structural checks before publication. **Real iPhone/browser interaction tests are still needed.**
+
+**Test on iPhone:** Open MAP, tap next and previous unit; tap FIND DIRTY SHELF twice and confirm it moves between dirty faces. When a row is actually full but out of order, tap FIND UNSORTED SET and verify the correct rack/face and highlighted set. Scroll down the map and change faces to check the panel does not jump. Reload your saved shop and check previous placements, cleaning, pins, and HUNT details.
+
+**Next:** final real-device Phase 3 acceptance, then a carefully staged implementation of the 180-piece Phase 4 Sacrifice Catalog under the locked design.
+
+
 ## v0.15.0 — Phase 3 direct HUNT-to-shelf navigation and stable mobile panel (Nov 3, 2026)
 This continues the locked [MASTER_ROADMAP_LOCKED.md](./MASTER_ROADMAP_LOCKED.md) without adding customers, shop sales, currency, new figure identities, or Sacrifice Catalog decorations.
 
