@@ -497,7 +497,7 @@ function restore(){
  // Copy the 1,000-figure save once; leave emergency recovery progress untouched.
  if(migratedCarryCount||oldCleaning||oldAmbient||oldDiscovery||!Array.isArray(raw.revealed)||!raw.slots||!Array.isArray(raw.lifetimePerfect)||!localStorage.getItem(STORE_KEY))save();
 }
-function save(){try{localStorage.setItem(STORE_KEY,JSON.stringify({version:1,tote,rows,slots,lifetimePerfect:[...lifetimePerfect],seenFigures:[...seenFigures],pinnedSets:[...pinnedSets],trackedSetId,selected,player,ground:[...groundPositions].map(([id,p])=>[id,p.x,p.z]),cleaning:faceCleaning,revealed:[...hiddenRevealed],floorCleaning}))}catch(e){}}
+function save(){if(window.BitBazaarImportInProgress)return;try{localStorage.setItem(STORE_KEY,JSON.stringify({version:1,tote,rows,slots,lifetimePerfect:[...lifetimePerfect],seenFigures:[...seenFigures],pinnedSets:[...pinnedSets],trackedSetId,selected,player,ground:[...groundPositions].map(([id,p])=>[id,p.x,p.z]),cleaning:faceCleaning,revealed:[...hiddenRevealed],floorCleaning}))}catch(e){}}
 function blocked(x,z,pad=.3){
  if(x<1.4+pad||x>SW-1.4-pad||z<1.4+pad||z>SD-1.4-pad)return true;
  for(const f of fixtures){const dx=x-f.x,dz=z-f.z;
