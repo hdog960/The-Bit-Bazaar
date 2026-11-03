@@ -1226,6 +1226,79 @@ function stableSelect(pool,previous,limit,bands,low,high,incoming){
  }
  return chosen;
 }
+// World-space 16-bit debris geometry; no images, canvases, or extra atlases.
+// These are intentionally small, localized accents rather than full-screen FX.
+function floorPatchQuad(x,z,w,d,h,color){
+ solidQuad(project(x-w/2,z-d/2,h),project(x+w/2,z-d/2,h),
+  project(x+w/2,z+d/2,h),project(x-w/2,z+d/2,h),color);
+}
+function drawCrate(x,z,w,h){
+ const v=.55*w;
+ const a=project(x-w/2,z-w/2,0),b=project(x+w/2,z-w/2,0),
+  c=project(x+w/2,z+w/2,0),d=project(x-w/2,z+w/2,0),
+  at=project(x-w/2,z-w/2,h),bt=project(x+w/2,z-w/2,h),
+  ct=project(x+w/2,z+w/2,h),dt=project(x-w/2,z+w/2,h);
+ solidQuad(dt,ct,c,d,'#886456');
+ solidQuad(at,dt,d,a,'#a67d64');
+ solidQuad(bt,ct,c,b,'#8d6458');
+ solidQuad(at,bt,ct,dt,'#ca9d70');
+ line3(x-w/2,z,h*.3,x+w/2,z,h*.3,'#d8ba85',Math.max(1,FOCAL/Math.max(5,cameraDepth(x,z))*.01));
+ line3(x,z-w/2,h,x,z+w/2,h,'#edcc91',1.5);
+}
+function drawAmbientMess(m){
+ const stage=floorCleaning[m.id],steps=AMBIENT_ACTIONS[m.kind].length;
+ if(stage>=steps)return;
+ const depth=cameraDepth(m.x,m.z);
+ if(depth<.27||depth>23||shelfOccludes(m))return;
+ const x=m.x,z=m.z;
+ if(m.kind===0){ // Paper sheets and wrappers, picked up in one action.
+  for(let i=0;i<5;i++){
+   const dx=((i*7)%5-2)*.24,dz=((i*11)%7-3)*.14;
+   floorPatchQuad(x+dx,z+dz,.28+(i%2)*.14,.21,.03+i*.002,
+    ['#bda9a0','#e9d6ac','#916d73','#d4b69c','#d9c8c0'][i]);
+  }
+  line3(x-.55,z-.22,.035,x+.55,z+.24,.035,'#765965',1.3);
+ }else if(m.kind===1){
+  if(stage===0){
+   drawCrate(x-.2,z-.1,.77,.62);
+   drawCrate(x+.34,z+.26,.64,.4);
+  }else{
+   floorPatchQuad(x,z,1.55,1.18,.04,'#9c725d');
+   floorPatchQuad(x,z,.97,.83,.047,'#cb9f73');
+   line3(x-.49,z,.05,x+.49,z,.05,'#e7c596',1.8);
+   line3(x,z-.4,.051,x,z+.4,.051,'#745567',1.1);
+  }
+ }else{
+  // Three-step scuff: gritty and dark -> swept -> scrubbed -> polished.
+  const shade=stage===0?'#534350':stage===1?'#76606b':'#927e83';
+  floorPatchQuad(x,z,1.42,1.08,.021,shade);
+  floorPatchQuad(x+.06,z-.04,1.04,.68,.025,stage===0?'#39333f':stage===1?'#69515f':'#a1908a');
+  for(let i=0;i<(stage===0?11:stage===1?5:2);i++){
+   const dx=((i*7)%11-5)*.092,dz=((i*5)%9-4)*.086;
+   floorPatchQuad(x+dx,z+dz,.08,.12,.032,stage===2?'#c5ac9c':'#bc9a87');
+  }
+ }
+ if(focus?.kind==='floor-mess'&&focus.id===m.id){
+  const radius=m.kind===1?.9:1.0,tint=tote.length?'#ffa1b0':'#a7ffe0';
+  line3(x-radius,z-radius,.07,x+radius,z-radius,.07,tint,2);
+  line3(x+radius,z-radius,.07,x+radius,z+radius,.07,tint,2);
+  line3(x+radius,z+radius,.07,x-radius,z+radius,.07,tint,2);
+  line3(x-radius,z+radius,.07,x-radius,z-radius,.07,tint,2);
+ }
+}
+function drawCleanFlash(){
+ if(!lastAmbientClean)return;
+ const age=performance.now()-lastAmbientClean.at;
+ if(age>900)return;
+ const m=ambientMess[lastAmbientClean.id];
+ if(!m||cameraDepth(m.x,m.z)>.5+22)return;
+ const radius=.5+age/1300,w=Math.max(1,3*(1-age/900));
+ for(const [ax,az,bx,bz] of [
+  [-radius,-radius,radius,-radius],[radius,-radius,radius,radius],
+  [radius,radius,-radius,radius],[-radius,radius,-radius,-radius]])
+  line3(m.x+ax,m.z+az,.09,m.x+bx,m.z+bz,.09,'#d3f8d7',w);
+}
+
 function drawRoom(){
  updateVisibleSlope();
  ctx.fillStyle='#252137';ctx.fillRect(0,0,W,H);
@@ -1258,6 +1331,14 @@ function drawRoom(){
   const d=cameraDepth(f.x,f.z);
   if(d>-4&&d<32&&Math.abs(cameraSide(f.x,f.z))<Math.abs(d)*1.08+f.w/2+4)
    entities.push({type:'shelf',depth:d,rack:f});
+ }
+ // Visible fixed ambient clutter is sorted with racks and miniatures so
+ // it naturally passes behind foreground figures. No new sprite budget.
+ for(const m of ambientMess){
+  if(ambientCompleted(m))continue;
+  const depth=cameraDepth(m.x,m.z),side=cameraSide(m.x,m.z);
+  if(depth>.3&&depth<23&&Math.abs(side)<depth*visibleSlope+1.4&&!shelfOccludes(m))
+   entities.push({type:'floor-mess',depth,piece:m});
  }
  // A 1.75-unit overlap avoids figures changing draw tier at a single step.
  // Keep the same ID's previous LOD when possible; only new items enter via
@@ -1329,7 +1410,8 @@ function drawRoom(){
   const f=floor[focus.id];if(f&&f.onFloor&&!shelfOccludes(f))entities.push({type:'fig',depth:cameraDepth(f.x,f.z),piece:f});
  }
  entities.sort((a,b)=>b.depth-a.depth);
- for(const e of entities){if(e.type==='wall')drawWall(e.wall);else if(e.type==='shelf')drawShelf(e.rack);else if(e.type==='mid')drawMediumFig(e.piece);else if(e.type==='far')drawFarFig(e.piece);else drawFig(e.piece);}
+ for(const e of entities){if(e.type==='wall')drawWall(e.wall);else if(e.type==='shelf')drawShelf(e.rack);else if(e.type==='mid')drawMediumFig(e.piece);else if(e.type==='far')drawFarFig(e.piece);else if(e.type==='floor-mess')drawAmbientMess(e.piece);else drawFig(e.piece);}
+ drawCleanFlash();
  // Crisp screen-space scanline / colorband effect, sparse enough for mobile.
  ctx.fillStyle='#0a071210';for(let y=2;y<H;y+=4)ctx.fillRect(0,y,W,1);
 }
