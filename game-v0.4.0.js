@@ -15,7 +15,7 @@ ctx.imageSmoothingEnabled=false;
 const img=new Image();img.decoding='async';img.src='assets/figurines.png';
 const sprites=window.createBitBazaarSprites(DB,img);
 if(!sprites)throw Error('Optimized sprite system not loaded');
-const NUM_FLOOR=20,NUM_WALL=20,NUM_RACKS=60,ROWS=5,PER_ROW=10,MAX_TOTE=10;
+const NUM_FLOOR=20,NUM_WALL=20,NUM_RACKS=60,ROWS=5,PER_ROW=10,MAX_TOTE=1;
 const STORE_KEY='bit-bazaar-save-v3';
 const LEGACY_KEY='bit-bazaar-save-v1';
 const SW=70,SD=74;
@@ -77,6 +77,8 @@ function shelfOccludes(fig,excludeFixtureId=-1){
 }
 let player={x:35,z:68,yaw:0};
 let tote=[],rows=[],selected=null, floor=[],figureById=DB.figures;
+const groundPositions=new Map();
+let migratedCarryCount=0;
 const CELL=6,floorGrid=new Map(),distantGrid=new Map();
 // Small bounded sets remember actual selected FIGURE IDs from the previous frame.
 // No persistent canvas allocations, and no full-collection sorting during gameplay.
@@ -111,6 +113,8 @@ function setupFloor(){
   let x,z,tries=0;
   do{x=2.5+random()*65;z=3+random()*67;tries++;}
   while(tries<32 && (blocked(x,z,.26)||(sqr(x-35)+sqr(z-68)<5)));
+  const custom=groundPositions.get(i);
+  if(custom && !blocked(custom.x,custom.z,.23)){x=custom.x;z=custom.z;}
   const f={id:i,x,z,onFloor:!used.has(i)};
   floor.push(f);
   const key=cellKey(x,z);let bucket=floorGrid.get(key);
@@ -173,7 +177,7 @@ function distantFloor(radius){
 
 function resetState(){
  rows=Array.from({length:NUM_RACKS},()=>Array.from({length:ROWS},()=>[]));
- tote=[];selected=null;player={x:35,z:68,yaw:0};setupFloor();save();stats();
+ tote=[];selected=null;groundPositions.clear();migratedCarryCount=0;player={x:35,z:68,yaw:0};setupFloor();save();stats();
 }
 function restore(){
  let raw;try{raw=JSON.parse(localStorage.getItem(STORE_KEY)||localStorage.getItem(LEGACY_KEY)||'null')}catch(e){raw=null}
@@ -191,18 +195,34 @@ function restore(){
   const setId=row.length?Math.floor(row[0]/10):-1;
   for(let k=row.length-1;k>=0;k--){const id=row[k];if(used.has(id)||(id/10|0)!==setId)row.splice(k,1);else used.add(id)}
  }
- let old=Array.isArray(raw.tote)?raw.tote:[];
- tote=old.filter(id=>Number.isInteger(id)&&id>=0&&id<DB.figures.length&&!used.has(id)).slice(0,MAX_TOTE);
+ const old=Array.isArray(raw.tote)?raw.tote:[];
+ const validCarry=old.filter(id=>Number.isInteger(id)&&id>=0&&id<DB.figures.length&&!used.has(id));
+ tote=validCarry.slice(0,1);
+ migratedCarryCount=Math.max(0,validCarry.length-tote.length);
+ if(migratedCarryCount){
+  try{
+   if(!localStorage.getItem('bit-bazaar-v3-before-single-carry'))
+    localStorage.setItem('bit-bazaar-v3-before-single-carry',JSON.stringify(raw));
+  }catch(_){}
+ }
  for(const id of tote)used.add(id);
- selected=tote.includes(raw.selected)?raw.selected:(tote[0]??null);
+ selected=tote[0]??null;
+ groundPositions.clear();
+ for(const item of (Array.isArray(raw.ground)?raw.ground:[])){
+  if(!Array.isArray(item)||item.length!==3)continue;
+  const [id,x,z]=item;
+  if(!Number.isInteger(id)||id<0||id>=DB.figures.length||used.has(id))continue;
+  if(!Number.isFinite(x)||!Number.isFinite(z)||blocked(x,z,.23))continue;
+  groundPositions.set(id,{x,z});
+ }
  if(raw.player && isFinite(raw.player.x)&&isFinite(raw.player.z)&&isFinite(raw.player.yaw)&&!blocked(raw.player.x,raw.player.z,0.2)){
   player={x:clamp(raw.player.x,2,68),z:clamp(raw.player.z,2,72),yaw:raw.player.yaw};
  }else player={x:35,z:68,yaw:0};
  setupFloor();stats();
  // Copy the 1,000-figure save once; leave emergency recovery progress untouched.
- if(!localStorage.getItem(STORE_KEY))save();
+ if(migratedCarryCount||!localStorage.getItem(STORE_KEY))save();
 }
-function save(){try{localStorage.setItem(STORE_KEY,JSON.stringify({version:1,tote,rows,selected,player}))}catch(e){}}
+function save(){try{localStorage.setItem(STORE_KEY,JSON.stringify({version:1,tote,rows,selected,player,ground:[...groundPositions].map(([id,p])=>[id,p.x,p.z])}))}catch(e){}}
 function blocked(x,z,pad=.3){
  if(x<1.4+pad||x>SW-1.4-pad||z<1.4+pad||z>SD-1.4-pad)return true;
  for(const f of fixtures){const dx=x-f.x,dz=z-f.z;
@@ -213,7 +233,12 @@ function stats(){
  const placed=rows.flat(2).length;
  const completed=rows.reduce((n,r)=>n+r.filter(x=>x.length===10).length,0);
  $('placed').textContent=placed.toLocaleString();$('complete').textContent=completed;
- $('toteCount').textContent=`${tote.length} / ${MAX_TOTE} FIGURES`;
+ const holding=tote.length>0,id=holding?tote[0]:null;
+ $('carryTitle').textContent=holding?'CARRYING 1 / 1':'EMPTY HANDS';
+ $('carryDetail').textContent=holding?figure(id).name:'PICK UP ONE FIGURE';
+ $('carrySet').textContent=holding?DB.sets[figure(id).setId].name:'WALK UP TO A FIGURINE';
+ $('carryThumb').innerHTML=holding?iconHTML(id):'<span class="empty-hand-icon">✦</span>';
+ $('putDownBtn').hidden=!holding;
  $('progress-fill').style.width=`${placed/DB.figures.length*100}%`;
  $('aisleLabel').textContent=`${nearestAisle()} · ${Math.max(0,DB.figures.length-placed)} TO SHELVE`;
  if(placed===DB.figures.length){setTimeout(()=>showVictory(),1200)}
