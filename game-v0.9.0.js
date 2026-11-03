@@ -115,7 +115,14 @@ function buildAmbientMess(){
  const out=[],random=srand(20261104);
  for(let row=0;row<9;row++)for(let col=0;col<5;col++){
   let x=6+col*14+(random()-.5)*2.2,z=6+row*7.5+(random()-.5)*2.2;
-  if(blocked(x,z,1)){x=6+col*14;z=6+row*7.5;}
+  if(blocked(x,z,1)){
+   const ox=x,oz=z;
+   const offsets=[[3.4,0],[-3.4,0],[0,3.4],[0,-3.4],[3.4,3.4],[-3.4,-3.4],
+    [4.5,0],[-4.5,0],[0,4.5],[0,-4.5]];
+   for(const [dx,dz] of offsets){
+    if(!blocked(ox+dx,oz+dz,1)){x=ox+dx;z=oz+dz;break;}
+   }
+  }
   const id=row*5+col,kind=(id*7+row*2)%3;
   out.push({id,kind,x,z,angle:random()*Math.PI*2});
  }
