@@ -1,5 +1,21 @@
 # The Bit Bazaar — The Great Figurine Sort
 
+## v0.14.0 — Phase 3 tracker readability and figure-level guidance (Nov 3, 2026)
+This is a focused **Phase 3 mobile usability release**, not the Sacrifice Catalog. The approved [MASTER_ROADMAP_LOCKED.md](./MASTER_ROADMAP_LOCKED.md) remains unchanged.
+
+- **A tap-friendly two-row HUNT checklist:** the 10 figure-number cells are now 5 across instead of one cramped 10-wide strip. Real buttons support selection and keyboard focus, while the prior green/orange/gold/purple status coding remains.
+- **Tap any number for contextual guidance:** an optional in-world detail card shows the real figurine name **only after discovery**, plus the precise status: correct numbered slot, wrong actual slot versus desired slot, currently in hand, observed but unshelved, or still undiscovered. Tap again to dismiss. Selecting another pinned set clears the previous focused number.
+- **Never spoil floor discoveries:** unknown figures still show anonymous entries; no scattered, secret, or loose figurine coordinates appear. The panel doesn't collect anything automatically.
+- **Short-screen support:** HUNT details scroll within a bounded panel, so landscape/short iPhones do not require a full-height notebook. Collection navigation buttons retain at least 44 px height.
+- **Save and performance protection:** figure placement, 300 × 10 memberships, secret IDs, cleaning stages, map, existing pins and the version-1 `bit-bazaar-save-v3` save shape remain unchanged. Focused number is deliberately transient; the panel still opens collapsed after reload. No added sprite canvases, frame work or new atlases.
+- **Release paths:** `index.html` loads `game-v0.14.0.js` with `style-v0.14.0.css`; the network-first offline cache is `bit-bazaar-v0.14.0`. A matching `baseline-v0.14.0-lowfx.html` and `game-v0.14.0-lowfx.js` preserve the severe-frame recovery path. Older v0.13 files remain for comparison.
+- **Verification:** both new JavaScript builds passed a syntax-compile check before publishing, and the versioned game, preview, low-effects fallback and offline cache files were generated. This is structural/syntax QA, **not** a claim of completed interactive or physical iPhone playtesting.
+
+**iPhone smoke test:** open the game, select COLLECTION, pin a set, return to the shop, tap ★ HUNT; verify ten larger numbered buttons. Tap #1, read its detail, tap #1 again to close, then cycle pinned sets. Reopen a previously saved shop and confirm figures, pins and restoration counters remain intact. Check the low-effects fallback if performance degrades.
+
+**Next:** assess real iPhone readability, HUNT overlay placement and map interaction, then finish Phase 3 before starting the much larger 180-decoration Sacrifice Catalog.
+
+
 ## v0.13.0 — Phase 3 in-store pinned hunt tracker and numbered collection checklists
 Continues the approved [MASTER_ROADMAP_LOCKED.md](./MASTER_ROADMAP_LOCKED.md), with **no customers, no shop sales, and no decoration currency**. Phase 4 Sacrifice Catalog is deliberately not implemented yet.
 
