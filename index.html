@@ -49,10 +49,10 @@
  <div id="confirm" class="confirm" hidden><div><h3>START A FRESH SHOP?</h3><p>This deletes your current sorting progress. Your 1,000 figurines will be scattered again.</p><button id="cancelReset" class="chrome">CANCEL</button><button id="doReset" class="danger">RESET STORE</button></div></div>
 </div>
 <script src="./assets/collection.js"></script>
-<script src="./game.js" defer></script>
+<script src="./game.js?v=0.1.2" defer></script>
 <script>
 if ("serviceWorker" in navigator) {
-  addEventListener("load", () => navigator.serviceWorker.register("./sw.js", {updateViaCache:"none"}).catch(() => {}));
+  addEventListener("load", () => navigator.serviceWorker.register("./sw.js?v=0.1.2", {updateViaCache:"none"}).catch(() => {}));
 }
 </script>
 </body></html>
