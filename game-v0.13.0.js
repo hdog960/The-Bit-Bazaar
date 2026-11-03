@@ -838,11 +838,11 @@ function huntTrackedId(){
 function huntSnapshot(sid){
  if(!Number.isInteger(sid)||sid<0||sid>=DB.sets.length)return null;
  const set=DB.sets[sid],where=rowForSet(sid),
-  current=where?slots[where[0]][where[1]]:null,slotIds=new Set(current||[]);
+  current=where?slots[where[0]][where[1]]:null;
  const nums=set.memberIds.map((id,k)=>{
   const slot=current?current.indexOf(id):-1;
   const onShelf=slot>=0,held=tote.includes(id),seen=seenFigures.has(id)||onShelf||held;
-  return {number:k+1,seen,held,shelved:onShelf,correct:onShelf&&slot===k,slot:slot<0?null:slot+1};
+  return {number:setNumber(id),seen,held,shelved:onShelf,correct:onShelf&&slot===setNumber(id)-1,slot:slot<0?null:slot+1};
  });
  return {id:sid,name:set.name,where,seen:nums.filter(n=>n.seen).length,
   shelved:nums.filter(n=>n.shelved).length,correct:nums.filter(n=>n.correct).length,
@@ -2113,7 +2113,7 @@ $('closeDrawer').onclick=closeDrawer;$('drawerShade').onclick=closeDrawer;
 $('cancelReset').onclick=()=>$('confirm').hidden=true;
 $('doReset').onclick=()=>{localStorage.removeItem(STORE_KEY);resetState();$('confirm').hidden=true;closeDrawer();notify('Store reset: 3,000 figures scattered.');};
 $('startBtn').onclick=()=>{
- $('screen').classList.remove('shown');playing=true;save();
+ $('screen').classList.remove('shown');$('hud-left').classList.add('in-session');playing=true;save();
  if(migratedCarryCount)notify(migratedCarryCount+' EXTRA FIGURES RETURNED TO THE FLOOR — CARRY ONE AT A TIME');
  else if(cleanedFaceCount()===0)notify('START RESTORING · AIM AT A DUSTY SHELF WITH EMPTY HANDS TO CLEAN');
  else if(floorCleanedCount()===0)notify('RESTORE THE FLOOR · AIM AT PAPER, CARTONS OR STAINS WITH EMPTY HANDS');
