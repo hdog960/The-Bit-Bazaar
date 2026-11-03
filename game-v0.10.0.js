@@ -150,6 +150,7 @@ const DARK_PIXEL='#20172f',LIGHT_PIXEL='#edd6a7';
 let renderLimit=70,viewDistance=19,midStart=9,midLimit=30,midDistance=29,farLimit=65,farDistance=39,renderFrames=0,lastDrawMs=-1e6,drawInterval=1000/24,slowFrames=0,extremeFrames=0,lastRuntimeMs=0,nearbyExamined=0,farCandidatesExamined=0,renderedFigures=0,midRendered=0,farRendered=0;
 const cellKey=(x,z)=>Math.floor(x/CELL)+','+Math.floor(z/CELL);
 let modal='', focus=null, playing=false, shift=false, activeSet=0, albumQuery='';
+let mapSelectedFixtureId=null,mapSelectedFaceId=null,mapHighlightedSet=null,cleanFxTimer=0,restoreBannerTimer=0;
 let lastSave=0,lastFrame=performance.now(), toastTimer=0;
 const keys=new Set(), touch={lookId:null,lastX:0,lastY:0,joyId:null,axisX:0,axisY:0};
 let floorBuffer=ctx.createImageData(W,H);
@@ -584,13 +585,19 @@ function showPerfectBanner(setId,firstTime){
 
 // Collection browsing is the ONLY remaining modal. Physical shelves are used in-world.
 function openDrawer(kind){
- if(kind!=='album')return;
- modal='album';
+ if(kind!=='album'&&kind!=='map')return;
+ modal=kind;
  $('drawer').classList.add('open');$('drawerShade').classList.add('show');
  $('drawer').setAttribute('aria-hidden','false');
- $('drawerKicker').textContent='3,000 MINIATURE TREASURES';
- $('drawerTitle').textContent='COLLECTION ALMANAC';
- renderAlbum();
+ if(kind==='map'){
+  $('drawerKicker').textContent='REAL-TIME 40-UNIT FLOOR PLAN';
+  $('drawerTitle').textContent='THE STORE MAP';
+  renderStoreMap();
+ }else{
+  $('drawerKicker').textContent='3,000 MINIATURE TREASURES';
+  $('drawerTitle').textContent='COLLECTION ALMANAC';
+  renderAlbum();
+ }
 }
 function closeDrawer(){
  modal='';$('drawer').classList.remove('open');$('drawerShade').classList.remove('show');
@@ -767,10 +774,152 @@ function paintAlbumList(){const dest=$('albumResults');if(!dest)return;
  dest.innerHTML=html||'<div class="empty">No matching collectible series.</div>';
  dest.querySelectorAll('[data-albumset]').forEach(el=>el.onclick=()=>renderSetDetail(+el.dataset.albumset));
 }
+// Phase 3's actual player-centered store plan. Nothing on the map ever
+// discloses loose/hidden figurine coordinates: only the fixed 40 fixtures,
+// their assigned set rows and the player's current x/z and facing direction.
+function mapFaceIds(f){
+ return f.kind==='floor'?[f.id*2,f.id*2+1]:[40+f.wallIndex];
+}
+function mapFixtureSummary(f){
+ const faces=mapFaceIds(f);
+ let occupied=0,perfect=0,cleaned=0;
+ for(const face of faces){
+  if(faceCleaning[face]===3)cleaned++;
+  for(let row=0;row<ROWS;row++){
+   if(rows[face][row].length)occupied++;
+   if(isPerfectRow(face,row))perfect++;
+  }
+ }
+ return {faces,occupied,perfect,cleaned,capacity:faces.length*ROWS};
+}
+function mapFixtureLabel(f){
+ if(f.kind==='floor')return f.aisle+(Math.floor(f.id/4)+1);
+ return f.section.charAt(0)+(f.wallIndex%5+1);
+}
+function mapFixturePoly(f){
+ const u=f.w/2,n=f.depth/2;
+ return [[-u,-n],[u,-n],[u,n],[-u,n]]
+  .map(([a,b])=>((f.x+a*f.ux+b*f.nx)*10).toFixed(1)+','+
+   ((f.z+a*f.uz+b*f.nz)*10).toFixed(1)).join(' ');
+}
+function mapPlayerPose(){
+ return {x:player.x,z:player.z,heading:player.yaw};
+}
+function renderStoreMap(){
+ if(mapSelectedFixtureId===null){
+  let best=fixtures[0],dist=Infinity;
+  for(const f of fixtures){
+   const d=(f.x-player.x)**2+(f.z-player.z)**2;
+   if(d<dist){best=f;dist=d;}
+  }
+  mapSelectedFixtureId=best.id;
+ }
+ paintStoreMap();
+}
+function paintStoreMap(){
+ const selected=fixtures[mapSelectedFixtureId]||fixtures[0];
+ mapSelectedFixtureId=selected.id;
+ const faceIds=mapFaceIds(selected);
+ if(!faceIds.includes(mapSelectedFaceId))mapSelectedFaceId=faceIds[0];
+ const selectedFace=mapSelectedFaceId;
+ const p=mapPlayerPose(),heading=p.heading*180/Math.PI;
+ let pieces='';
+ for(const f of fixtures){
+  const status=mapFixtureSummary(f),
+    active=f.id===selected.id,
+    label=mapFixtureLabel(f);
+  const type=status.perfect===status.capacity?'all-perfect':
+   status.cleaned===0?'dirty':status.occupied?'occupied':'ready';
+  pieces+=`<g class="map-fixture ${type}${active?' selected':''}" role="button" tabindex="0"
+   data-map-fixture="${f.id}" aria-label="${safeText(label)}: ${status.occupied} occupied rows, ${status.perfect} perfect">
+   <title>${safeText(f.kind==='floor'?'AISLE '+f.aisle:'WALL '+f.section)} · ${status.occupied}/${status.capacity} rows assigned</title>
+   <polygon points="${mapFixturePoly(f)}"></polygon>
+   <text x="${(f.x*10).toFixed(1)}" y="${(f.z*10+3).toFixed(1)}" text-anchor="middle">${label}</text>
+  </g>`;
+ }
+ const svg=`<svg id="storeMapSvg" class="store-map-svg" viewBox="0 0 700 740"
+   xmlns="http://www.w3.org/2000/svg" role="group" aria-label="Interactive overhead floor plan. Tap a shelf to inspect both display faces.">
+   <defs><pattern id="mapTiles" patternUnits="userSpaceOnUse" width="40" height="40">
+    <rect width="40" height="40" fill="#2a2438"></rect>
+    <path d="M40 0H0V40" stroke="#49364e" stroke-width="1" fill="none"></path>
+   </pattern></defs>
+   <rect x="8" y="8" width="684" height="724" rx="5" fill="url(#mapTiles)" stroke="#b98f77" stroke-width="8"></rect>
+   <text class="map-compass" x="350" y="28" text-anchor="middle">N ↑</text>
+   ${pieces}
+   <path d="M300 733 L300 711 L400 711 L400 733" fill="none" stroke="#d3ecb2" stroke-width="5"></path>
+   <text class="map-entry" x="350" y="705" text-anchor="middle">ENTRANCE</text>
+   <g class="map-player" transform="translate(${(p.x*10).toFixed(2)} ${(p.z*10).toFixed(2)}) rotate(${heading.toFixed(1)})">
+    <circle r="22" fill="#9ff6db33" stroke="#a8f5d9" stroke-width="3"></circle>
+    <path d="M0 -19 L-12 11 L0 5 L12 11Z" fill="#b9ffe4" stroke="#143542" stroke-width="3"></path>
+   </g>
+  </svg>`;
+ const chosen=mapFixtureSummary(selected);
+ const facesMarkup=faceIds.map(id=>{
+  const shelf=shelves[id];
+  return `<button class="map-face-switch${id===selectedFace?' active':''}"
+     data-map-face="${id}" aria-pressed="${id===selectedFace}">
+    ${safeText(selected.kind==='wall'?selected.section+' WALL':shelf.face===1?'FRONT FACE':'REAR FACE')}
+    <small>${faceCleaning[id]===3?'CLEAN':'DIRTY · '+(faceCleaning[id]+'/3')}</small>
+   </button>`;
+ }).join('');
+ let rowMarkup='';
+ for(let r=0;r<ROWS;r++){
+  const contents=slots[selectedFace][r],items=rows[selectedFace][r],
+    sid=items.length?figure(items[0]).setId:null,
+    status=isPerfectRow(selectedFace,r)?'perfect':items.length===10?'unsorted':items.length?'partial':'empty',
+    name=sid!==null?DB.sets[sid].name:'UNASSIGNED ROW',
+    slotList=contents.map((id,k)=>`<span class="map-slot${isFigure(id)?' occupied':''}"
+      title="Position ${k+1}${isFigure(id)?', figure #'+setNumber(id):', empty'}">${isFigure(id)?setNumber(id):'·'}</span>`).join('');
+  rowMarkup+=`<div class="map-row ${status}${sid===mapHighlightedSet?' highlighted':''}">
+   <div class="map-row-head"><strong>ROW ${r+1}</strong>
+     ${sid===null?`<span class="map-row-name">${name}</span>`:
+      `<button class="map-row-name" data-map-set="${sid}" title="Open collection in almanac">
+        ${safeText(name)} <span aria-hidden="true">↗</span></button>`}
+     <span class="map-row-status">${status==='perfect'?'★ PERFECT':status==='unsorted'?'SORT 1–10':items.length+'/10'}</span>
+   </div><div class="map-slot-grid" aria-label="Shelf row slots left to right">${slotList}</div>
+  </div>`;
+ }
+ const result=`<div class="map-note">Tap a shelf on the plan. View its front or rear face, then inspect any named collection. The map shows <b>your current location</b> but never reveals loose figurines.</div>
+  <div class="map-info-strip">✦ YOU ARE IN ${safeText(nearestAisle())} · FACING ${((heading%360)+360)%360|0}°
+    <span>SHELVES ${cleanedFaceCount()}/60 · FLOOR ${floorCleanedCount()}/45 · HIDDEN ${hiddenRevealed.size}/18</span></div>
+  <div class="store-map-frame">${svg}</div>
+  <div class="map-legend"><span>▲ PLAYER</span><span>■ DIRTY</span><span>■ IN USE</span><span>★ PERFECT</span></div>
+  <section class="map-detail">
+   <h3>${selected.kind==='floor'?'AISLE '+selected.aisle+' · UNIT '+(Math.floor(selected.id/4)+1):
+      selected.section+' WALL · DISPLAY '+(selected.wallIndex%5+1)}</h3>
+   <div class="map-unit-total">${chosen.occupied}/${chosen.capacity} ROWS ASSIGNED · ${chosen.perfect} PERFECT</div>
+   <div class="map-face-controls">${facesMarkup}</div>
+   <div class="map-rows">${rowMarkup}</div>
+  </section>`;
+ $('drawerBody').innerHTML=result;
+ const body=$('drawerBody');
+ const selectFixture=e=>{
+  const target=e.target.closest('[data-map-fixture]');if(!target)return;
+  const id=Number(target.getAttribute('data-map-fixture'));
+  if(!Number.isInteger(id)||!fixtures[id])return;
+  mapSelectedFixtureId=id;mapSelectedFaceId=mapFaceIds(fixtures[id])[0];
+  mapHighlightedSet=null;paintStoreMap();
+ };
+ body.querySelectorAll('[data-map-fixture]').forEach(el=>{
+  el.addEventListener('click',selectFixture);
+  el.addEventListener('keydown',e=>{
+   if(e.key==='Enter'||e.key===' '){e.preventDefault();selectFixture(e);}
+  });
+ });
+ body.querySelectorAll('[data-map-face]').forEach(el=>el.onclick=()=>{
+  mapSelectedFaceId=Number(el.getAttribute('data-map-face'));paintStoreMap();
+ });
+ body.querySelectorAll('[data-map-set]').forEach(el=>el.onclick=()=>{
+  const sid=Number(el.getAttribute('data-map-set'));
+  if(!Number.isInteger(sid)||!DB.sets[sid])return;
+  openDrawer('album');renderSetDetail(sid);
+ });
+}
+
 function renderSetDetail(sid){
  activeSet=sid;const set=DB.sets[sid],place=rowForSet(sid);
  const perfect=isSetPerfect(sid),state=perfect?'★ PERFECT 1–10':countSet(sid)===10?'FULL · STILL NEEDS SORTING':countSet(sid)+'/10 COLLECTED';
- let html=`<button class="back" id="backAlbum">← BACK TO 300 SETS</button><div class="info-strip"><b>${set.name}</b><br>${state} · ${place?`Shelf ${place[0]+1}, Row ${place[1]+1}`:'No display row assigned yet'}<br>Place figures in ANY slot and arrange their numbers 1–10 to complete the row.</div><div class="album-detail-grid">`;
+ let html=`<button class="back" id="backAlbum">← BACK TO 300 SETS</button>${place?'<button id="showOnMap" class="map-jump">⌖ SHOW SHELF ON STORE MAP</button>':''}<div class="info-strip"><b>${set.name}</b><br>${state} · ${place?`Shelf ${place[0]+1}, Row ${place[1]+1}`:'No display row assigned yet'}<br>Place figures in ANY slot and arrange their numbers 1–10 to complete the row.</div><div class="album-detail-grid">`;
  for(const id of set.memberIds){
   let status='SCATTERED ON FLOOR';if(tote.includes(id))status='IN HAND';
   else for(let ss=0;ss<NUM_RACKS;ss++)for(let rr=0;rr<ROWS;rr++){
@@ -782,6 +931,11 @@ function renderSetDetail(sid){
  html+='</div><div class="info-strip">A row is PERFECT only after the 10 figures are in numerical order from left to right, 1–10.</div>';
  $('drawerBody').innerHTML=html;
  $('backAlbum').onclick=()=>renderAlbum();
+ if(place)$('showOnMap').onclick=()=>{
+  mapHighlightedSet=sid;mapSelectedFaceId=place[0];
+  mapSelectedFixtureId=shelves[place[0]].fixture.id;
+  openDrawer('map');
+ };
  $('drawerBody').querySelectorAll('[data-inspect-figure]').forEach(el=>
   el.onclick=()=>openInspection(+el.dataset.inspectFigure));
 }
@@ -1476,6 +1630,7 @@ window.addEventListener('keydown',e=>{
  if(e.code==='Tab'){if(modal==='inspect')closeInspection();else modal?closeDrawer():openDrawer('album');}
  if(e.code==='KeyI'){if(modal==='inspect')closeInspection();else modal?closeDrawer():openDrawer('album');}
  if(e.code==='KeyF'){if(modal==='inspect')closeInspection();else inspectTarget();}
+ if(e.code==='KeyM'){if(modal==='map')closeDrawer();else if(modal==='inspect')closeInspection();else{mapHighlightedSet=null;openDrawer('map');}}
 });
 window.addEventListener('keyup',e=>{keys.delete(e.code);if(e.code==='ShiftLeft'||e.code==='ShiftRight')shift=false});
 let dragging=false,lastX=0,lastY=0,downX=0,downY=0,dragSum=0;
@@ -1518,7 +1673,12 @@ $('inspectOverlay').addEventListener('click',e=>{
  if(e.target===$('inspectOverlay'))closeInspection();
 });
 $('putDownBtn').onclick=()=>tote.length?putDown():undoLastPlacement();
-$('albumBtn').onclick=()=>modal?closeDrawer():openDrawer('album');
+$('albumBtn').onclick=()=>modal==='album'?closeDrawer():modal==='inspect'?closeInspection():openDrawer('album');
+$('mapBtn').onclick=()=>{
+ if(modal==='map')closeDrawer();
+ else if(modal==='inspect')closeInspection();
+ else{mapHighlightedSet=null;openDrawer('map');}
+};
 $('closeDrawer').onclick=closeDrawer;$('drawerShade').onclick=closeDrawer;
 $('cancelReset').onclick=()=>$('confirm').hidden=true;
 $('doReset').onclick=()=>{localStorage.removeItem(STORE_KEY);resetState();$('confirm').hidden=true;closeDrawer();notify('Store reset: 3,000 figures scattered.');};
@@ -1542,6 +1702,16 @@ window.BitBazaarQA={
  perfect:(shelf,row)=>isPerfectRow(shelf,row),
  figurePosition:id=>floor[id]?{x:floor[id].x,z:floor[id].z,onFloor:floor[id].onFloor,hidden:floor[id].hidden}:null,
  reset:resetState, get player(){return player}, shelves, dataset:DB,
+ openMap:()=>openDrawer('map'),
+ selectMap:(fixtureId,faceId)=>{
+  if(!fixtures[fixtureId])return false;
+  mapSelectedFixtureId=fixtureId;mapSelectedFaceId=faceId??mapFaceIds(fixtures[fixtureId])[0];
+  mapHighlightedSet=null;openDrawer('map');return true;
+ },
+ mapSummary:(fixtureId)=>mapFixtureSummary(fixtures[fixtureId]),
+ mapFaceIds:(fixtureId)=>mapFaceIds(fixtures[fixtureId]),
+ mapPlayerPose, mapSelected:()=>({fixture:mapSelectedFixtureId,face:mapSelectedFaceId,highlightedSet:mapHighlightedSet}),
+ mapVisible:()=>modal==='map',
  inspect:openInspection,closeInspection,inspectTarget,inspectLore:figurineLore,inspectStatus:figurineLocation,
  get inspectedId(){return inspectedId},lifetime:()=>[...lifetimePerfect].sort((a,b)=>a-b),
  pulse:()=>slotPulse,
