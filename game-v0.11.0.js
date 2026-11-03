@@ -1087,18 +1087,60 @@ function paintStoreMap(){
 }
 
 function renderSetDetail(sid){
- activeSet=sid;const set=DB.sets[sid],place=rowForSet(sid);
- const perfect=isSetPerfect(sid),state=perfect?'★ PERFECT 1–10':countSet(sid)===10?'FULL · STILL NEEDS SORTING':countSet(sid)+'/10 COLLECTED';
- let html=`<button class="back" id="backAlbum">← BACK TO 300 SETS</button>${place?'<button id="showOnMap" class="map-jump">⌖ SHOW SHELF ON STORE MAP</button>':''}<div class="info-strip"><b>${set.name}</b><br>${state} · ${place?`Shelf ${place[0]+1}, Row ${place[1]+1}`:'No display row assigned yet'}<br>Place figures in ANY slot and arrange their numbers 1–10 to complete the row.</div><div class="album-detail-grid">`;
- for(const id of set.memberIds){
-  let status='SCATTERED ON FLOOR';if(tote.includes(id))status='IN HAND';
-  else for(let ss=0;ss<NUM_RACKS;ss++)for(let rr=0;rr<ROWS;rr++){
-    const at=slots[ss][rr].indexOf(id);
-    if(at>=0)status='ON DISPLAY · SLOT '+(at+1);
-   }
-  html+=`<button type="button" class="detail-figure inspect-list-item" data-inspect-figure="${id}" aria-label="Inspect ${safeText(figure(id).name)}">${iconHTML(id)}<div><b>#${setNumber(id)}/10 · ${safeText(figure(id).role)}</b><span>${safeText(set.name)}</span><div class="status">${status}</div></div><span class="inspect-chevron">⌕</span></button>`;
+ if(!Number.isInteger(sid)||!DB.sets[sid])return;
+ activeSet=sid;
+ const set=DB.sets[sid],place=rowForSet(sid),
+  p=albumSetStatus(sid),status=p.perfect?'★ PERFECTLY ORDERED 1–10':
+   p.shelved===10?'FULL · REARRANGE INTO 1–10':
+   p.shelved?'COLLECTION IN PROGRESS':'COLLECTION NOT STARTED';
+ const heading=`<div class="folio-detail-top">
+  <button class="back folio-back" id="backAlbum">← ALL COLLECTIONS</button>
+  ${place?'<button id="showOnMap" class="map-jump">⌖ FIND THIS SHELF ON THE STORE MAP</button>':''}
+  <span class="folio-eyebrow">COLLECTION ${String(sid+1).padStart(3,'0')} / 300</span>
+  <h3>${safeText(set.name)}</h3>
+  <div class="folio-detail-theme">${safeText(set.theme)} · ${p.seen} DISCOVERED / 10 · ${p.shelved} ON DISPLAY / 10</div>
+  <div class="folio-detail-status${p.perfect?' mastered':''}">${status}
+    ${p.mastered?'<span>✦ MASTERED AT LEAST ONCE</span>':''}
+  </div>
+  ${place?`<div class="folio-detail-place">${safeText(shelves[place[0]].name)} · ROW ${place[1]+1}</div>`:
+   '<div class="folio-detail-place">NO DISPLAY ROW HAS BEEN STARTED</div>'}
+  </div>`;
+ let slotsPanel='';
+ if(place){
+  const current=slots[place[0]][place[1]];
+  slotsPanel=`<div class="folio-order-panel"><strong>YOUR SHELF · LEFT TO RIGHT</strong>
+   <div class="map-slot-grid">${current.map((id,k)=>`<span class="map-slot${isFigure(id)?' occupied':''}${isFigure(id)&&setNumber(id)!==k+1?' wrong-order':''}"
+      title="Slot ${k+1}${isFigure(id)?' holds #'+setNumber(id):' is empty'}">${isFigure(id)?setNumber(id):'·'}</span>`).join('')}</div>
+   <p>${p.perfect?'PERFECT! EVERY NUMBER IS IN ITS CORRECT SLOT.':
+       'A full row only counts as complete when it reads 1, 2, 3, 4, 5, 6, 7, 8, 9, 10.'}</p>
+   </div>`;
  }
- html+='</div><div class="info-strip">A row is PERFECT only after the 10 figures are in numerical order from left to right, 1–10.</div>';
+ let html=heading+slotsPanel+`<div class="folio-figure-heading">THE TEN MINIATURES
+  <small>DISCOVER A FIGURE BY FINDING OR INSPECTING IT IN THE SHOP</small></div>
+ <div class="folio-figure-grid">`;
+ for(const id of set.memberIds){
+  const observed=seenFigures.has(id),num=setNumber(id),f=figure(id),
+   location=figurineLocation(id),
+   status=slots.some(rack=>rack.some(row=>row.includes(id)))?'ON SHELF':
+    tote.includes(id)?'IN YOUR HAND':observed?'DISCOVERED · NOT SHELVED':'UNDISCOVERED';
+  if(observed){
+   html+=`<button type="button" class="folio-figure-card observed" data-inspect-figure="${id}"
+     aria-label="Inspect #${num}, ${safeText(f.name)}">
+    <span class="folio-figure-art">${iconHTML(id)}</span>
+    <span class="folio-figure-copy"><b>#${num} · ${safeText(f.name)}</b>
+     <small>${safeText(f.role)}</small><em>${status}</em></span>
+    <span class="folio-figure-glass" aria-hidden="true">⌕</span>
+   </button>`;
+  }else{
+   html+=`<div class="folio-figure-card unknown" aria-label="Figure #${num} not yet discovered">
+    <span class="folio-figure-art">${iconHTML(id)}</span>
+    <span class="folio-figure-copy"><b>#${num} · ???</b>
+     <small>UNKNOWN MINIATURE</small><em>FIND IT IN THE SHOP</em></span>
+    <span class="folio-figure-glass" aria-hidden="true">?</span>
+   </div>`;
+  }
+ }
+ html+='</div><div class="folio-footnote">A figure’s identity and collector note are revealed only after you find or inspect it in the shop. The book never shows loose figurine coordinates.</div>';
  $('drawerBody').innerHTML=html;
  $('backAlbum').onclick=()=>renderAlbum();
  if(place)$('showOnMap').onclick=()=>{
@@ -1107,8 +1149,9 @@ function renderSetDetail(sid){
   openDrawer('map');
  };
  $('drawerBody').querySelectorAll('[data-inspect-figure]').forEach(el=>
-  el.onclick=()=>openInspection(+el.dataset.inspectFigure));
+  el.onclick=()=>openInspection(Number(el.getAttribute('data-inspect-figure'))));
 }
+
 function grabFig(id){
  if(tote.length>=MAX_TOTE){notify('HANDS FULL — PLACE OR PUT DOWN YOUR FIGURE FIRST','bad');return}
  const f=floor[id];if(!f||!f.onFloor||f.hidden)return;
@@ -1895,6 +1938,9 @@ window.BitBazaarQA={
  inspect:openInspection,closeInspection,inspectTarget,inspectLore:figurineLore,inspectStatus:figurineLocation,
  get inspectedId(){return inspectedId},lifetime:()=>[...lifetimePerfect].sort((a,b)=>a-b),
  seen:()=>[...seenFigures].sort((a,b)=>a-b),seenCount:(sid)=>sid===undefined?seenFigures.size:setDiscovery(sid),
+ albumSnapshot:()=>({filter:albumFilter,sort:albumSort,page:albumPage,query:albumQuery,summary:albumOverview(),ids:albumCatalog().map(p=>p.id)}),
+ albumOpen:()=>openDrawer('album'),albumDetail:(sid)=>{openDrawer('album');renderSetDetail(sid);},
+ albumSet:(sid)=>albumSetStatus(sid),
  pulse:()=>slotPulse,
  target:()=>{prepareOcclusion();return findFocus()},
  horizon:()=>cameraHorizon(),aimPoint:()=>({x:AIM_X,y:AIM_Y}),
