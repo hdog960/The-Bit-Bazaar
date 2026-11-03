@@ -707,17 +707,29 @@ function drawShelf(f){
     const u=-f.w/2+slot*f.w/10;
     shelfBeam(f,u,d+facing*.05,y+.10,u,d+facing*.05,y+.45,'#695066',Math.max(.6,sz*.006));
    }
-   const items=rows[faceId][r];
-   for(let k=0;k<items.length;k++){
+   const items=slots[faceId][r];
+   for(let k=0;k<PER_ROW;k++){
+    const id=items[k];if(!isFigure(id))continue;
     const u=-f.w/2+(k+.5)*f.w/10,dd=d+facing*.075;
     const foot=shelfProject(f,u,dd,y+.04),top=shelfProject(f,u,dd,y+.55);
     const width=Math.max(1,.42*FOCAL/Math.max(.4,foot.depth)),height=foot.y-top.y;
-    if(height>=2 && width>1 && foot.depth>.3){
-     // Another rack between the player and this display can obscure it;
-     // the display's own wooden body must never hide its front row.
+    if(height>=2&&width>1&&foot.depth>.3){
      const worldPos=shelfAt(f,u,dd);
-     if(!shelfOccludes(worldPos,f.id))
-      sprites.draw(ctx,items[k],foot.x-width/2,top.y,width,height);
+     if(!shelfOccludes(worldPos,f.id)){
+      sprites.draw(ctx,id,foot.x-width/2,top.y,width,height);
+      // Small local collection number; canvas text uses no new sprite assets.
+      if(foot.depth<10&&width>7&&height>12){
+       ctx.fillStyle='#24182e';ctx.fillRect(foot.x-6,top.y-10,12,9);
+       ctx.fillStyle='#fbe4b2';ctx.font='bold 8px monospace';
+       ctx.textAlign='center';ctx.fillText(String(setNumber(id)),foot.x,top.y-3);
+      }
+     }
+    }
+   }
+   if(isPerfectRow(faceId,r)){
+    const marker=shelfProject(f,-f.w/2+.12,d+facing*.15,y+.08);
+    if(marker.depth>0&&marker.depth<15){
+     ctx.fillStyle='#f6cb76';ctx.fillRect(marker.x,marker.y,Math.min(30,FOCAL/marker.depth*.6),2);
     }
    }
   }
@@ -729,15 +741,16 @@ function drawShelf(f){
  }
  shelfBeam(f,-f.w/2-.12,d+facing*.06,4.18,f.w/2+.12,d+facing*.06,4.18,'#f6c986',Math.max(1,sz*.035));
  shelfBeam(f,-f.w/2-.12,d+facing*.06,.15,f.w/2+.12,d+facing*.06,.15,'#7f5366',Math.max(1,sz*.04));
- // Outline ONLY the physical row under the reticle.
- if(focus&&focus.kind==='shelf'&&focus.id===faceId){
-  const r=focus.row,y=.44+r*.72,drawD=d+facing*.17;
-  const plan=placementPlan(faceId,r,currentSelected());
-  const tint=plan.ok?'#9effc7':'#ff8f9f',width=Math.max(1,FOCAL/Math.max(3,depth)*.016);
-  shelfBeam(f,-f.w/2,drawD,y,f.w/2,drawD,y,tint,width);
-  shelfBeam(f,-f.w/2,drawD,y+.68,f.w/2,drawD,y+.68,tint,width);
-  shelfBeam(f,-f.w/2,drawD,y,-f.w/2,drawD,y+.68,tint,width);
-  shelfBeam(f,f.w/2,drawD,y,f.w/2,drawD,y+.68,tint,width);
+ // Highlight exactly ONE cubby of the shelf row being targeted.
+ if(focus&&['shelf','shelf-figure'].includes(focus.kind)&&focus.id===faceId){
+  const r=focus.row,k=focus.slot,y=.44+r*.72,drawD=d+facing*.17,
+   left=-f.w/2+k*f.w/PER_ROW,right=left+f.w/PER_ROW;
+  const plan=focus.kind==='shelf'?placementPlan(faceId,r,k,currentSelected()):{ok:true};
+  const tint=plan.ok?'#9effc7':'#ff8f9f',width=Math.max(1.4,FOCAL/Math.max(3,depth)*.016);
+  shelfBeam(f,left,drawD,y,right,drawD,y,tint,width);
+  shelfBeam(f,left,drawD,y+.68,right,drawD,y+.68,tint,width);
+  shelfBeam(f,left,drawD,y,left,drawD,y+.68,tint,width);
+  shelfBeam(f,right,drawD,y,right,drawD,y+.68,tint,width);
  }
 }
 function drawFig(f){
