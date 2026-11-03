@@ -314,6 +314,93 @@ function rowForSet(sid){for(let s=0;s<NUM_RACKS;s++)for(let r=0;r<ROWS;r++)if(ro
 function isSetPerfect(sid){const where=rowForSet(sid);return !!where&&isPerfectRow(where[0],where[1]);}
 const figure=id=>figureById[id];
 const iconHTML=id=>`<span class="sprite" aria-hidden="true" style="background-position:${sprites.cssIcon(id)}"></span>`;
+// One close-up card at a time: the existing 32x40 artwork is magnified
+// using CSS pixels, never an additional atlas or a large drawing buffer.
+const safeText=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+function figurineLore(id){
+ const fig=figure(id),set=DB.sets[fig.setId];
+ const leads=[
+  'A quiet guardian of overlooked treasures','A bold explorer of unfamiliar shelves',
+  'A dedicated keeper of miniature legends','A watchful wanderer of forgotten aisles',
+  'A collector of stories no one else remembers','A champion of the smallest adventures',
+  'A curious specialist in unlikely discoveries','A patient protector of lost objects',
+  'A cheerful adventurer with a stubborn streak','A meticulous expert in secret routes'
+ ];
+ const quirks=[
+  'always carries a lucky charm','never steps over a crack',
+  'keeps a secret written in tiny letters','refuses to leave a friend behind',
+  'can spot a misplaced detail from across a room','is convinced every dusty box hides a mystery',
+  'counts every victory twice','likes to keep the team in numerical order',
+  'travels with a map covered in sketches','takes special pride in a perfectly polished display'
+ ];
+ const legendary=[
+  'Rumor says this miniature once solved a puzzle no one else could.',
+  'The collection records mention one legendary rescue and a missing ribbon.',
+  'Other figures know the story but never agree on its ending.',
+  'Its greatest adventure is still waiting for the rest of the set.',
+  'It is said the most important discovery happens on an ordinary day.',
+  'According to old collector notes, this figure has never lost its way.'
+ ];
+ const a=leads[(fig.setId*7+fig.number*3)%leads.length];
+ const b=quirks[(id*3+fig.setId)%quirks.length];
+ const c=legendary[(id+fig.number*5)%legendary.length];
+ return a+' in the '+set.theme+' stories, this '+fig.role.toLowerCase()+' '+b+'. '+c;
+}
+function figurineLocation(id){
+ if(tote.includes(id))return 'IN YOUR HAND';
+ for(let rack=0;rack<NUM_RACKS;rack++)for(let row=0;row<ROWS;row++){
+  const slot=slots[rack][row].indexOf(id);
+  if(slot>=0)return 'DISPLAY '+(rack+1)+' · ROW '+(row+1)+' · SLOT '+(slot+1);
+ }
+ return floor[id]?.onFloor?'LOOSE IN THE SHOP':'NOT CURRENTLY ON DISPLAY';
+}
+function openInspection(id){
+ if(!isFigure(id)||modal==='inspect')return false;
+ const fig=figure(id),set=DB.sets[fig.setId];
+ inspectionReturn=modal==='album'?'album':'';
+ inspectedId=id;modal='inspect';
+ $('inspectFigureName').textContent=fig.name;
+ $('inspectSeriesName').textContent=set.name;
+ $('inspectFigureNumber').textContent='#'+fig.number+' / 10';
+ $('inspectSeriesNumber').textContent='COLLECTION '+String(set.id+1).padStart(3,'0')+' / 300';
+ $('inspectRole').textContent=fig.role+' · '+(fig.codename||'Collector’s curiosity');
+ $('inspectStory').textContent=figurineLore(id);
+ $('inspectStatus').textContent=figurineLocation(id);
+ $('inspectProgress').textContent=countSet(set.id)+' / 10 SHELVED'+
+  (isSetPerfect(set.id)?' · PERFECT 1–10':lifetimePerfect.has(set.id)?' · MASTERED BEFORE':'');
+ $('inspectSprite').innerHTML=iconHTML(id);
+ $('inspectReturn').textContent=inspectionReturn==='album'?'BACK TO COLLECTION':'RETURN TO SHOP';
+ $('inspectOverlay').hidden=false;
+ $('inspectOverlay').setAttribute('aria-hidden','false');
+ return true;
+}
+function closeInspection(){
+ if(modal!=='inspect')return false;
+ $('inspectOverlay').hidden=true;$('inspectOverlay').setAttribute('aria-hidden','true');
+ modal=inspectionReturn||'';inspectedId=null;inspectionReturn='';
+ return true;
+}
+function inspectTarget(){
+ if(!playing||modal)return false;
+ prepareOcclusion();const target=findFocus();
+ const id=tote[0]??(target?.kind==='figure'?target.id:
+  target?.kind==='shelf-figure'?target.figureId:null);
+ return id===null||id===undefined?false:openInspection(id);
+}
+// A CSS-only celebration (5 simple diamonds, no particles/canvases).
+function showPerfectBanner(setId,firstTime){
+ const set=DB.sets[setId],banner=$('perfectBanner');
+ $('perfectSetName').textContent=set.name;
+ $('perfectFirst').textContent=firstTime?
+  'NEW MASTERED SET · '+lifetimePerfect.size+' / 300':'PERFECTLY REORGANIZED';
+ banner.classList.remove('show');
+ // Restart the one-shot CSS animation; no recurring work.
+ void banner.offsetWidth;
+ banner.classList.add('show');
+ clearTimeout(perfectBannerTimer);
+ perfectBannerTimer=setTimeout(()=>banner.classList.remove('show'),2600);
+}
+
 // Collection browsing is the ONLY remaining modal. Physical shelves are used in-world.
 function openDrawer(kind){
  if(kind!=='album')return;
