@@ -2,6 +2,15 @@
 
 iPhone-first pixel-art collectible-store game. Live: https://hdog960.github.io/The-Bit-Bazaar/
 
+## v0.4.0: one-at-a-time, direct shelving (Nov 3, 2026)
+- The player holds **exactly one figurine** at a time, not ten. A second pickup is blocked until the first figure is placed or put down.
+- The separate tote and shelf placement menus have been removed from the gameplay loop. On iPhone, approach any shelf face while carrying a figure and tap **PLACE** (or tap the shelf directly). Desktop players press **E**. Collection Almanac remains available.
+- The engine chooses the matching row if that set is already assigned to this display face. Otherwise, it claims that face's first unused row. It refuses incompatible placement, mixing sets, full rows and splitting one set across different display faces.
+- The bottom-right UI is now a compact **held figure display**, with actual pixel sprite, figure name, set name and a **PUT DOWN** button. Putting down places the figurine physically in a nearby open aisle; that location is saved with the normal game progress.
+- Existing v3 saves and shelf assignments remain. If an older tote saved multiple carried figures, the previously selected figurine is retained, extras are restored to their deterministic floor spawn locations, and an original full-save backup is written once to `bit-bazaar-v3-before-single-carry`. The old v1 recovery save remains untouched.
+- Retains 3,000 figures, 300 sets, 60 display faces, 112 re-used pixel canvases, the existing occlusion and sticky distance rendering, and automatic performance fallback to `stable.html`.
+- QA: one-hand pickup, wrong shelf rejection, same-set row continuation, wall-shelf direct placement, floor put-down and persistence, original save migration, and 1,440 simulated 60Hz animation ticks with 24 FPS render budget. Real-device iPhone confirmation remains needed.
+
 ## v0.3.3: shelf-depth visibility and occlusion (Nov 3, 2026)
 - Previously a floor figurine or displayed collectible behind a shelving unit could be composited in front of it by the engine's center-depth painter sorting.
 - The scene now uses a true 2D **line segment vs. rotated shelf rectangle** visibility check for both floor racks and perimeter wall shelving. A ray only blocks a figurine when the wooden rack physically intersects the sightline between the camera and the figure.
