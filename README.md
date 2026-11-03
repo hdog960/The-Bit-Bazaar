@@ -1,5 +1,22 @@
 # The Bit Bazaar — The Great Figurine Sort
 
+## Phase 2 environmental restoration milestone — v0.9.0 (Nov 3, 2026)
+This is the next playable Phase 2 increment under [MASTER_ROADMAP_LOCKED.md](./MASTER_ROADMAP_LOCKED.md). The game still has no customers, sales, timers, or automatic dirt respawns.
+
+**Implemented:**
+- **45 permanent floor-cleaning locations** placed deterministically in collision-free aisles. Three visually distinct types, **15 each**: scattered papers/wrappers, cardboard shipping cartons and stained/scuffed floor patches. Real 16-bit world geometry (no new texture sheets, sprite atlases, or canvas allocations).
+- **Three different cleanup interactions**, all requiring **EMPTY HANDS**, aimed with the existing center reticle and cleaned using the ordinary action button / E key:
+  - Paper: **GATHER SCRAPS** in one action, removing scattered wrappers.
+  - Cartons: **FLATTEN CARDBOARD → REMOVE PACKING**; box piles physically flatten before disappearing.
+  - Scuffs: **SWEEP GRIT → SCRUB STAIN → POLISH FLOOR**, visibly improving with each stage.
+- Objects disappear permanently when clean. Small in-world green feedback and messages celebrate progress. HUD tracks **SHELVES 0/60 · FLOOR 0/45 · HIDDEN 0/18** (or the player's saved values).
+- **Existing v0.8 saves** gain the 45 new optional cleanup patches without resetting their prior clean shelves, discovered hidden figures, named figure placements, numbered slots or lifetime mastered collections. A one-time pre-update copy is kept at `bit-bazaar-v3-before-floor-cleaning`. All partial floor-cleaning stages are saved to `floorCleaning[45]` in `bit-bazaar-save-v3`.
+- All **3,000 real figurines** remain unchanged. **18 secret figures** remain linked exclusively to their previous shelf packaging messes. Cleaning ambient floor objects never creates or consumes collectible figures.
+- Enhanced **v0.9 low-effects recovery** at [baseline-v0.9.0-lowfx.html](./baseline-v0.9.0-lowfx.html), which retains the same current save format and targetable clutter, but replaces detailed cardboard/trash/stain geometry with simple in-world colored shapes, omits shelf grime art and lowers scene rendering to 42 near, 12 mid, 20 far and 20 FPS. Emergency slow-frame diversion never opens an old build that would discard floor-cleaning progress.
+- **Regression QA**: all 45 locations checked for fixture collision, all cleanup types and 1/2/3-stage completions, midway-save reload, save migration, 18-figurine preservation, reticle aim to a floor mess, and a 1,200-tick simulated iPhone scene render (400 rendered frames; ≤112 cached sprite canvases). Simulated severe frame stalls reached the safe v0.9 recovery page. Physical iPhone testing still needed.
+
+**Remaining Phase 2 polish**: optimize and visually refine individual cleaning actions based on iPhone feedback and ensure restoration goals/readability continue to feel satisfying. Phase 3 almanac map work begins after Phase 2 acceptance.
+
 ## Phase 2 cleaning first playable milestone — v0.8.0 (Nov 3, 2026)
 The six-phase creative scope remains frozen in [MASTER_ROADMAP_LOCKED.md](./MASTER_ROADMAP_LOCKED.md). This is the **first Phase 2 slice**, not a claim that the entire cleaning phase is completed.
 
