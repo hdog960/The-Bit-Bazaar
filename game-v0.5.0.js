@@ -219,7 +219,7 @@ function restore(){
   groundPositions.set(id,{x,z});
  }
  if(raw.player && isFinite(raw.player.x)&&isFinite(raw.player.z)&&isFinite(raw.player.yaw)&&!blocked(raw.player.x,raw.player.z,0.2)){
-  player={x:clamp(raw.player.x,2,68),z:clamp(raw.player.z,2,72),yaw:raw.player.yaw,pitch:clamp(Number(raw.player.pitch)||0,-.62,.62)};
+  player={x:clamp(raw.player.x,2,68),z:clamp(raw.player.z,2,72),yaw:raw.player.yaw,pitch:clamp(Number(raw.player.pitch)||0,-.95,.95)};
  }else player={x:35,z:68,yaw:0,pitch:0};
  setupFloor();stats();
  // Copy the 1,000-figure save once; leave emergency recovery progress untouched.
@@ -288,7 +288,9 @@ function placementPlan(shelfId,rowId,id){
  if(target.length>=PER_ROW)return {ok:false,message:'ROW FULL · 10 / 10'};
  if(target.length && figure(target[0]).setId!==sid)
   return {ok:false,message:'WRONG SET · '+DB.sets[figure(target[0]).setId].name};
- return {ok:true,row:rowId,continuing:target.length>0};
+ const assigned=rowForSet(sid);
+ const relocate=(!target.length&&assigned&&(assigned[0]!==shelfId||assigned[1]!==rowId))?assigned:null;
+ return {ok:true,row:rowId,continuing:target.length>0,relocate};
 }
 function placeFig(shelfId,rowId){
  const id=currentSelected();
@@ -302,10 +304,18 @@ function placeFig(shelfId,rowId){
  if(target.length&&figure(target[0]).setId!==sid){
   notify('WRONG SET — YOU CANNOT MIX COLLECTIONS','bad');return false;
  }
- // Same set may continue on a different shelf only when the player
- // deliberately aims at another empty or matching row.
+ // Moving a partially completed set to a DIFFERENT empty row transfers its
+ // existing pieces as a group. This preserves the 300 sets of 10 goal,
+ // rather than irreversibly fragmenting collections across shelves.
+ const plan=placementPlan(shelfId,rowId,id);
+ const relocate=plan.relocate;
+ const moved=relocate?[...rows[relocate[0]][relocate[1]]]:[];
+ if(relocate){
+  rows[relocate[0]][relocate[1]].length=0;
+  target.push(...moved);
+ }
  target.push(id);tote.length=0;selected=null;groundPositions.delete(id);
- lastPlacement={shelfId,rowId,id};
+ lastPlacement={shelfId,rowId,id,relocate,moved};
  save();stats();
  if(target.length===PER_ROW)notify('★ SET COMPLETE! '+DB.sets[sid].name);
  else notify('PLACED · ROW '+(rowId+1)+' · '+target.length+'/10 · '+DB.sets[sid].name);
@@ -331,7 +341,14 @@ function undoLastPlacement(){
  if(tote.length||!lastPlacement)return false;
  const {shelfId,rowId,id}=lastPlacement,row=rows[shelfId]?.[rowId];
  if(!row||row[row.length-1]!==id){lastPlacement=null;stats();return false;}
- row.pop();tote.push(id);selected=id;lastPlacement=null;
+ row.pop();
+ if(lastPlacement.relocate){
+  const from=rows[lastPlacement.relocate[0]][lastPlacement.relocate[1]];
+  const {moved}=lastPlacement;
+  for(let i=0;i<moved.length;i++)row.splice(row.indexOf(moved[i]),1);
+  from.push(...moved);
+ }
+ tote.push(id);selected=id;lastPlacement=null;
  save();stats();notify('BACK IN HAND · '+figure(id).name);
  return true;
 }
@@ -500,7 +517,7 @@ function updateFocus(){
   const row=rows[focus.id][focus.row];
   $('interactName').textContent=shelves[focus.id].name+' · ROW '+(focus.row+1)+' / 5';
   $('interactDescription').textContent=plan.ok?
-    (row.length?'MATCHING SET':'EMPTY ROW')+' · '+row.length+'/10 · TAP TO PLACE':plan.message;
+    (plan.relocate?'MOVE SET HERE':row.length?'MATCHING SET':'EMPTY ROW')+' · '+row.length+'/10 · TAP TO PLACE':plan.message;
   $('actionLabel').textContent=plan.ok?'PLACE':'NO MATCH';
   reticle.classList.add(plan.ok?'aim-place':'aim-denied');
  }
@@ -886,7 +903,7 @@ canvas.addEventListener('pointermove',e=>{
  const dx=e.clientX-lastX,dy=e.clientY-lastY;
  lastX=e.clientX;lastY=e.clientY;dragSum+=Math.hypot(dx,dy);
  player.yaw+=dx*(2.5/Math.max(300,window.innerWidth));
- player.pitch=clamp((player.pitch||0)+dy*(2.15/Math.max(500,window.innerHeight)),-.62,.62);
+ player.pitch=clamp((player.pitch||0)+dy*(2.15/Math.max(500,window.innerHeight)),-.95,.95);
 });
 canvas.addEventListener('pointerup',e=>{
  if(!dragging)return;dragging=false;
