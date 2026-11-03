@@ -257,67 +257,97 @@ function countSet(sid){let count=0;for(const rack of rows)for(const row of rack)
 function rowForSet(sid){for(let s=0;s<NUM_RACKS;s++)for(let r=0;r<ROWS;r++)if(rows[s][r].length&&(rows[s][r][0]/10|0)===sid)return [s,r];return null;}
 const figure=id=>figureById[id];
 const iconHTML=id=>`<span class="sprite" aria-hidden="true" style="background-position:${sprites.cssIcon(id)}"></span>`;
-function openDrawer(kind, data){modal=kind;
- $('drawer').classList.add('open');$('drawerShade').classList.add('show');$('drawer').setAttribute('aria-hidden','false');
- if(kind==='shelf'){const s=shelves[data];$('drawerKicker').textContent=`DISPLAY ${s.id+1}/60 · ${s.aisle}`;$('drawerTitle').textContent=s.name;}
- else if(kind==='tote'){$('drawerKicker').textContent='YOUR CARRIED COLLECTION';$('drawerTitle').textContent='POCKET TOTE';}
- else if(kind==='album'){$('drawerKicker').textContent='3,000 MINIATURE TREASURES';$('drawerTitle').textContent='COLLECTION ALMANAC';}
- activeShelf=data;renderDrawer();
+// Collection browsing is the ONLY remaining modal. Physical shelves are used in-world.
+function openDrawer(kind){
+ if(kind!=='album')return;
+ modal='album';
+ $('drawer').classList.add('open');$('drawerShade').classList.add('show');
+ $('drawer').setAttribute('aria-hidden','false');
+ $('drawerKicker').textContent='3,000 MINIATURE TREASURES';
+ $('drawerTitle').textContent='COLLECTION ALMANAC';
+ renderAlbum();
 }
-let activeShelf=0;
-function closeDrawer(){modal='';$('drawer').classList.remove('open');$('drawerShade').classList.remove('show');$('drawer').setAttribute('aria-hidden','true');}
-function renderDrawer(){if(modal==='shelf')renderShelf();else if(modal==='tote')renderTote();else if(modal==='album')renderAlbum();}
-function currentSelected(){return tote.includes(selected)?selected:(tote[0]??null);}
-function renderTote(){
- const sel=currentSelected();
- let html=`<div class="info-strip">Collect up to <b>10 figures</b> at a time. Select one to prepare it for shelving. Match all 10 figures of a set in a single display row.</div>`;
- if(!tote.length)html+='<div class="empty">Your tote is empty.<br>Walk up to a figurine on the floor and pick it up.</div>';
- else{
-  html+='<p class="label">SELECTED: '+(sel===null?'NONE':figure(sel).name.toUpperCase())+'</p><div class="figure-grid">';
-  for(const id of tote)html+=`<button class="figure-card ${id===sel?'active':''}" data-select="${id}" title="${figure(id).name} · ${DB.sets[figure(id).setId].name}">${iconHTML(id)}<span>#${String(id+1).padStart(4,'0')}</span></button>`;
-  html+='</div>';
-  if(sel!==null)html+=`<div class="info-strip"><b>${figure(sel).name}</b><br>${DB.sets[figure(sel).setId].name}<br>Figure ${figure(sel).number} of 10 · Set ${figure(sel).setId+1} of 300</div>`;
- }
- html+='<div class="footer-actions"><span class="label">SHOP OPERATIONS</span><button id="viewAlbum" class="chrome">VIEW ALL SETS</button></div>';
- $('drawerBody').innerHTML=html;
- $('drawerBody').querySelectorAll('[data-select]').forEach(el=>el.onclick=()=>{selected=+el.dataset.select;save();renderTote()});
- $('viewAlbum').onclick=()=>openDrawer('album');
+function closeDrawer(){
+ modal='';$('drawer').classList.remove('open');$('drawerShade').classList.remove('show');
+ $('drawer').setAttribute('aria-hidden','true');
 }
-function renderShelf(){
- const r=shelves[activeShelf],arr=rows[r.id],sel=currentSelected();
- let html=`<div class="info-strip">Each of the <b>five rows holds exactly 10 figurines</b> from ONE collectible set. Placing the first figure assigns its set to that row. Other sets cannot be mixed in.</div>`;
- if(sel!==null)html+=`<div class="label">READY TO PLACE</div><div class="detail-figure" style="margin:8px 0 15px">${iconHTML(sel)}<div><b>${figure(sel).name}</b><span>${DB.sets[figure(sel).setId].name}</span></div></div>`;
- else html+='<div class="info-strip">Your tote is empty. Pick up some floor figurines first.</div>';
- html+='<div class="label">DISPLAY ROWS · BOTTOM TO TOP</div>';
- for(let ri=0;ri<5;ri++){
-  const figIds=arr[ri],sid=figIds.length?figure(figIds[0]).setId:null;
-  const set =sid===null?null:DB.sets[sid];
-  const compatible=sel!==null&&figIds.length<10&&(sid===null||sid===figure(sel).setId)&&(!rowForSet(figure(sel).setId)||rowForSet(figure(sel).setId).join()===`${r.id},${ri}`);
-  html+=`<button class="row-btn ${figIds.length===10?'full':!compatible&&sel!==null?'incompatible':''}" data-row="${ri}"><div class="row-meta"><b>ROW ${ri+1} · ${set?set.name:'UNASSIGNED'}</b><em>${figIds.length}/10 ${figIds.length===10?'✓':''}</em></div><div class="row-figs">`;
-  for(let k=0;k<10;k++)html+=`<span class="slot">${figIds[k]!==undefined?iconHTML(figIds[k]):'·'}</span>`;
-  html+=`</div><div style="font-size:9px;margin-top:6px;color:${compatible?'#9de9cc':'#beaabb'}">${compatible?'TAP TO PLACE SELECTED FIGURE':figIds.length===10?'COMPLETE ROW':sel===null?'PICK UP A FIGURE FIRST':sid!==null&&sid!==figure(sel).setId?'DIFFERENT SET — NOT ALLOWED':rowForSet(figure(sel).setId)?'THIS SET HAS ANOTHER ROW':'ROW UNAVAILABLE'}</div></button>`;
-  if(figIds.length)html+=`<button class="back" style="font-size:10px" data-take="${ri}">↶ Take last figure back into tote</button>`;
+function currentSelected(){return tote[0]??null;}
+// All ten figures of each set must go in the SAME row, on the SAME shelf face.
+function placementPlan(shelfId,id){
+ if(id===null||id===undefined)return {ok:false,message:'PICK UP ONE FIGURE FIRST'};
+ const sid=figure(id).setId,assigned=rowForSet(sid);
+ if(assigned){
+  const [rack,row]=assigned;
+  if(rack!==shelfId)return {ok:false,message:'THIS SET BELONGS ON DISPLAY '+(rack+1)+' · ROW '+(row+1)};
+  if(rows[rack][row].length>=PER_ROW)return {ok:false,message:'THIS SET IS ALREADY COMPLETE'};
+  return {ok:true,row};
  }
- html+='<div class="info-strip">Display capacity: <b>50 figures</b> per shelf. Your shop has 20 two-sided floor fixtures and 20 single-sided wall fixtures, with 60 display faces in all.</div>';
- $('drawerBody').innerHTML=html;
- $('drawerBody').querySelectorAll('[data-row]').forEach(el=>el.onclick=()=>placeFig(r.id,+el.dataset.row));
- $('drawerBody').querySelectorAll('[data-take]').forEach(el=>el.onclick=()=>takeFig(r.id,+el.dataset.take));
+ const row=rows[shelfId].findIndex(r=>r.length===0);
+ if(row<0)return {ok:false,message:'THIS DISPLAY IS FULL'};
+ return {ok:true,row};
 }
 function placeFig(shelfId,rowId){
- const id=currentSelected();if(id===null){notify('Your tote is empty. Find some figures first.','bad');return}
- const target=rows[shelfId][rowId], sid=figure(id).setId;
- if(target.length===10){notify('This row is already full.','bad');return}
- if(target.length&&figure(target[0]).setId!==sid){notify('Set mismatch! Each row must contain a single complete set.','bad');return}
- let existing=rowForSet(sid);
- if(existing&&(existing[0]!==shelfId||existing[1]!==rowId)){notify(`That set belongs on Shelf ${existing[0]+1}, Row ${existing[1]+1}.`,'bad');return}
- tote.splice(tote.indexOf(id),1);target.push(id);selected=tote[0]??null;
- save();stats();if(modal==='shelf')renderShelf();
- if(target.length===10)notify(`SET COMPLETE! ${DB.sets[sid].name} ✓`);
- else notify(`${figure(id).name} displayed · ${target.length}/10`);
+ const id=currentSelected();
+ if(id===null){notify('PICK UP ONE FIGURE FIRST','bad');return false;}
+ if(!Number.isInteger(shelfId)||shelfId<0||shelfId>=NUM_RACKS||
+    !Number.isInteger(rowId)||rowId<0||rowId>=ROWS){
+  notify('INVALID DISPLAY ROW','bad');return false;
+ }
+ const target=rows[shelfId][rowId],sid=figure(id).setId;
+ if(target.length>=PER_ROW){notify('THIS DISPLAY ROW IS FULL','bad');return false;}
+ if(target.length&&figure(target[0]).setId!==sid){
+  notify('WRONG SET — YOU CANNOT MIX COLLECTIONS','bad');return false;
+ }
+ const existing=rowForSet(sid);
+ if(existing&&(existing[0]!==shelfId||existing[1]!==rowId)){
+  notify('THIS SET BELONGS ON DISPLAY '+(existing[0]+1)+' · ROW '+(existing[1]+1),'bad');return false;
+ }
+ target.push(id);tote.length=0;selected=null;groundPositions.delete(id);
+ save();stats();
+ if(target.length===PER_ROW)notify('★ SET COMPLETE! '+DB.sets[sid].name);
+ else notify('PLACED · ROW '+(rowId+1)+' · '+target.length+'/10 · '+DB.sets[sid].name);
+ return true;
 }
-function takeFig(shelfId,rowId){const row=rows[shelfId][rowId];if(!row.length)return;
- if(tote.length>=MAX_TOTE){notify('Tote full! Place some figures first.','bad');return}
- const id=row.pop();tote.push(id);selected=id;save();stats();if(modal==='shelf')renderShelf();notify(`${figure(id).name} returned to tote.`);
+function placeDirect(shelfId){
+ const plan=placementPlan(shelfId,currentSelected());
+ if(!plan.ok){notify(plan.message,'bad');return false;}
+ return placeFig(shelfId,plan.row);
+}
+// Explicit PUT DOWN moves the single held figure onto the actual floor.
+// Save the position; never respawn or duplicate it when the app reopens.
+function putDown(){
+ const id=currentSelected();if(id===null)return false;
+ const dir=forward(),right={x:Math.cos(player.yaw),z:Math.sin(player.yaw)};
+ const locations=[[dir.x,dir.z,1.25],[right.x,right.z,1.15],
+  [-right.x,-right.z,1.15],[-dir.x,-dir.z,1.4],[dir.x,dir.z,1.75]];
+ let spot=null;
+ for(const [dx,dz,dist] of locations){
+  const x=player.x+dx*dist,z=player.z+dz*dist;
+  if(blocked(x,z,.3))continue;
+  const overlaps=nearbyFloor(2.5,false).some(f=>f.id!==id&&Math.hypot(f.x-x,f.z-z)<.42);
+  if(overlaps)continue;
+  spot={x,z};break;
+ }
+ if(!spot){notify('MOVE TO AN OPEN AISLE TO PUT THIS DOWN','bad');return false;}
+ const f=floor[id],oldKey=cellKey(f.x,f.z),newKey=cellKey(spot.x,spot.z);
+ const oldBucket=floorGrid.get(oldKey);
+ if(oldBucket){const i=oldBucket.indexOf(f);if(i>=0)oldBucket.splice(i,1);}
+ f.x=spot.x;f.z=spot.z;f.onFloor=true;
+ let bucket=floorGrid.get(newKey);
+ if(!bucket){bucket=[];floorGrid.set(newKey,bucket);}bucket.push(f);
+ for(const key of new Set([oldKey,newKey])){
+  const group=floorGrid.get(key)||[],choices=[];
+  const count=Math.min(7,group.length),step=count?group.length/count:0;
+  for(let i=0;i<count;i++)choices.push(group[Math.floor(i*step)]);
+  if(key===newKey&&!choices.includes(f)){
+   if(choices.length<7)choices.push(f);else choices[choices.length-1]=f;
+  }
+  distantGrid.set(key,choices);
+ }
+ groundPositions.set(id,spot);
+ tote.length=0;selected=null;save();stats();
+ notify('PUT DOWN · '+figure(id).name);
+ return true;
 }
 function renderAlbum(){
  let html=`<div class="info-strip">300 collectible series × 10 unique figurines. Search by a series name, or inspect any series to see what you have shelved.</div><div class="album-toolbar"><input id="albumSearch" class="search" placeholder="Search 300 collectible sets..." type="search" value="${albumQuery.replace(/["<>&]/g,'')}" /></div>`;
