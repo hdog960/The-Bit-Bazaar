@@ -24,7 +24,7 @@ const {fixtures,shelves}=makeFixtures();
 let player={x:35,z:68,yaw:0};
 let tote=[],rows=[],selected=null, floor=[],figureById=DB.figures;
 const CELL=6,floorGrid=new Map();
-let renderLimit=70,viewDistance=19,renderFrames=0,lastDrawMs=-1e6,drawInterval=1000/24,slowFrames=0,lastRuntimeMs=0,nearbyExamined=0,renderedFigures=0;
+let renderLimit=70,viewDistance=19,renderFrames=0,lastDrawMs=-1e6,drawInterval=1000/24,slowFrames=0,extremeFrames=0,lastRuntimeMs=0,nearbyExamined=0,renderedFigures=0;
 const cellKey=(x,z)=>Math.floor(x/CELL)+','+Math.floor(z/CELL);
 let modal='', focus=null, playing=false, shift=false, activeSet=0, albumQuery='';
 let lastSave=0,lastFrame=performance.now(), toastTimer=0;
@@ -483,6 +483,13 @@ function frame(now){
    const begin=performance.now();
    sprites.frameStart();updateFocus();drawRoom();renderFrames++;
    lastRuntimeMs=performance.now()-begin;
+   // Safety valve: three extremely costly renders trigger the light recovery build.
+   if(lastRuntimeMs>115)extremeFrames++;else extremeFrames=Math.max(0,extremeFrames-1);
+   if(extremeFrames>=3){
+    playing=false;save();
+    try{window.location.replace('./safe.html?recovery=performance')}catch(_){}
+    return;
+   }
    if(lastRuntimeMs>43)slowFrames=Math.min(16,slowFrames+2);
    else slowFrames=Math.max(0,slowFrames-1);
    if(slowFrames>=8){renderLimit=42;viewDistance=15;drawInterval=1000/20;}
@@ -544,7 +551,7 @@ $('doReset').onclick=()=>{localStorage.removeItem(STORE_KEY);resetState();$('con
 $('startBtn').onclick=()=>{$('screen').classList.remove('shown');playing=true;save();notify('YOUR SHOP IS OPEN. FIND AND SORT THE FIGURES!')};
 // Snapshot integrity API for QA and external automation.
 window.BitBazaarQA={
- stats:()=>({floor:floor.filter(f=>f.onFloor).length,tote:tote.length,placed:rows.flat(2).length,completedRows:rows.flat(1).filter(r=>r.length===10).length,capacity:NUM_RACKS*ROWS*PER_ROW,fixtures:fixtures.length,floorFixtures:NUM_FLOOR,wallFixtures:NUM_WALL,displayFaces:shelves.length,distinctAssets:DB.figures.length,renderedFigures,nearbyExamined,renderFrames,renderLimit,viewDistance,drawInterval:Math.round(drawInterval),lastRuntimeMs,sprites:sprites.stats()}),
+ stats:()=>({floor:floor.filter(f=>f.onFloor).length,tote:tote.length,placed:rows.flat(2).length,completedRows:rows.flat(1).filter(r=>r.length===10).length,capacity:NUM_RACKS*ROWS*PER_ROW,fixtures:fixtures.length,floorFixtures:NUM_FLOOR,wallFixtures:NUM_WALL,displayFaces:shelves.length,distinctAssets:DB.figures.length,renderedFigures,nearbyExamined,renderFrames,renderLimit,viewDistance,drawInterval:Math.round(drawInterval),lastRuntimeMs,extremeFrames,sprites:sprites.stats()}),
  place:(id,shelf,row)=>{if(!Number.isInteger(id)||id<0||id>=DB.figures.length)return false;const f=floor[id];if(f.onFloor){f.onFloor=false;tote.push(id)}selected=id;activeShelf=shelf;placeFig(shelf,row);return rows[shelf][row].includes(id)},
  reset:resetState, get player(){return player}, shelves, dataset:DB
 };
