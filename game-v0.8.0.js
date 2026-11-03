@@ -380,6 +380,7 @@ function blocked(x,z,pad=.3){
 function stats(){
  const placed=rows.flat(2).length;
  const completed=completedRowCount();
+ $('restoredCount').textContent=cleanedFaceCount();
  $('placed').textContent=placed.toLocaleString();$('complete').textContent=completed;
  const holding=tote.length>0,id=holding?tote[0]:null;
  $('carryTitle').textContent=holding?'CARRYING 1 / 1':'EMPTY HANDS';
@@ -525,6 +526,8 @@ function placementPlan(shelfId,rowId,slotId,id){
     !Number.isInteger(rowId)||rowId<0||rowId>=ROWS ||
     !Number.isInteger(slotId)||slotId<0||slotId>=PER_ROW)
   return {ok:false,message:'AIM AT ONE OF TEN POSITIONS'};
+ if(faceCleaning[shelfId]<3)
+  return {ok:false,message:'DIRTY DISPLAY · PUT DOWN FIGURE TO '+faceTask(shelfId)};
  const target=slots[shelfId][rowId],old=target[slotId],setId=figure(id).setId;
  if(rows[shelfId][rowId].length && figure(rows[shelfId][rowId][0]).setId!==setId)
   return {ok:false,message:'WRONG SET · '+DB.sets[figure(rows[shelfId][rowId][0]).setId].name};
@@ -771,7 +774,7 @@ function findFocus(){
    if(aimedSlot<0)continue;
    const displayed=slots[shelf.id][r][aimedSlot];
    const candidate={
-    kind:!tote.length&&isFigure(displayed)?'shelf-figure':'shelf',
+    kind:!tote.length&&faceCleaning[shelf.id]<3?'mess':!tote.length&&isFigure(displayed)?'shelf-figure':'shelf',
     id:shelf.id,row:r,slot:aimedSlot,dist:depth,figureId:displayed
    };
    if(!shelfFocus||depth<shelfFocus.dist)shelfFocus=candidate;
@@ -798,6 +801,7 @@ function interact(){
  prepareOcclusion();focus=findFocus();
  if(!focus){notify(tote.length?'AIM AT A SHELF SLOT':'AIM AT A FIGURINE','bad');return;}
  if(focus.kind==='figure')grabFig(focus.id);
+ else if(focus.kind==='mess')cleanShelfFace(focus.id);
  else if(focus.kind==='shelf-figure')grabShelfFig(focus.id,focus.row,focus.slot);
  else if(tote.length)placeDirect(focus.id,focus.row,focus.slot);
  else notify('EMPTY SLOT · PICK UP A FIGURINE FIRST');
@@ -817,6 +821,11 @@ function updateFocus(){
   $('interactName').textContent=f.name.toUpperCase()+' · #'+setNumber(focus.id)+'/10';
   $('interactDescription').textContent=DB.sets[f.setId].name+' · PICK UP';
   $('actionLabel').textContent='PICK UP';
+  reticle.classList.add('aim-pick');
+ }else if(focus.kind==='mess'){
+  $('interactName').textContent='DIRTY · '+shelves[focus.id].name;
+  $('interactDescription').textContent=faceTask(focus.id)+' · STEP '+(faceCleaning[focus.id]+1)+'/3 · EMPTY HANDS';
+  $('actionLabel').textContent='CLEAN';
   reticle.classList.add('aim-pick');
  }else if(focus.kind==='shelf-figure'){
   const id=focus.figureId,f=figure(id);
@@ -1277,20 +1286,22 @@ $('doReset').onclick=()=>{localStorage.removeItem(STORE_KEY);resetState();$('con
 $('startBtn').onclick=()=>{
  $('screen').classList.remove('shown');playing=true;save();
  if(migratedCarryCount)notify(migratedCarryCount+' EXTRA FIGURES RETURNED TO THE FLOOR — CARRY ONE AT A TIME');
+ else if(cleanedFaceCount()===0)notify('START RESTORING · AIM AT A DUSTY SHELF WITH EMPTY HANDS TO CLEAN');
  else notify('AIM AT A SLOT · PLACE, LIFT OR SWAP · PERFECT ORDER IS 1–10');
 };
 // Snapshot integrity API for QA and external automation.
 window.BitBazaarQA={
- stats:()=>({floor:floor.filter(f=>f.onFloor).length,tote:tote.length,carrying:tote[0]??null,droppedPositions:groundPositions.size,migratedCarryCount,placed:rows.flat(2).length,completedRows:completedRowCount(),lifetimePerfect:lifetimePerfect.size,fullUnsortedRows:rows.flat(1).filter((r,i)=>r.length===PER_ROW&&!isPerfectRow(Math.floor(i/ROWS),i%ROWS)).length,capacity:NUM_RACKS*ROWS*PER_ROW,fixtures:fixtures.length,floorFixtures:NUM_FLOOR,wallFixtures:NUM_WALL,displayFaces:shelves.length,distinctAssets:DB.figures.length,renderedFigures,midRendered,farRendered,retainedNear,retainedMid,retainedFar,occlusionChecks,occludedCandidates,visibleSlope,midLimit,farLimit,midDistance,farDistance,nearbyExamined,farCandidatesExamined,renderFrames,renderLimit,viewDistance,drawInterval:Math.round(drawInterval),lastRuntimeMs,extremeFrames,sprites:sprites.stats()}),
+ stats:()=>({floor:floor.filter(f=>f.onFloor).length,tote:tote.length,carrying:tote[0]??null,droppedPositions:groundPositions.size,migratedCarryCount,placed:rows.flat(2).length,completedRows:completedRowCount(),lifetimePerfect:lifetimePerfect.size,cleanedFaces:cleanedFaceCount(),hiddenFound:hiddenRevealed.size,hiddenRemaining:HIDDEN_IDS.length-hiddenRevealed.size,fullUnsortedRows:rows.flat(1).filter((r,i)=>r.length===PER_ROW&&!isPerfectRow(Math.floor(i/ROWS),i%ROWS)).length,capacity:NUM_RACKS*ROWS*PER_ROW,fixtures:fixtures.length,floorFixtures:NUM_FLOOR,wallFixtures:NUM_WALL,displayFaces:shelves.length,distinctAssets:DB.figures.length,renderedFigures,midRendered,farRendered,retainedNear,retainedMid,retainedFar,occlusionChecks,occludedCandidates,visibleSlope,midLimit,farLimit,midDistance,farDistance,nearbyExamined,farCandidatesExamined,renderFrames,renderLimit,viewDistance,drawInterval:Math.round(drawInterval),lastRuntimeMs,extremeFrames,sprites:sprites.stats()}),
  pick:(id)=>{if(!Number.isInteger(id)||id<0||id>=DB.figures.length||tote.length||!floor[id].onFloor)return false;grabFig(id);return tote[0]===id},
  place:(id,shelf,row,slot)=>{if(!isFigure(id))return false;if(!tote.length)grabFig(id);if(tote[0]!==id)return false;return placeDirect(shelf,row,slot)},
  directPlace:(shelf,row,slot)=>placeDirect(shelf,row,slot),putDown,undoLastPlacement,
+ clean:(face)=>cleanShelfFace(face),cleanLevels:()=>[...faceCleaning],hiddenIds:()=>[...HIDDEN_IDS],revealed:()=>[...hiddenRevealed],
  takeFromSlot:(shelf,row,slot)=>grabShelfFig(shelf,row,slot),
  rowContents:(shelf,row)=>[...(rows[shelf]?.[row]||[])],
  slotContents:(shelf,row)=>[...(slots[shelf]?.[row]||[])],
  rowStatus:(shelf,row)=>rowStatus(shelf,row),
  perfect:(shelf,row)=>isPerfectRow(shelf,row),
- figurePosition:id=>floor[id]?{x:floor[id].x,z:floor[id].z,onFloor:floor[id].onFloor}:null,
+ figurePosition:id=>floor[id]?{x:floor[id].x,z:floor[id].z,onFloor:floor[id].onFloor,hidden:floor[id].hidden}:null,
  reset:resetState, get player(){return player}, shelves, dataset:DB,
  inspect:openInspection,closeInspection,inspectTarget,inspectLore:figurineLore,inspectStatus:figurineLocation,
  get inspectedId(){return inspectedId},lifetime:()=>[...lifetimePerfect].sort((a,b)=>a-b),
