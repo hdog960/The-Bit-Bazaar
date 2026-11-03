@@ -273,7 +273,7 @@ function stats(){
  $('placed').textContent=placed.toLocaleString();$('complete').textContent=completed;
  const holding=tote.length>0,id=holding?tote[0]:null;
  $('carryTitle').textContent=holding?'CARRYING 1 / 1':'EMPTY HANDS';
- $('carryDetail').textContent=holding?figure(id).name:'PICK UP ONE FIGURE';
+ $('carryDetail').textContent=holding?figure(id).name+' · #'+setNumber(id)+'/10':'PICK UP ONE FIGURE';
  $('carrySet').textContent=holding?DB.sets[figure(id).setId].name:'WALK UP TO A FIGURINE';
  $('carryThumb').innerHTML=holding?iconHTML(id):'<span class="empty-hand-icon">✦</span>';
  $('putDownBtn').hidden=!holding&&!lastPlacement;
@@ -513,73 +513,97 @@ function pointInQuad(cx,cy,points){
  return true;
 }
 function findFocus(){
- if(tote.length){
-  let best=null;
-  for(const s of shelves){
-   const f=s.fixture,dx=player.x-f.x,dz=player.z-f.z;
-   const u=dx*f.ux+dz*f.uz,front=(dx*f.nx+dz*f.nz)*s.face;
-   if(Math.abs(u)>f.w/2+.25||front<f.depth/2-.2||front>f.depth/2+5.9)continue;
-   const dd=s.face*(f.depth/2+.11);
-   const facePos=shelfAt(f,0,dd);
-   if(shelfOccludes(facePos,f.id))continue;
-   for(let r=0;r<ROWS;r++){
-    const bottom=.44+r*.72,top=bottom+.68;
-    const pts=[
-     shelfProject(f,-f.w/2,dd,bottom),
-     shelfProject(f,f.w/2,dd,bottom),
-     shelfProject(f,f.w/2,dd,top),
-     shelfProject(f,-f.w/2,dd,top)
+ let shelfFocus=null;
+ for(const shelf of shelves){
+  const f=shelf.fixture,dx=player.x-f.x,dz=player.z-f.z;
+  const u=dx*f.ux+dz*f.uz,front=(dx*f.nx+dz*f.nz)*shelf.face;
+  if(Math.abs(u)>f.w/2+.25||front<f.depth/2-.2||front>f.depth/2+5.9)continue;
+  const dd=shelf.face*(f.depth/2+.11),pos=shelfAt(f,0,dd);
+  if(shelfOccludes(pos,f.id))continue;
+  const depth=cameraDepth(pos.x,pos.z);
+  if(depth<=.2)continue;
+  for(let r=0;r<ROWS;r++){
+   const bottom=.44+r*.72,top=bottom+.68;
+   const pts=[
+    shelfProject(f,-f.w/2,dd,bottom),
+    shelfProject(f,f.w/2,dd,bottom),
+    shelfProject(f,f.w/2,dd,top),
+    shelfProject(f,-f.w/2,dd,top)
+   ];
+   if(pts.some(p=>p.depth<.2)||!pointInQuad(AIM_X,AIM_Y,pts))continue;
+   let aimedSlot=-1;
+   // No extra textures; ten small perspective quads are tested only for
+   // the shelf row actually crossing the center reticle.
+   for(let k=0;k<PER_ROW;k++){
+    const left=-f.w/2+k*f.w/PER_ROW,right=left+f.w/PER_ROW;
+    const corners=[
+     shelfProject(f,left,dd,bottom),shelfProject(f,right,dd,bottom),
+     shelfProject(f,right,dd,top),shelfProject(f,left,dd,top)
     ];
-    if(pts.some(p=>p.depth<.2))continue;
-    if(!pointInQuad(AIM_X,AIM_Y,pts))continue;
-    const depth=cameraDepth(facePos.x,facePos.z);
-    if(depth<=.2)continue;
-    if(!best||depth<best.dist)best={kind:'shelf',id:s.id,row:r,dist:depth};
+    if(pointInQuad(AIM_X,AIM_Y,corners)){aimedSlot=k;break;}
    }
+   if(aimedSlot<0)continue;
+   const displayed=slots[shelf.id][r][aimedSlot];
+   const candidate={
+    kind:!tote.length&&isFigure(displayed)?'shelf-figure':'shelf',
+    id:shelf.id,row:r,slot:aimedSlot,dist:depth,figureId:displayed
+   };
+   if(!shelfFocus||depth<shelfFocus.dist)shelfFocus=candidate;
   }
-  return best;
  }
- let best=null;
+ if(tote.length)return shelfFocus;
+ let nearestFloor=null;
  for(const f of nearbyFloor(3.9,false)){
   if(shelfOccludes(f))continue;
   const d=cameraDepth(f.x,f.z);if(d<.25||d>3.65)continue;
   const p=project(f.x,f.z,0),h=.71*FOCAL/d,w=h*.80;
   if(AIM_X<p.x-w*.5-5||AIM_X>p.x+w*.5+5||
      AIM_Y<p.y-h-5||AIM_Y>p.y+5)continue;
-  if(!best||d<best.dist)best={kind:'figure',id:f.id,dist:d};
+  if(!nearestFloor||d<nearestFloor.dist)
+   nearestFloor={kind:'figure',id:f.id,dist:d};
  }
- return best;
+ if(nearestFloor&&(!shelfFocus||nearestFloor.dist<=shelfFocus.dist+.1))
+  return nearestFloor;
+ return shelfFocus;
 }
 function interact(){
  if(modal){closeDrawer();return;}
- // Resolve fresh aim on each click to prevent acting on a stale target
- // when the player just moved or tilted the camera between render frames.
  prepareOcclusion();focus=findFocus();
- if(!focus){notify(tote.length?'AIM AT A SHELF ROW':'AIM THE RETICLE AT A FIGURINE','bad');return;}
+ if(!focus){notify(tote.length?'AIM AT A SHELF SLOT':'AIM AT A FIGURINE','bad');return;}
  if(focus.kind==='figure')grabFig(focus.id);
- else placeDirect(focus.id,focus.row);
+ else if(focus.kind==='shelf-figure')grabShelfFig(focus.id,focus.row,focus.slot);
+ else if(tote.length)placeDirect(focus.id,focus.row,focus.slot);
+ else notify('EMPTY SLOT · PICK UP A FIGURINE FIRST');
 }
 function updateFocus(){
  focus=findFocus();const box=$('interact'),reticle=$('crosshair');
  reticle.classList.remove('aim-pick','aim-place','aim-denied');
  if(!focus||modal||!playing){
   box.classList.add('hidden');
-  $('actionLabel').textContent=tote.length?'PLACE':'PICK UP';
-  return;
+  $('actionLabel').textContent=tote.length?'PLACE':'PICK UP';return;
  }
  box.classList.remove('hidden');
  if(focus.kind==='figure'){
-  $('interactName').textContent=figure(focus.id).name.toUpperCase();
-  $('interactDescription').textContent=DB.sets[figure(focus.id).setId].name+' · RETICLE TARGET';
+  const f=figure(focus.id);
+  $('interactName').textContent=f.name.toUpperCase()+' · #'+setNumber(focus.id)+'/10';
+  $('interactDescription').textContent=DB.sets[f.setId].name+' · PICK UP';
   $('actionLabel').textContent='PICK UP';
   reticle.classList.add('aim-pick');
+ }else if(focus.kind==='shelf-figure'){
+  const id=focus.figureId,f=figure(id);
+  $('interactName').textContent=DB.sets[f.setId].name+' · #'+setNumber(id)+'/10';
+  $('interactDescription').textContent='ROW '+(focus.row+1)+' · SLOT '+(focus.slot+1)+' · LIFT TO REARRANGE';
+  $('actionLabel').textContent='LIFT';
+  reticle.classList.add('aim-pick');
  }else{
-  const plan=placementPlan(focus.id,focus.row,currentSelected());
-  const row=rows[focus.id][focus.row];
-  $('interactName').textContent=shelves[focus.id].name+' · ROW '+(focus.row+1)+' / 5';
+  const plan=placementPlan(focus.id,focus.row,focus.slot,currentSelected());
+  const row=rows[focus.id][focus.row],id=currentSelected();
+  $('interactName').textContent=shelves[focus.id].name+' · ROW '+(focus.row+1)+' · SLOT '+(focus.slot+1);
   $('interactDescription').textContent=plan.ok?
-    (plan.relocate?'MOVE SET HERE':row.length?'MATCHING SET':'EMPTY ROW')+' · '+row.length+'/10 · TAP TO PLACE':plan.message;
-  $('actionLabel').textContent=plan.ok?'PLACE':'NO MATCH';
+    (plan.exchange?'SWAP #'+setNumber(id)+' WITH #'+setNumber(slots[focus.id][focus.row][focus.slot]):
+     plan.relocate?'MOVE SET HERE':row.length?'MATCHING SET':'EMPTY ROW')+' · '+rowStatus(focus.id,focus.row):
+    plan.message;
+  $('actionLabel').textContent=plan.ok?(plan.exchange?'SWAP':'PLACE'):'NO MATCH';
   reticle.classList.add(plan.ok?'aim-place':'aim-denied');
  }
 }
