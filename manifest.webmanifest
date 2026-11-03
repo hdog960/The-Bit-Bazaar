@@ -7,7 +7,7 @@
   "display": "standalone",
   "background_color": "#161327",
   "theme_color": "#161327",
-  "description": "Sort 1,000 unique pixel-art figurines into 100 sets across 20 shelves.",
+  "description": "Restore a cozy pixel-art figurine shop and sort 3,000 collectibles into 300 numbered sets across 60 shelf faces.",
   "icons": [
     {
       "src": "./icon.png",
