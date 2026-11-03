@@ -984,7 +984,7 @@ function frame(now){
    if(lastRuntimeMs>115)extremeFrames++;else extremeFrames=Math.max(0,extremeFrames-1);
    if(extremeFrames>=3){
     playing=false;save();
-    try{window.location.replace('./previous.html?recovery=pitch')}catch(_){}
+    try{window.location.replace('./baseline-v0.5.0.html?recovery=slot-perf')}catch(_){}
     return;
    }
    if(lastRuntimeMs>43)slowFrames=Math.min(16,slowFrames+2);
