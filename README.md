@@ -1,5 +1,20 @@
 # The Bit Bazaar — The Great Figurine Sort
 
+## Phase 2 cleaning first playable milestone — v0.8.0 (Nov 3, 2026)
+The six-phase creative scope remains frozen in [MASTER_ROADMAP_LOCKED.md](./MASTER_ROADMAP_LOCKED.md). This is the **first Phase 2 slice**, not a claim that the entire cleaning phase is completed.
+
+**Implemented:**
+- New stores start with **all 60 shelf faces dusty, cobwebbed and littered**. Each face requires three brief, reticle-targeted empty-hand actions: **WIPE DUST → REMOVE COBWEBS → CLEAR PACKAGING**. The face's five rows cannot be used until all three stages are complete.
+- Aimed dirty rows highlight teal and the normal PICK UP / PLACE button becomes **CLEAN**; the PUT DOWN action allows freeing the single occupied hand. With a held figure, the shelf rejects placement and explains why.
+- Cleaning visibly strips low-cost procedural dust haze, spiderweb strands and cardboard scraps from that display. Restoration is permanent, and no grime respawns randomly.
+- Exactly **18 unique IDs from the original 3,000 figurines** are hidden in 18 fixed shelf-face messes, not generated in addition. They have `onFloor=false` while concealed. Finishing their specific packaging cleanup reveals the real collectible with a nearby, collision-checked floor position, turquoise highlight and collectible discovery toast. Cleaned progress and discoveries are written to `bit-bazaar-save-v3`.
+- Lightweight on-screen tracking of **restored faces (0–60)** and **hidden discoveries (0–18)**, with no additional texture atlas or permanent canvas allocations.
+- Existing pre-cleaning saves are **grandfathered**: all 60 faces are already restored and all 18 special IDs remain accessible as before, without any saved positions getting locked or reset. The untouched original pre-cleaning v3 state is backed up once to `bit-bazaar-v3-before-cleaning`.
+- The emergency fallback is now [baseline-v0.8.0-lowfx.html](./baseline-v0.8.0-lowfx.html), which uses the *same new save and cleaning/discovery rules*, but skips procedural grime drawing and runs at a reduced ~20 FPS, 42 near / 12 mid / 20 far budget. It does not register a conflicting service worker.
+- QA tested 60 three-step cleans, 18 unique secret reveals, pickup/place/drop constraints, exact preservation of all 3,000 figures and slot positions, full save reload, old v0.7 migration including lifetime mastery, reticle CLEAN interaction and low-effects recovery. In 1,200 simulated 60 Hz frames, 400 images were rendered within the original 112-sprite canvas ceiling. **Real-world iPhone QA is still needed.**
+
+**Next within Phase 2:** expand off-shelf environmental cleaning (loose trash, floor messes, packaging piles) and polish the cleaning actions/art, while preserving the 18-figure hidden-discovery cap and existing performance safeguards.
+
 ## Phase 1 inspection & presentation milestone — v0.7.0
 The [locked master roadmap](./MASTER_ROADMAP_LOCKED.md) remains in effect. Development is continuing Phase 1 only: no customers, no shop sales, and no new high-memory sprite sheets.
 
