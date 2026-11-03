@@ -1,5 +1,19 @@
 # The Bit Bazaar — The Great Figurine Sort
 
+## Phase 1 first playable milestone — v0.6.0
+Master scope and stage gates are locked in [MASTER_ROADMAP_LOCKED.md](./MASTER_ROADMAP_LOCKED.md). No customers, no standard store sales.
+
+**Implemented and tested in v0.6.0:**
+- Ten independently selectable **physical slots** for each shelf row; the center reticle targets individual slots on all 60 shelf faces (including the reverse sides of the 20 double-sided racks).
+- Players decide where each figure is placed; collectible sets are clearly named with individual **#1–10** labels in the HUD, on close shelf art and in the almanac.
+- With an empty hand, aim at a placed figure to **LIFT** it. While holding a matching figure, target another occupied slot to **SWAP** the two, carrying only the displaced figure.
+- **PERFECT completion counts only a fully ordered 1–10 set.** Full but scrambled rows are marked “FULL — SORT 1–10” and do not advance the completion counter or grand finale.
+- Explicit physical slot positions are saved alongside old compact membership rows in `bit-bazaar-save-v3`. Legacy saves migrate without losing existing placements; their pre-update contents are backed up once under `bit-bazaar-v3-before-ordered-slots`.
+- Existing single-hand carrying, wrong-set rejection, deliberate whole-set movement to a new empty row, undo, up/down reticle camera, shelf occlusion and performance safeguards continue working. Repeated extreme slow frames recover to [baseline-v0.5.0.html](./baseline-v0.5.0.html).
+- QA: fill one row with 10 out-of-order figurines (zero completions), reorder via physical one-hand swaps (one completion), save/reload slot positions, verify pre-v0.6 compact-save migrations, precise left-to-right slot aiming on both sides of a freestanding shelf, correct 3,000-figure totals, and 1,440 simulated 60 Hz ticks with <=112 cached sprite canvases.
+- **Not yet implemented**: polished close-up inspection animation/lore and the rest of Phase 1; Phases 2–6 stay locked as later work. No claim of physical-iPhone certification.
+
+
 iPhone-first pixel-art collectible-store game. Live: https://hdog960.github.io/The-Bit-Bazaar/
 
 ## v0.5.0 — center-reticle interactions and vertical camera (Nov 3, 2026)
