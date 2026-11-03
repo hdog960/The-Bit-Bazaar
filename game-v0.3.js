@@ -16,7 +16,8 @@ const img=new Image();img.decoding='async';img.src='assets/figurines.png';
 const sprites=window.createBitBazaarSprites(DB,img);
 if(!sprites)throw Error('Optimized sprite system not loaded');
 const NUM_FLOOR=20,NUM_WALL=20,NUM_RACKS=60,ROWS=5,PER_ROW=10,MAX_TOTE=10;
-const STORE_KEY='bit-bazaar-save-v1';
+const STORE_KEY='bit-bazaar-save-v3';
+const LEGACY_KEY='bit-bazaar-save-v1';
 const SW=70,SD=74;
 const {fixtures,shelves}=makeFixtures();
 
@@ -75,8 +76,9 @@ function resetState(){
  tote=[];selected=null;player={x:35,z:68,yaw:0};setupFloor();save();stats();
 }
 function restore(){
- let raw;try{raw=JSON.parse(localStorage.getItem(STORE_KEY)||'null')}catch(e){raw=null}
+ let raw;try{raw=JSON.parse(localStorage.getItem(STORE_KEY)||localStorage.getItem(LEGACY_KEY)||'null')}catch(e){raw=null}
  if(!raw||raw.version!==1 || !Array.isArray(raw.rows)||![20,60].includes(raw.rows.length)){resetState();return}
+ // Migrate the legacy 1,000-figure save once into a NEW save key; the safety build remains untouched.
  // Original twenty one-sided shelves become the FRONT faces of the same fixtures.
  const previous=raw.rows.length===20;
  rows=Array.from({length:NUM_RACKS},(_,a)=>Array.from({length:ROWS},(_,b)=>{
