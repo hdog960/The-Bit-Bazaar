@@ -559,13 +559,15 @@ function drawRoom(){
  const visible=nearbyFloor(viewDistance+viewPadding,true)
    .map(f=>({type:'fig',depth:cameraDepth(f.x,f.z),piece:f}))
    .filter(e=>e.depth<=viewDistance||previousNear.has(e.piece.id));
- const nextNear=stableSelect(visible,previousNear,renderLimit,3,.22,viewDistance,new Set());
- nextNear.sort((a,b)=>{
-  const aClose=a.depth<4.5?0:1,bClose=b.depth<4.5?0:1;
-  return aClose-bClose||stableHash(a.piece.id)-stableHash(b.piece.id);
- });
- // Always show close figures first, then reuse existing near slots.
- const nearChosen=nextNear.slice(0,renderLimit);
+ // Nearby figures are always represented, even when a dense aisle has
+ // already filled the longer-distance drawing budget.
+ const close=visible.filter(e=>e.depth<=6.5)
+   .sort((a,b)=>stableHash(a.piece.id)-stableHash(b.piece.id))
+   .slice(0,24);
+ const closeIDs=new Set(close.map(e=>e.piece.id));
+ const remaining=stableSelect(visible.filter(e=>!closeIDs.has(e.piece.id)),
+   previousNear,Math.max(0,renderLimit-close.length),3,6.5,viewDistance,new Set());
+ const nearChosen=close.concat(remaining);
  const nearIds=new Set(nearChosen.map(e=>e.piece.id));
  for(const item of nearChosen)entities.push(item);
  renderedFigures=nearChosen.length;
