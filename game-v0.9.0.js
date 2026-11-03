@@ -853,7 +853,28 @@ function findFocus(){
    if(!shelfFocus||depth<shelfFocus.dist)shelfFocus=candidate;
   }
  }
- if(tote.length)return shelfFocus;
+ // The same center reticle targets floor rubbish, boxes and scuffs.
+ // Only 45 fixed positions exist, and only those in a 5.3-unit radius
+ // undergo projection. No sprite allocations or spatial-grid scans.
+ let nearestMess=null;
+ for(const m of ambientMess){
+  if(ambientCompleted(m))continue;
+  const dist=Math.hypot(m.x-player.x,m.z-player.z);
+  if(dist>5.3||dist<.35||shelfOccludes(m))continue;
+  const depth=cameraDepth(m.x,m.z);
+  if(depth<.3||depth>5.3)continue;
+  const stage=floorCleaning[m.id],height=m.kind===1&&stage===0?.3:.04;
+  const point=project(m.x,m.z,height);
+  const halfWidth=Math.max(9,Math.min(110,FOCAL/depth*(m.kind===1?.65:.85)));
+  const halfHeight=Math.max(10,Math.min(85,FOCAL/depth*(m.kind===1?.35:.25)));
+  if(Math.abs(AIM_X-point.x)>halfWidth||Math.abs(AIM_Y-point.y)>halfHeight)continue;
+  if(!nearestMess||depth<nearestMess.dist)
+   nearestMess={kind:'floor-mess',id:m.id,dist:depth};
+ }
+ if(tote.length){
+  if(nearestMess&&(!shelfFocus||nearestMess.dist<shelfFocus.dist-.2))return nearestMess;
+  return shelfFocus;
+ }
  let nearestFloor=null;
  for(const f of nearbyFloor(3.9,false)){
   if(shelfOccludes(f))continue;
@@ -864,17 +885,19 @@ function findFocus(){
   if(!nearestFloor||d<nearestFloor.dist)
    nearestFloor={kind:'figure',id:f.id,dist:d};
  }
- if(nearestFloor&&(!shelfFocus||nearestFloor.dist<=shelfFocus.dist+.1))
-  return nearestFloor;
- return shelfFocus;
+ const groundFocus=nearestFloor&&(!nearestMess||nearestFloor.dist<=nearestMess.dist+.12)?
+  nearestFloor:nearestMess;
+ if(groundFocus&&(!shelfFocus||groundFocus.dist<=shelfFocus.dist+.1))return groundFocus;
+ return shelfFocus||groundFocus;
 }
 function interact(){
  if(modal==='inspect'){closeInspection();return;}
  if(modal){closeDrawer();return;}
  prepareOcclusion();focus=findFocus();
- if(!focus){notify(tote.length?'AIM AT A SHELF SLOT':'AIM AT A FIGURINE','bad');return;}
+ if(!focus){notify(tote.length?'AIM AT A SHELF SLOT OR PUT DOWN FIGURINE':'AIM AT A FIGURINE OR MESS','bad');return;}
  if(focus.kind==='figure')grabFig(focus.id);
  else if(focus.kind==='mess')cleanShelfFace(focus.id);
+ else if(focus.kind==='floor-mess')cleanAmbient(focus.id);
  else if(focus.kind==='shelf-figure')grabShelfFig(focus.id,focus.row,focus.slot);
  else if(tote.length)placeDirect(focus.id,focus.row,focus.slot);
  else notify('EMPTY SLOT · PICK UP A FIGURINE FIRST');
@@ -895,6 +918,13 @@ function updateFocus(){
   $('interactDescription').textContent=DB.sets[f.setId].name+' · PICK UP';
   $('actionLabel').textContent='PICK UP';
   reticle.classList.add('aim-pick');
+ }else if(focus.kind==='floor-mess'){
+  const m=ambientMess[focus.id],actions=AMBIENT_ACTIONS[m.kind];
+  $('interactName').textContent=(m.kind===0?'LOOSE SCRAPS':m.kind===1?'DISCARDED CARTONS':'GRIMY FLOOR');
+  $('interactDescription').textContent=floorTask(focus.id)+' · STEP '+(floorCleaning[m.id]+1)+'/'+actions.length+
+    (tote.length?' · PUT DOWN HELD FIGURE FIRST':' · EMPTY HANDS');
+  $('actionLabel').textContent=tote.length?'HANDS FULL':'CLEAN';
+  reticle.classList.add(tote.length?'aim-denied':'aim-pick');
  }else if(focus.kind==='mess'){
   $('interactName').textContent='DIRTY · '+shelves[focus.id].name;
   $('interactDescription').textContent=faceTask(focus.id)+' · STEP '+(faceCleaning[focus.id]+1)+'/3 · EMPTY HANDS';
