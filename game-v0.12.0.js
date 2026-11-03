@@ -152,7 +152,7 @@ const cellKey=(x,z)=>Math.floor(x/CELL)+','+Math.floor(z/CELL);
 let modal='', focus=null, playing=false, shift=false, activeSet=0, albumQuery='';
 let albumFilter='all',albumSort='id',albumPage=0;
 const ALBUM_PAGE_SIZE=48;
-let seenFigures=new Set();
+let seenFigures=new Set(),pinnedSets=new Set(),albumReturnScroll=0;
 let mapSelectedFixtureId=null,mapSelectedFaceId=null,mapHighlightedSet=null,mapZoom=false,cleanFxTimer=0,restoreBannerTimer=0;
 let lastSave=0,lastFrame=performance.now(), toastTimer=0;
 const keys=new Set(), touch={lookId:null,lastX:0,lastY:0,joyId:null,axisX:0,axisY:0};
@@ -379,7 +379,7 @@ function resetState(){
  rows=Array.from({length:NUM_RACKS},()=>Array.from({length:ROWS},()=>[]));
  slots=Array.from({length:NUM_RACKS},()=>Array.from({length:ROWS},EMPTY_ROW));
  tote=[];selected=null;groundPositions.clear();migratedCarryCount=0;lastPlacement=null;lifetimePerfect.clear();slotPulse=null;
- seenFigures.clear();albumFilter='all';albumSort='id';albumQuery='';albumPage=0;
+ seenFigures.clear();pinnedSets.clear();albumFilter='all';albumSort='id';albumQuery='';albumPage=0;albumReturnScroll=0;
  faceCleaning=Array(NUM_RACKS).fill(0);hiddenRevealed.clear();newlyRevealed=null;hiddenRevealMoment=0;
  floorCleaning=Array(ambientMess.length).fill(0);lastAmbientClean=null;player={x:35,z:68,yaw:0,pitch:0};setupFloor();save();stats();
 }
@@ -472,6 +472,10 @@ function restore(){
  // figures remain discovered without guessing prior loose-figure pickups.
  const oldDiscovery=!Array.isArray(raw.seenFigures);
  seenFigures=new Set((oldDiscovery?[]:raw.seenFigures).filter(isFigure));
+ // Bookmarks are optional set IDs, not figure progress.
+ pinnedSets=new Set((Array.isArray(raw.pinnedSets)?raw.pinnedSets:[])
+  .filter(id=>Number.isInteger(id)&&id>=0&&id<DB.sets.length));
+ albumReturnScroll=0;
  for(const id of used)seenFigures.add(id);
  selected=tote[0]??null;
  groundPositions.clear();
@@ -491,7 +495,7 @@ function restore(){
  // Copy the 1,000-figure save once; leave emergency recovery progress untouched.
  if(migratedCarryCount||oldCleaning||oldAmbient||oldDiscovery||!Array.isArray(raw.revealed)||!raw.slots||!Array.isArray(raw.lifetimePerfect)||!localStorage.getItem(STORE_KEY))save();
 }
-function save(){try{localStorage.setItem(STORE_KEY,JSON.stringify({version:1,tote,rows,slots,lifetimePerfect:[...lifetimePerfect],seenFigures:[...seenFigures],selected,player,ground:[...groundPositions].map(([id,p])=>[id,p.x,p.z]),cleaning:faceCleaning,revealed:[...hiddenRevealed],floorCleaning}))}catch(e){}}
+function save(){try{localStorage.setItem(STORE_KEY,JSON.stringify({version:1,tote,rows,slots,lifetimePerfect:[...lifetimePerfect],seenFigures:[...seenFigures],pinnedSets:[...pinnedSets],selected,player,ground:[...groundPositions].map(([id,p])=>[id,p.x,p.z]),cleaning:faceCleaning,revealed:[...hiddenRevealed],floorCleaning}))}catch(e){}}
 function blocked(x,z,pad=.3){
  if(x<1.4+pad||x>SW-1.4-pad||z<1.4+pad||z>SD-1.4-pad)return true;
  for(const f of fixtures){const dx=x-f.x,dz=z-f.z;
@@ -814,12 +818,18 @@ function putDown(){
 // The Almanac is a browseable journal, not an omniscient GPS. New images,
 // names, micro-lore and roles are revealed only after physically observing or
 // carrying a specific figurine. Set names remain visible from the start.
+function togglePinnedSet(sid){
+ if(!Number.isInteger(sid)||sid<0||sid>=DB.sets.length)return false;
+ if(pinnedSets.has(sid))pinnedSets.delete(sid);else pinnedSets.add(sid);
+ save();return pinnedSets.has(sid);
+}
 function albumSetStatus(sid){
  const where=rowForSet(sid),shelved=countSet(sid),seen=setDiscovery(sid),
   perfect=where!==null&&isPerfectRow(where[0],where[1]);
- return {id:sid,where,shelved,seen,perfect,mastered:lifetimePerfect.has(sid)};
+ return {id:sid,where,shelved,seen,perfect,mastered:lifetimePerfect.has(sid),pinned:pinnedSets.has(sid)};
 }
 function albumSetFilter(progress){
+ if(albumFilter==='pinned')return progress.pinned;
  if(albumFilter==='active')return progress.shelved>0&&!progress.perfect;
  if(albumFilter==='unsorted')return progress.shelved===10&&!progress.perfect;
  if(albumFilter==='perfect')return progress.perfect;
@@ -856,7 +866,7 @@ function albumOverview(){
   if(rowCount(where[0],where[1])===10&&!isPerfectRow(where[0],where[1]))fullUnsorted++;
  }
  return {found:seenFigures.size,shelved,currentPerfect,mastered:lifetimePerfect.size,
-  started,fullUnsorted};
+  started,fullUnsorted,pinned:pinnedSets.size};
 }
 function renderAlbum(){
  const snap=albumOverview();
@@ -871,7 +881,7 @@ function renderAlbum(){
    <div class="folio-meter" title="${snap.found} of 3,000 figures physically discovered">
     <span style="width:${(snap.found/3000*100).toFixed(2)}%"></span>
    </div>
-   <div class="folio-substats">${snap.started} STARTED SETS · ${snap.fullUnsorted} FULL BUT NEED SORTING</div>
+   <div class="folio-substats">${snap.started} STARTED SETS · ${snap.fullUnsorted} NEED SORTING · ★ ${snap.pinned} PINNED</div>
   </div>
   <div class="album-toolbar folio-toolbar">
    <label for="albumSearch" class="folio-input-label">FIND A COLLECTION</label>
@@ -885,7 +895,7 @@ function renderAlbum(){
    </select>
   </div>
   <div class="folio-filters" role="group" aria-label="Filter collections">
-   ${[['all','ALL 300'],['active','IN PROGRESS'],['unsorted','NEEDS SORTING'],
+   ${[['all','ALL 300'],['pinned','★ PINNED'],['active','IN PROGRESS'],['unsorted','NEEDS SORTING'],
       ['perfect','PERFECT NOW'],['unseen','UNDISCOVERED'],['mastered','MASTERED EVER']]
     .map(([id,label])=>`<button type="button" data-album-filter="${id}"
       class="folio-chip${albumFilter===id?' active':''}" aria-pressed="${albumFilter===id}">${label}</button>`).join('')}
@@ -924,7 +934,7 @@ function paintAlbumList(){
   html+=`<button class="album-card folio-card" data-albumset="${p.id}"
      aria-label="${safeText(set.name)}, ${p.seen} of 10 discovered, ${p.shelved} of 10 displayed">
      <span class="folio-card-art${known===undefined?' mystery':''}">${iconHTML(previewId)}</span>
-     <span class="folio-card-copy"><strong>${String(p.id+1).padStart(3,'0')} · ${safeText(set.name)}</strong>
+     <span class="folio-card-copy"><strong>${p.pinned?'★ ':''}${String(p.id+1).padStart(3,'0')} · ${safeText(set.name)}</strong>
       <span class="folio-card-theme">${safeText(set.theme)} · ${p.seen}/10 DISCOVERED</span>
       <span class="folio-card-location">${sub}</span>
       <span class="folio-card-meter"><i style="width:${p.shelved*10}%"></i></span>
@@ -939,6 +949,7 @@ function paintAlbumList(){
    SHOW ${Math.min(ALBUM_PAGE_SIZE,found.length-shown.length)} MORE COLLECTIONS</button>`;
  dest.innerHTML=html;
  dest.querySelectorAll('[data-albumset]').forEach(el=>el.onclick=()=>{
+  albumReturnScroll=$('drawerBody').scrollTop||0;
   renderSetDetail(Number(el.getAttribute('data-albumset')));
  });
  if(shown.length<found.length)$('albumMore').onclick=()=>{
@@ -1129,6 +1140,17 @@ function paintStoreMap(){
  });
 }
 
+function showAlbumListAtSavedPosition(){
+ renderAlbum();
+ $('drawerBody').scrollTop=albumReturnScroll;
+}
+function nextAlbumSet(sid,direction){
+ const ids=albumCatalog().map(x=>x.id),i=ids.indexOf(sid);
+ if(!ids.length)return false;
+ const next=i<0?(direction<0?ids.length-1:0):(i+direction+ids.length)%ids.length;
+ renderSetDetail(ids[next]);$('drawerBody').scrollTop=0;
+ return true;
+}
 function renderSetDetail(sid){
  if(!Number.isInteger(sid)||!DB.sets[sid])return;
  activeSet=sid;
@@ -1137,7 +1159,16 @@ function renderSetDetail(sid){
    p.shelved===10?'FULL · REARRANGE INTO 1–10':
    p.shelved?'COLLECTION IN PROGRESS':'COLLECTION NOT STARTED';
  const heading=`<div class="folio-detail-top">
-  <button class="back folio-back" id="backAlbum">← ALL COLLECTIONS</button>
+  <div class="folio-detail-nav">
+    <button class="back folio-back" id="backAlbum">← COLLECTION LIST</button>
+    <button type="button" class="folio-pin${pinnedSets.has(sid)?' active':''}"
+       id="pinCollection" aria-pressed="${pinnedSets.has(sid)}">${pinnedSets.has(sid)?'★ PINNED':'☆ PIN THIS SET'}</button>
+   </div>
+   <div class="folio-page-turn">
+    <button type="button" id="prevCollection">‹ PREVIOUS SET</button>
+    <span>${albumCatalog().findIndex(x=>x.id===sid)+1} / ${albumCatalog().length} IN CURRENT FILTER</span>
+    <button type="button" id="nextCollection">NEXT SET ›</button>
+   </div>
   ${place?'<button id="showOnMap" class="map-jump">⌖ FIND THIS SHELF ON THE STORE MAP</button>':''}
   <span class="folio-eyebrow">COLLECTION ${String(sid+1).padStart(3,'0')} / 300</span>
   <h3>${safeText(set.name)}</h3>
@@ -1185,7 +1216,15 @@ function renderSetDetail(sid){
  }
  html+='</div><div class="folio-footnote">A figure’s identity and collector note are revealed only after you find or inspect it in the shop. The book never shows loose figurine coordinates.</div>';
  $('drawerBody').innerHTML=html;
- $('backAlbum').onclick=()=>renderAlbum();
+ $('backAlbum').onclick=showAlbumListAtSavedPosition;
+ $('pinCollection').onclick=()=>{
+  const pinned=togglePinnedSet(sid),btn=$('pinCollection');
+  btn.textContent=pinned?'★ PINNED':'☆ PIN THIS SET';
+  btn.classList.toggle('active',pinned);
+  btn.setAttribute('aria-pressed',String(pinned));
+ };
+ $('prevCollection').onclick=()=>nextAlbumSet(sid,-1);
+ $('nextCollection').onclick=()=>nextAlbumSet(sid,1);
  if(place)$('showOnMap').onclick=()=>{
   mapHighlightedSet=sid;mapSelectedFaceId=place[0];
   mapSelectedFixtureId=shelves[place[0]].fixture.id;
@@ -1985,6 +2024,8 @@ window.BitBazaarQA={
  albumSnapshot:()=>({filter:albumFilter,sort:albumSort,page:albumPage,query:albumQuery,summary:albumOverview(),ids:albumCatalog().map(p=>p.id)}),
  albumOpen:()=>openDrawer('album'),albumDetail:(sid)=>{openDrawer('album');renderSetDetail(sid);},
  albumSet:(sid)=>albumSetStatus(sid),
+ pinned:()=>[...pinnedSets].sort((a,b)=>a-b),togglePin:togglePinnedSet,
+ nextAlbum:(sid,dir)=>nextAlbumSet(sid,dir),
  pulse:()=>slotPulse,
  target:()=>{prepareOcclusion();return findFocus()},
  horizon:()=>cameraHorizon(),aimPoint:()=>({x:AIM_X,y:AIM_Y}),
