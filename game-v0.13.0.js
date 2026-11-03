@@ -152,7 +152,7 @@ const cellKey=(x,z)=>Math.floor(x/CELL)+','+Math.floor(z/CELL);
 let modal='', focus=null, playing=false, shift=false, activeSet=0, albumQuery='';
 let albumFilter='all',albumSort='id',albumPage=0;
 const ALBUM_PAGE_SIZE=48;
-let seenFigures=new Set(),pinnedSets=new Set(),albumReturnScroll=0;
+let seenFigures=new Set(),pinnedSets=new Set(),albumReturnScroll=0,trackedSetId=null,huntExpanded=false;
 let mapSelectedFixtureId=null,mapSelectedFaceId=null,mapHighlightedSet=null,mapZoom=false,mapPanTarget=null,cleanFxTimer=0,restoreBannerTimer=0;
 let lastSave=0,lastFrame=performance.now(), toastTimer=0;
 const keys=new Set(), touch={lookId:null,lastX:0,lastY:0,joyId:null,axisX:0,axisY:0};
@@ -379,7 +379,7 @@ function resetState(){
  rows=Array.from({length:NUM_RACKS},()=>Array.from({length:ROWS},()=>[]));
  slots=Array.from({length:NUM_RACKS},()=>Array.from({length:ROWS},EMPTY_ROW));
  tote=[];selected=null;groundPositions.clear();migratedCarryCount=0;lastPlacement=null;lifetimePerfect.clear();slotPulse=null;
- seenFigures.clear();pinnedSets.clear();albumFilter='all';albumSort='id';albumQuery='';albumPage=0;albumReturnScroll=0;
+ seenFigures.clear();pinnedSets.clear();trackedSetId=null;huntExpanded=false;albumFilter='all';albumSort='id';albumQuery='';albumPage=0;albumReturnScroll=0;
  faceCleaning=Array(NUM_RACKS).fill(0);hiddenRevealed.clear();newlyRevealed=null;hiddenRevealMoment=0;
  floorCleaning=Array(ambientMess.length).fill(0);lastAmbientClean=null;player={x:35,z:68,yaw:0,pitch:0};setupFloor();save();stats();
 }
@@ -475,6 +475,8 @@ function restore(){
  // Bookmarks are optional set IDs, not figure progress.
  pinnedSets=new Set((Array.isArray(raw.pinnedSets)?raw.pinnedSets:[])
   .filter(id=>Number.isInteger(id)&&id>=0&&id<DB.sets.length));
+ trackedSetId=Number.isInteger(raw.trackedSetId)&&pinnedSets.has(raw.trackedSetId)?raw.trackedSetId:null;
+ huntExpanded=false;
  albumReturnScroll=0;
  for(const id of used)seenFigures.add(id);
  selected=tote[0]??null;
@@ -495,7 +497,7 @@ function restore(){
  // Copy the 1,000-figure save once; leave emergency recovery progress untouched.
  if(migratedCarryCount||oldCleaning||oldAmbient||oldDiscovery||!Array.isArray(raw.revealed)||!raw.slots||!Array.isArray(raw.lifetimePerfect)||!localStorage.getItem(STORE_KEY))save();
 }
-function save(){try{localStorage.setItem(STORE_KEY,JSON.stringify({version:1,tote,rows,slots,lifetimePerfect:[...lifetimePerfect],seenFigures:[...seenFigures],pinnedSets:[...pinnedSets],selected,player,ground:[...groundPositions].map(([id,p])=>[id,p.x,p.z]),cleaning:faceCleaning,revealed:[...hiddenRevealed],floorCleaning}))}catch(e){}}
+function save(){try{localStorage.setItem(STORE_KEY,JSON.stringify({version:1,tote,rows,slots,lifetimePerfect:[...lifetimePerfect],seenFigures:[...seenFigures],pinnedSets:[...pinnedSets],trackedSetId,selected,player,ground:[...groundPositions].map(([id,p])=>[id,p.x,p.z]),cleaning:faceCleaning,revealed:[...hiddenRevealed],floorCleaning}))}catch(e){}}
 function blocked(x,z,pad=.3){
  if(x<1.4+pad||x>SW-1.4-pad||z<1.4+pad||z>SD-1.4-pad)return true;
  for(const f of fixtures){const dx=x-f.x,dz=z-f.z;
@@ -519,6 +521,7 @@ function stats(){
  $('putDownBtn').setAttribute('aria-label',holding?'Put held figurine on floor':'Undo last shelf placement');
  $('progress-fill').style.width=`${placed/DB.figures.length*100}%`;
  $('aisleLabel').textContent=`${nearestAisle()} · ${Math.max(0,DB.figures.length-placed)} TO SHELVE`;
+ refreshHuntPanel();
  if(completed===NUM_RACKS*ROWS){setTimeout(()=>showVictory(),1200)}
 }
 function nearestAisle(){const i=clamp(Math.round((player.x-11)/16),0,3);return `AISLE ${'ABCD'[i]}`;}
@@ -821,8 +824,73 @@ function putDown(){
 function togglePinnedSet(sid){
  if(!Number.isInteger(sid)||sid<0||sid>=DB.sets.length)return false;
  if(pinnedSets.has(sid))pinnedSets.delete(sid);else pinnedSets.add(sid);
- save();return pinnedSets.has(sid);
+ if(!pinnedSets.has(trackedSetId))trackedSetId=pinnedSets.size?[...pinnedSets].sort((a,b)=>a-b)[0]:null;
+ save();refreshHuntPanel();return pinnedSets.has(sid);
 }
+// Optional on-screen collector's hunt notebook. It NEVER finds figurines
+// for the player: every shown state comes from observed IDs, hand and shelf
+// slots. Rebuilt only when a pin/collection state changes (never per frame).
+function huntTrackedId(){
+ if(!pinnedSets.size)return null;
+ if(!pinnedSets.has(trackedSetId))trackedSetId=[...pinnedSets].sort((a,b)=>a-b)[0];
+ return trackedSetId;
+}
+function huntSnapshot(sid){
+ if(!Number.isInteger(sid)||sid<0||sid>=DB.sets.length)return null;
+ const set=DB.sets[sid],where=rowForSet(sid),
+  current=where?slots[where[0]][where[1]]:null,slotIds=new Set(current||[]);
+ const nums=set.memberIds.map((id,k)=>{
+  const slot=current?current.indexOf(id):-1;
+  const onShelf=slot>=0,held=tote.includes(id),seen=seenFigures.has(id)||onShelf||held;
+  return {number:k+1,seen,held,shelved:onShelf,correct:onShelf&&slot===k,slot:slot<0?null:slot+1};
+ });
+ return {id:sid,name:set.name,where,seen:nums.filter(n=>n.seen).length,
+  shelved:nums.filter(n=>n.shelved).length,correct:nums.filter(n=>n.correct).length,
+  perfect:isSetPerfect(sid),numbers:nums};
+}
+function huntCycle(direction){
+ const ids=[...pinnedSets].sort((a,b)=>a-b);
+ if(!ids.length){trackedSetId=null;refreshHuntPanel();return null;}
+ const i=ids.indexOf(huntTrackedId());
+ trackedSetId=ids[(i+direction+ids.length)%ids.length];
+ save();refreshHuntPanel();return trackedSetId;
+}
+function refreshHuntPanel(){
+ const toggle=$('huntToggle'),body=$('huntBody'),count=pinnedSets.size;
+ const active=huntTrackedId();
+ toggle.textContent=count?'★ HUNT · '+count+(huntExpanded?' ▴':' ▾'):'☆ PIN A HUNT';
+ toggle.setAttribute('aria-expanded',String(huntExpanded));
+ body.hidden=!huntExpanded;
+ if(!huntExpanded)return;
+ if(active===null){
+  body.innerHTML=`<p class="hunt-empty">PIN A COLLECTION IN THE ALMANAC TO TRACK ITS NUMBERS HERE.</p>
+   <button type="button" class="hunt-open" id="huntFindCollection">OPEN COLLECTIONS</button>`;
+  $('huntFindCollection').onclick=()=>openDrawer('album');
+  return;
+ }
+ const ids=[...pinnedSets].sort((a,b)=>a-b),item=huntSnapshot(active);
+ const boxes=item.numbers.map(n=>{
+  const kind=n.shelved?(n.correct?'correct':'misplaced'):n.held?'held':n.seen?'found':'unseen';
+  const label=n.shelved?(n.correct?'CORRECT':'SLOT '+n.slot):n.held?'IN HAND':n.seen?'SEEN · UNSHELVED':'NOT FOUND';
+  return `<span class="hunt-num ${kind}" title="#${n.number} · ${label}"
+    aria-label="Figure ${n.number}: ${label}">${n.number}</span>`;
+ }).join('');
+ body.innerHTML=`<div class="hunt-heading"><strong>${safeText(item.name)}</strong>
+    <span>${ids.indexOf(active)+1} / ${ids.length} PINNED</span></div>
+   <div class="hunt-metrics"><span>${item.seen}/10 SEEN</span><span>${item.shelved}/10 SHELVED</span>
+     <span>${item.perfect?'★ PERFECT':item.shelved===10?'SORT YOUR ROW':item.correct+'/10 RIGHT'}</span></div>
+   <div class="hunt-numbers" role="group" aria-label="Collection figure-number checklist">${boxes}</div>
+   <div class="hunt-key">■ CORRECT · <b>!</b> WRONG SLOT · ◇ SEEN · ? UNKNOWN</div>
+   <div class="hunt-actions">
+    <button type="button" id="huntPrevious" aria-label="Previous pinned collection">‹</button>
+    <button type="button" id="huntOpen" aria-label="Open selected set in collection book">COLLECTION ↗</button>
+    <button type="button" id="huntNext" aria-label="Next pinned collection">›</button>
+   </div>`;
+ $('huntPrevious').onclick=()=>huntCycle(-1);
+ $('huntNext').onclick=()=>huntCycle(1);
+ $('huntOpen').onclick=()=>{openDrawer('album');renderSetDetail(active)};
+}
+
 function albumSetStatus(sid){
  const where=rowForSet(sid),shelved=countSet(sid),seen=setDiscovery(sid),
   perfect=where!==null&&isPerfectRow(where[0],where[1]);
@@ -2017,6 +2085,7 @@ $('inspectOverlay').addEventListener('click',e=>{
  if(e.target===$('inspectOverlay'))closeInspection();
 });
 $('putDownBtn').onclick=()=>tote.length?putDown():undoLastPlacement();
+$('huntToggle').onclick=()=>{huntExpanded=!huntExpanded;refreshHuntPanel()};
 $('albumBtn').onclick=()=>modal==='album'?closeDrawer():modal==='inspect'?closeInspection():openDrawer('album');
 $('mapBtn').onclick=()=>{
  if(modal==='map')closeDrawer();
@@ -2065,6 +2134,8 @@ window.BitBazaarQA={
  albumSnapshot:()=>({filter:albumFilter,sort:albumSort,page:albumPage,query:albumQuery,summary:albumOverview(),ids:albumCatalog().map(p=>p.id)}),
  albumOpen:()=>openDrawer('album'),albumDetail:(sid)=>{openDrawer('album');renderSetDetail(sid);},
  albumSet:(sid)=>albumSetStatus(sid),
+ huntState:()=>({active:huntTrackedId(),expanded:huntExpanded,pinned:[...pinnedSets].sort((a,b)=>a-b)}),
+ huntSnapshot,huntCycle,huntToggle:()=>{huntExpanded=!huntExpanded;refreshHuntPanel()},
  pinned:()=>[...pinnedSets].sort((a,b)=>a-b),togglePin:togglePinnedSet,
  nextAlbum:(sid,dir)=>nextAlbumSet(sid,dir),
  pulse:()=>slotPulse,
