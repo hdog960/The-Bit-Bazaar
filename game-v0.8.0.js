@@ -159,6 +159,83 @@ function setupFloor(){
   distantGrid.set(key,choices);
  }
 }
+// Hidden discoveries happen at most 18 times per save, never in a render
+// loop. Reindex just the old/new local spatial cells after a figure pops out.
+function updateDistantSample(key,required=null){
+ const bucket=floorGrid.get(key)||[],choices=[];
+ const count=Math.min(7,bucket.length),step=count?bucket.length/count:0;
+ for(let i=0;i<count;i++)choices.push(bucket[Math.floor(i*step)]);
+ if(required&&!choices.includes(required)){
+  if(choices.length<7)choices.push(required);else choices[choices.length-1]=required;
+ }
+ distantGrid.set(key,choices);
+}
+function moveFigureToFloor(id,x,z){
+ const fig=floor[id];if(!fig)return false;
+ const previous=cellKey(fig.x,fig.z),next=cellKey(x,z);
+ const bucket=floorGrid.get(previous);
+ if(bucket){const ix=bucket.indexOf(fig);if(ix>=0)bucket.splice(ix,1);}
+ fig.x=x;fig.z=z;fig.onFloor=true;fig.hidden=false;
+ const group=floorGrid.get(next)||[];
+ if(!floorGrid.has(next))floorGrid.set(next,group);
+ group.push(fig);
+ updateDistantSample(previous);
+ updateDistantSample(next,fig);
+ groundPositions.set(id,{x,z});
+ return true;
+}
+function crowdedAt(x,z){
+ for(let gx=Math.floor(x/CELL)-1;gx<=Math.floor(x/CELL)+1;gx++)
+  for(let gz=Math.floor(z/CELL)-1;gz<=Math.floor(z/CELL)+1;gz++){
+   const near=floorGrid.get(gx+','+gz)||[];
+   for(const p of near)if(p.onFloor&&(p.x-x)**2+(p.z-z)**2<.20)return true;
+  }
+ return false;
+}
+function revealHiddenAtFace(faceId){
+ const id=SECRET_BY_FACE.get(faceId);
+ if(id===undefined||hiddenRevealed.has(id))return null;
+ const shelf=shelves[faceId],f=shelf.fixture;
+ let point=null,backup=null;
+ // Seek a spot actually in front of the cleaned display, not some random
+ // location elsewhere in the store. Placement uses no new figurine IDs.
+ for(const distance of [1.1,1.4,1.75,2.2]){
+  if(point)break;
+  for(const shift of [0,-.7,.7,-1.5,1.5,-2.3,2.3]){
+   const x=f.x+f.nx*shelf.face*(f.depth/2+distance)+f.ux*shift,
+    z=f.z+f.nz*shelf.face*(f.depth/2+distance)+f.uz*shift;
+   if(blocked(x,z,.35))continue;
+   backup??={x,z};
+   if(!crowdedAt(x,z)){point={x,z};break;}
+  }
+ }
+ // An extreme clutter density cannot prevent a collectible being revealed.
+ const where=point||backup||{x:floor[id].x,z:floor[id].z};
+ hiddenRevealed.add(id);newlyRevealed=id;
+ moveFigureToFloor(id,where.x,where.z);
+ return id;
+}
+function cleanedFaceCount(){return faceCleaning.reduce((n,p)=>n+(p===3?1:0),0)}
+function cleanShelfFace(faceId){
+ if(!Number.isInteger(faceId)||faceId<0||faceId>=NUM_RACKS)return false;
+ if(tote.length){notify('EMPTY YOUR HANDS BEFORE CLEANING','bad');return false;}
+ const level=faceCleaning[faceId];
+ if(level>=CLEAN_STEPS.length){notify('THIS DISPLAY IS ALREADY RESTORED');return false;}
+ faceCleaning[faceId]=level+1;
+ const found=faceCleaning[faceId]===3?revealHiddenAtFace(faceId):null;
+ if(found!==null){
+  notify('✦ HIDDEN FIGURINE FOUND! #'+setNumber(found)+'/10 · '+DB.sets[figure(found).setId].name);
+ }else if(faceCleaning[faceId]===3){
+  notify('★ DISPLAY RESTORED · '+cleanedFaceCount()+'/60 CLEAN · READY FOR FIGURINES');
+ }else{
+  notify((level===0?'DUST CLEARED':level===1?'COBWEBS REMOVED':'PACKAGING CLEARED')+' · '+(3-faceCleaning[faceId])+' TASK(S) LEFT');
+ }
+ save();stats();return true;
+}
+function faceTask(faceId){
+ return faceCleaning[faceId]<3?CLEAN_STEPS[faceCleaning[faceId]]:'RESTORED';
+}
+
 // Only nearby spatial buckets are scanned. This avoids a 3,000-object scan each frame.
 function nearbyFloor(radius,angleCull){
  const out=[],cx=player.x,cz=player.z,r2=radius*radius;
