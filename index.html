@@ -11,7 +11,7 @@
 <link rel="icon" type="image/png" href="./icon.png" />
 <link rel="apple-touch-icon" href="./icon.png" />
 <title>The Bit Bazaar — The Great Figurine Sort</title>
-<link rel="stylesheet" href="./style-v0.8.0.css" />
+<link rel="stylesheet" href="./style-v0.9.0.css" />
 </head><body>
 <div id="game">
  <canvas id="world" width="480" height="270" aria-label="First-person view of a pixel-art figurine shop"></canvas>
@@ -25,10 +25,11 @@
  <div id="progress-track"><div id="progress-fill"></div></div>
  <div id="hud-left">
   <div class="tag" id="aisleLabel">ENTRANCE · MAIN FLOOR</div>
-  <div class="restoration-counter">RESTORED <b id="restoredCount">0</b>/60
-   <span class="restoration-secret">HIDDEN FOUND <b id="hiddenCount">0</b>/18</span>
+  <div class="restoration-counter"><span>SHELVES <b id="restoredCount">0</b>/60</span>
+   <span class="restoration-floor">FLOOR <b id="floorCleanCount">0</b>/45</span>
+   <span class="restoration-secret">HIDDEN <b id="hiddenCount">0</b>/18</span>
   </div>
-  <div class="mission"><span class="tinycaps">YOUR NEW SHOP</span><strong>Three thousand tiny treasures.</strong><span>Clean the displays before shelving each collection.</span></div>
+  <div class="mission"><span class="tinycaps">YOUR NEW SHOP</span><strong>Three thousand tiny treasures.</strong><span>Clear the shop's trash, cartons and dirty floors, then restore shelves and sort every set.</span></div>
  </div>
  <div id="interact" class="interact hidden"><span id="interactName">OBJECT</span><small id="interactDescription">PRESS E TO INTERACT</small></div>
  <div id="bottom">
@@ -72,7 +73,7 @@
  </div>
  <!-- Menus -->
  <div id="screen" class="screen shown">
-  <div class="title-card"><div class="eyebrow">★ CONGRATULATIONS ON YOUR NEW BUSINESS ★</div><h1>THE BIT<br><em>BAZAAR</em></h1><div class="pixel-stripes"></div><p>You inherited a nerdy figurine shop. Unfortunately, the shelves are covered in dust and cobwebs, and nearly all its collection is scattered across the floor.</p><div class="three-nums"><span><b>3,000</b><small>UNIQUE FIGURES</small></span><span><b>300</b><small>COMPLETE SETS</small></span><span><b>40</b><small>SHELF UNITS</small></span></div><p class="mission-text"><b>START BY CLEANING!</b> Aim at a dirty shelf with empty hands: wipe its dust, remove its cobwebs, then clear old packaging. Restored shelves accept figures, and some messes conceal lost miniatures. Find figurines numbered <b>1–10</b> in each collection. Aim the <b>center reticle at one of the ten shelf slots</b> to place a figure anywhere in its matching row. Aim at a placed figure to lift it, or <b>swap</b> with a held figure. A set only counts as complete when it reads <b>1, 2, 3 … 10</b> from left to right.</p><button id="startBtn" class="primary large">OPEN THE SHOP <span>→</span></button><small class="instructions">iPhone: aim at a dusty shelf and tap CLEAN with empty hands, or aim at a figure to PICK UP, LIFT or SWAP. PUT DOWN frees your hands. LOOK inspects figures. Desktop: E clean/interact, F inspect, WASD move.</small></div>
+  <div class="title-card"><div class="eyebrow">★ CONGRATULATIONS ON YOUR NEW BUSINESS ★</div><h1>THE BIT<br><em>BAZAAR</em></h1><div class="pixel-stripes"></div><p>You inherited a nerdy figurine shop. Unfortunately, there is discarded packaging, scattered rubbish and old stains all over the shop. The shelves are dusty and cobwebbed, and nearly all its collection is scattered across the floor.</p><div class="three-nums"><span><b>3,000</b><small>UNIQUE FIGURES</small></span><span><b>300</b><small>COMPLETE SETS</small></span><span><b>40</b><small>SHELF UNITS</small></span></div><p class="mission-text"><b>START BY CLEANING!</b> Aim at dusty shelves, loose paper, cardboard boxes or floor stains with EMPTY HANDS. Clean shelves in three stages; gather paper, flatten and remove boxes, and scrub floors until they shine. Restored shelves accept figures, and some messes conceal lost miniatures. Find figurines numbered <b>1–10</b> in each collection. Aim the <b>center reticle at one of the ten shelf slots</b> to place a figure anywhere in its matching row. Aim at a placed figure to lift it, or <b>swap</b> with a held figure. A set only counts as complete when it reads <b>1, 2, 3 … 10</b> from left to right.</p><button id="startBtn" class="primary large">OPEN THE SHOP <span>→</span></button><small class="instructions">iPhone: aim your reticle at a dusty shelf, floor litter, boxes or stains and tap CLEAN with EMPTY HANDS. PUT DOWN frees your hands. Aim to PICK UP, LIFT, SWAP and PLACE figurines. Desktop: E interact, F inspect, WASD move.</small></div>
  </div>
  <div id="drawer" class="drawer" aria-hidden="true">
   <div class="drawer-head"><span id="drawerKicker">STORE SYSTEM</span><button id="closeDrawer" class="chrome close" aria-label="Close panel">✕</button></div>
@@ -84,10 +85,10 @@
 <script src="./assets/collection.js"></script>
 <script src="./assets/collection-extension.js"></script>
 <script src="./assets/optimized-sprites.js"></script>
-<script src="./game-v0.8.0.js?v=0.8.0" defer></script>
+<script src="./game-v0.9.0.js?v=0.9.0" defer></script>
 <script>
 if ("serviceWorker" in navigator) {
-  addEventListener("load", () => navigator.serviceWorker.register("./sw.js?v=0.8.0", {updateViaCache:"none"}).catch(() => {}));
+  addEventListener("load", () => navigator.serviceWorker.register("./sw.js?v=0.9.0", {updateViaCache:"none"}).catch(() => {}));
 }
 </script>
 </body></html>
