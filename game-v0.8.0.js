@@ -97,6 +97,14 @@ function rowStatus(s,r){
 
 const groundPositions=new Map();
 let migratedCarryCount=0,lastPlacement=null;
+// Three small permanent restoration tasks per shelf face; every figure ID
+// is part of the original 3,000-figure dataset, never spawned or duplicated.
+const CLEAN_STEPS=['WIPE DUST','REMOVE COBWEBS','CLEAR PACKAGING'];
+const HIDDEN_FACES=[1,4,7,10,13,16,19,22,25,28,31,34,37,40,43,46,51,56];
+const HIDDEN_IDS=HIDDEN_FACES.map((_,i)=>(29+i*157)%3000);
+const HIDDEN_SET=new Set(HIDDEN_IDS);
+const SECRET_BY_FACE=new Map(HIDDEN_FACES.map((face,i)=>[face,HIDDEN_IDS[i]]));
+let faceCleaning=Array(NUM_RACKS).fill(0),hiddenRevealed=new Set(),newlyRevealed=null;
 let lifetimePerfect=new Set(),inspectionReturn='',inspectedId=null;
 let perfectBannerTimer=0,slotPulse=null;
 const CELL=6,floorGrid=new Map(),distantGrid=new Map();
@@ -136,7 +144,8 @@ function setupFloor(){
   while(tries<32 && (blocked(x,z,.26)||(sqr(x-35)+sqr(z-68)<5)));
   const custom=groundPositions.get(i);
   if(custom && !blocked(custom.x,custom.z,.23)){x=custom.x;z=custom.z;}
-  const f={id:i,x,z,onFloor:!used.has(i)};
+  const hidden=HIDDEN_SET.has(i)&&!hiddenRevealed.has(i);
+   const f={id:i,x,z,onFloor:!used.has(i)&&!hidden,hidden};
   floor.push(f);
   const key=cellKey(x,z);let bucket=floorGrid.get(key);
   if(!bucket){bucket=[];floorGrid.set(key,bucket);}bucket.push(f);
@@ -199,7 +208,8 @@ function distantFloor(radius){
 function resetState(){
  rows=Array.from({length:NUM_RACKS},()=>Array.from({length:ROWS},()=>[]));
  slots=Array.from({length:NUM_RACKS},()=>Array.from({length:ROWS},EMPTY_ROW));
- tote=[];selected=null;groundPositions.clear();migratedCarryCount=0;lastPlacement=null;lifetimePerfect.clear();slotPulse=null;player={x:35,z:68,yaw:0,pitch:0};setupFloor();save();stats();
+ tote=[];selected=null;groundPositions.clear();migratedCarryCount=0;lastPlacement=null;lifetimePerfect.clear();slotPulse=null;
+ faceCleaning=Array(NUM_RACKS).fill(0);hiddenRevealed.clear();newlyRevealed=null;player={x:35,z:68,yaw:0,pitch:0};setupFloor();save();stats();
 }
 function restore(){
  let raw;try{raw=JSON.parse(localStorage.getItem(STORE_KEY)||localStorage.getItem(LEGACY_KEY)||'null')}catch(e){raw=null}
@@ -207,6 +217,13 @@ function restore(){
  // Migrate the legacy 1,000-figure save once into a NEW save key; the safety build remains untouched.
  // Original twenty one-sided shelves become the FRONT faces of the same fixtures.
  const previous=raw.rows.length===20;
+ // Existing progress predates shelf cleaning: grandfather all faces as
+ // restored and leave all existing figures discoverable on the floor.
+ const oldCleaning=!Array.isArray(raw.cleaning)||raw.cleaning.length!==NUM_RACKS;
+ faceCleaning=oldCleaning?Array(NUM_RACKS).fill(3):raw.cleaning.map(v=>clamp(Math.floor(Number(v)||0),0,3));
+ hiddenRevealed=new Set(oldCleaning?HIDDEN_IDS:(Array.isArray(raw.revealed)?raw.revealed:[]).filter(id=>HIDDEN_SET.has(id)));
+ for(const [face,id] of SECRET_BY_FACE)if(faceCleaning[face]===3)hiddenRevealed.add(id);
+ newlyRevealed=null;
  // Non-destructive v0.6 migration. Preserve the original compact shelf save
  // before adding physical slot positions, so the user can always recover it.
  if(!raw.slots){
@@ -274,9 +291,9 @@ function restore(){
  }else player={x:35,z:68,yaw:0,pitch:0};
  setupFloor();stats();
  // Copy the 1,000-figure save once; leave emergency recovery progress untouched.
- if(migratedCarryCount||!raw.slots||!Array.isArray(raw.lifetimePerfect)||!localStorage.getItem(STORE_KEY))save();
+ if(migratedCarryCount||oldCleaning||!Array.isArray(raw.revealed)||!raw.slots||!Array.isArray(raw.lifetimePerfect)||!localStorage.getItem(STORE_KEY))save();
 }
-function save(){try{localStorage.setItem(STORE_KEY,JSON.stringify({version:1,tote,rows,slots,lifetimePerfect:[...lifetimePerfect],selected,player,ground:[...groundPositions].map(([id,p])=>[id,p.x,p.z])}))}catch(e){}}
+function save(){try{localStorage.setItem(STORE_KEY,JSON.stringify({version:1,tote,rows,slots,lifetimePerfect:[...lifetimePerfect],selected,player,ground:[...groundPositions].map(([id,p])=>[id,p.x,p.z]),cleaning:faceCleaning,revealed:[...hiddenRevealed]}))}catch(e){}}
 function blocked(x,z,pad=.3){
  if(x<1.4+pad||x>SW-1.4-pad||z<1.4+pad||z>SD-1.4-pad)return true;
  for(const f of fixtures){const dx=x-f.x,dz=z-f.z;
@@ -352,7 +369,7 @@ function figurineLocation(id){
   const slot=slots[rack][row].indexOf(id);
   if(slot>=0)return 'DISPLAY '+(rack+1)+' · ROW '+(row+1)+' · SLOT '+(slot+1);
  }
- return floor[id]?.onFloor?'LOOSE IN THE SHOP':'NOT CURRENTLY ON DISPLAY';
+ return floor[id]?.hidden?'HIDDEN IN STORE MESS':floor[id]?.onFloor?'LOOSE IN THE SHOP':'NOT CURRENTLY ON DISPLAY';
 }
 function openInspection(id){
  if(!isFigure(id)||modal==='inspect')return false;
@@ -610,7 +627,7 @@ function renderSetDetail(sid){
 }
 function grabFig(id){
  if(tote.length>=MAX_TOTE){notify('HANDS FULL — PLACE OR PUT DOWN YOUR FIGURE FIRST','bad');return}
- const f=floor[id];if(!f||!f.onFloor)return;
+ const f=floor[id];if(!f||!f.onFloor||f.hidden)return;
  f.onFloor=false;tote.push(id);selected=id;lastPlacement=null;pulseReticle();
  stats();save();notify('PICKED UP · '+figure(id).name+' · TAKE IT TO A SHELF');
 }
