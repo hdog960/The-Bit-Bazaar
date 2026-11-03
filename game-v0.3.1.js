@@ -26,7 +26,7 @@ let tote=[],rows=[],selected=null, floor=[],figureById=DB.figures;
 const CELL=6,floorGrid=new Map(),distantGrid=new Map();
 const DISTANT_COLORS=['#78d9b8','#bd8cdf','#f2bf75','#b27d9d','#72afc6','#df8d8b','#c6ce76','#ae8dd1'];
 const DARK_PIXEL='#20172f',LIGHT_PIXEL='#edd6a7';
-let renderLimit=70,viewDistance=19,midLimit=30,midDistance=29,farLimit=65,farDistance=39,renderFrames=0,lastDrawMs=-1e6,drawInterval=1000/24,slowFrames=0,extremeFrames=0,lastRuntimeMs=0,nearbyExamined=0,farCandidatesExamined=0,renderedFigures=0,midRendered=0,farRendered=0;
+let renderLimit=70,viewDistance=19,midStart=9,midLimit=30,midDistance=29,farLimit=65,farDistance=39,renderFrames=0,lastDrawMs=-1e6,drawInterval=1000/24,slowFrames=0,extremeFrames=0,lastRuntimeMs=0,nearbyExamined=0,farCandidatesExamined=0,renderedFigures=0,midRendered=0,farRendered=0;
 const cellKey=(x,z)=>Math.floor(x/CELL)+','+Math.floor(z/CELL);
 let modal='', focus=null, playing=false, shift=false, activeSet=0, albumQuery='';
 let lastSave=0,lastFrame=performance.now(), toastTimer=0;
@@ -97,7 +97,7 @@ function distantFloor(radius){
    const dx=f.x-cx,dz=f.z-cz;
    if(dx*dx+dz*dz>r2)continue;
    const depth=dx*sy-dz*cy,side=dx*cy+dz*sy;
-   if(depth<=viewDistance || depth>radius || Math.abs(side)>depth*.89+1.5)continue;
+   if(depth<=midStart || depth>radius || Math.abs(side)>depth*.89+1.5)continue;
    out.push({type:depth<=midDistance?'mid':'far',depth,piece:f});
   }
  }
@@ -448,7 +448,7 @@ function drawFig(f){
  // New-edition accessories load only when a figure gets close enough to matter.
 function drawMediumFig(f){
  const d=cameraDepth(f.x,f.z);
- if(d<viewDistance || d>midDistance || !img.complete || !img.naturalWidth)return;
+ if(d<midStart || d>midDistance || !img.complete || !img.naturalWidth)return;
  const p=project(f.x,f.z,0),height=.71*FOCAL/d,width=height*.80;
  if(p.x+width<0||p.x-width>W||p.y-height>H||p.y<0)return;
  const fig=figure(f.id),source=fig.sourceId===undefined?fig:figure(fig.sourceId);
@@ -510,13 +510,35 @@ function drawRoom(){
  renderedFigures=Math.min(visible.length,renderLimit);
  // Beyond detailed visibility, render ONLY sparse references from distantGrid.
  // Medium images share the static original atlas; far silhouettes use fillRect.
- const distanceCandidates=distantFloor(farDistance),medium=[],distant=[];
- for(const item of distanceCandidates)(item.type==='mid'?medium:distant).push(item);
- medium.sort((a,b)=>a.depth-b.depth);distant.sort((a,b)=>a.depth-b.depth);
- midRendered=Math.min(midLimit,medium.length);
- farRendered=Math.min(farLimit,distant.length);
- for(let i=0;i<midRendered;i++)entities.push(medium[i]);
- for(let i=0;i<farRendered;i++)entities.push(distant[i]);
+ const distanceCandidates=distantFloor(farDistance);
+ const selectedDetailIDs=new Set(visible.slice(0,renderedFigures).map(e=>e.piece.id));
+ const mediumBands=[[],[],[]],farBands=[[],[]];
+ for(const item of distanceCandidates){
+  if(item.type==='mid'){
+   if(selectedDetailIDs.has(item.piece.id))continue;
+   const depth=item.depth,range=Math.max(1,midDistance-midStart);
+   mediumBands[Math.min(2,Math.floor((depth-midStart)/range*3))].push(item);
+  }else{
+   const split=midDistance+(farDistance-midDistance)*.5;
+   farBands[item.depth<split?0:1].push(item);
+  }
+ }
+ // Keep figures represented at multiple distances; nearest candidates cannot
+ // monopolize the entire LOD allowance and leave an empty middle aisle.
+ midRendered=0;farRendered=0;
+ const midQuota=Math.ceil(midLimit/3),farQuota=Math.ceil(farLimit/2);
+ for(const band of mediumBands){
+  band.sort((a,b)=>a.depth-b.depth);
+  const count=Math.min(midQuota,midLimit-midRendered,band.length);
+  for(let i=0;i<count;i++)entities.push(band[i]);
+  midRendered+=count;
+ }
+ for(const band of farBands){
+  band.sort((a,b)=>a.depth-b.depth);
+  const count=Math.min(farQuota,farLimit-farRendered,band.length);
+  for(let i=0;i<count;i++)entities.push(band[i]);
+  farRendered+=count;
+ }
  if(focus&&focus.kind==='figure'&&!entities.some(e=>e.type==='fig'&&e.piece.id===focus.id)){
   const f=floor[focus.id];if(f&&f.onFloor)entities.push({type:'fig',depth:cameraDepth(f.x,f.z),piece:f});
  }
