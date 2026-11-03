@@ -507,29 +507,33 @@ function updateFocus(){
 }
 
 // Software-rendered, gently patterned 16-bit style tile floor.
+// Pitch changes the floor horizon. Render only the below-horizon dirty rows,
+// using one reused 480 x 270 buffer; no per-frame memory allocation.
 function drawFloor(){
- const dat=floorBuffer.data, sy=Math.sin(player.yaw), cy=Math.cos(player.y);
- let i=0;
- for(let y=HORIZON;y<H;y++){
-  const depth=EYE*FOCAL/Math.max(1,y-HORIZON);
+ const dat=floorBuffer.data,sy=Math.sin(player.yaw),cy=Math.cos(player.yaw);
+ const horizon=cameraHorizon(),start=clamp(Math.floor(horizon)+1,0,H);
+ for(let y=start;y<H;y++){
+  const depth=EYE*FOCAL/Math.max(.75,y-horizon);
   const fog=clamp((depth-8)/95,0,.65);
   const cx=player.x+sy*depth,cz=player.z-cy*depth;
-  const incrX=cy*depth/FOCAL, incrZ=sy*depth/FOCAL;
-  let wx=cx-incrX*W/2,wz=cz-incrZ*W/2;
+  const incrX=cy*depth/FOCAL,incrZ=sy*depth/FOCAL;
+  let wx=cx-incrX*W/2,wz=cz-incrZ*W/2,i=y*W*4;
   for(let x=0;x<W;x++){
    const tx=Math.floor(wx*1.05),tz=Math.floor(wz*1.05);
-   const grX=(wx*1.05-tx),grZ=(wz*1.05-tz);
-   const grout=(grX<.025||grZ<.025),check=(tx+tz)&1;
+   const grX=wx*1.05-tx,grZ=wz*1.05-tz;
+   const grout=grX<.025||grZ<.025,check=(tx+tz)&1;
    const grain=(tx*13+tz*23+x*3+y*7)&7;
    let r=check?63:71,g=check?50:59,b=check?70:78;
    if(grout){r-=20;g-=17;b-=19;}
    if(grain===1){r+=7;g+=7;b+=9;}
-   r=r*(1-fog)+20*fog;g=g*(1-fog)+19*fog;b=b*(1-fog)+36*fog;
-   dat[i]=r;dat[i+1]=g;dat[i+2]=b;dat[i+3]=255;i+=4;
+   dat[i++]=r*(1-fog)+20*fog;
+   dat[i++]=g*(1-fog)+19*fog;
+   dat[i++]=b*(1-fog)+36*fog;
+   dat[i++]=255;
    wx+=incrX;wz+=incrZ;
   }
  }
- ctx.putImageData(floorBuffer,0,HORIZON);
+ if(start<H)ctx.putImageData(floorBuffer,0,0,0,start,W,H-start);
 }
 function solidQuad(a,b,c,d,color){
  const near=.24,poly=[a,b,c,d],clipped=[];
@@ -623,10 +627,15 @@ function drawShelf(f){
  }
  shelfBeam(f,-f.w/2-.12,d+facing*.06,4.18,f.w/2+.12,d+facing*.06,4.18,'#f6c986',Math.max(1,sz*.035));
  shelfBeam(f,-f.w/2-.12,d+facing*.06,.15,f.w/2+.12,d+facing*.06,.15,'#7f5366',Math.max(1,sz*.04));
- // No world-space shelf numbers: the nearby interaction prompt identifies the face.
+ // Outline ONLY the physical row under the reticle.
  if(focus&&focus.kind==='shelf'&&focus.id===faceId){
-  const p=shelfProject(f,0,d+facing*.08,4.45);
-  if(p.depth>0){ctx.fillStyle='#d1ffe9';ctx.fillRect(p.x-2,p.y-2,4,4);}
+  const r=focus.row,y=.44+r*.72,drawD=d+facing*.17;
+  const plan=placementPlan(faceId,r,currentSelected());
+  const tint=plan.ok?'#9effc7':'#ff8f9f',width=Math.max(1,FOCAL/Math.max(3,depth)*.016);
+  shelfBeam(f,-f.w/2,drawD,y,f.w/2,drawD,y,tint,width);
+  shelfBeam(f,-f.w/2,drawD,y+.68,f.w/2,drawD,y+.68,tint,width);
+  shelfBeam(f,-f.w/2,drawD,y,-f.w/2,drawD,y+.68,tint,width);
+  shelfBeam(f,f.w/2,drawD,y,f.w/2,drawD,y+.68,tint,width);
  }
 }
 function drawFig(f){
@@ -640,7 +649,7 @@ function drawFig(f){
  if(focus&&focus.kind==='figure'&&focus.id===f.id){
   ctx.strokeStyle='#fff3b8';ctx.lineWidth=2;ctx.strokeRect(Math.round(p.x-wid/2)-2,Math.round(p.y-ht)-2,Math.max(4,Math.round(wid)+4),Math.max(4,Math.round(ht)+4));
  }
- if(d<4)targetBoxes.push({id:f.id,x:p.x-wid/2,y:p.y-ht,w:wid,h:ht,d});
+ // The center-aim system handles all figurine interaction.
 }
 // At medium range, use the ORIGINAL 32x40 sprite already in memory.
  // New-edition accessories load only when a figure gets close enough to matter.
@@ -707,7 +716,7 @@ function drawRoom(){
  updateVisibleSlope();
  ctx.fillStyle='#252137';ctx.fillRect(0,0,W,H);
  // Flat posterized ceiling tiles and warmly glowing neon ceiling bulbs.
- for(let y=0;y<HORIZON;y+=18){ctx.fillStyle=y%36===0?'#252036':'#29233b';ctx.fillRect(0,y,W,1)}
+ for(let y=0;y<Math.min(H,cameraHorizon());y+=18){ctx.fillStyle=y%36===0?'#252036':'#29233b';ctx.fillRect(0,y,W,1)}
  for(let i=0;i<12;i++){
   const sx=4+i*6,sz=6+(i%3)*24;
   const p=project(sx,sz,4.72);
@@ -719,7 +728,6 @@ function drawRoom(){
  }
  drawFloor();
  // Entity drawing is far-to-near to correctly occlude figurines behind racks.
- targetBoxes=[];
  let entities=[];
  for(let n=0;n<4;n++){
   const wallSegments=7;for(let k=0;k<wallSegments;k++){
@@ -863,31 +871,31 @@ window.addEventListener('keydown',e=>{
  if(e.repeat)return;
  if(e.code==='KeyE'||e.code==='Space')interact();
  if(e.code==='Tab')modal?closeDrawer():openDrawer('album');
- if(e.code==='KeyI')modal?closeDrawer():openDrawer('tote');
+ if(e.code==='KeyI')modal?closeDrawer():openDrawer('album');
 });
 window.addEventListener('keyup',e=>{keys.delete(e.code);if(e.code==='ShiftLeft'||e.code==='ShiftRight')shift=false});
-let dragging=false,lastX=0,downX=0,downY=0,dragSum=0;
+let dragging=false,lastX=0,lastY=0,downX=0,downY=0,dragSum=0;
 canvas.addEventListener('pointerdown',e=>{
  if(!playing||modal)return;
  if(e.pointerType==='touch'&&e.clientX<window.innerWidth*.27&&e.clientY>window.innerHeight*.60)return;
- dragging=true;lastX=downX=e.clientX;downY=e.clientY;dragSum=0;
+ dragging=true;lastX=downX=e.clientX;lastY=downY=e.clientY;dragSum=0;
  try{canvas.setPointerCapture(e.pointerId)}catch(_){}
 });
 canvas.addEventListener('pointermove',e=>{
  if(!dragging||modal||!playing)return;
- const dx=e.clientX-lastX;lastX=e.clientX;dragSum+=Math.abs(dx);
- player.yaw+=dx*(2.5/window.innerWidth);
+ const dx=e.clientX-lastX,dy=e.clientY-lastY;
+ lastX=e.clientX;lastY=e.clientY;dragSum+=Math.hypot(dx,dy);
+ player.yaw+=dx*(2.5/Math.max(300,window.innerWidth));
+ player.pitch=clamp((player.pitch||0)+dy*(2.15/Math.max(500,window.innerHeight)),-.62,.62);
 });
 canvas.addEventListener('pointerup',e=>{
  if(!dragging)return;dragging=false;
- if(dragSum<10&&Math.abs(e.clientY-downY)<12&&playing&&!modal){
-  const rect=canvas.getBoundingClientRect(),scale=Math.max(rect.width/W,rect.height/H),cropX=(W*scale-rect.width)/2,cropY=(H*scale-rect.height)/2,px=(e.clientX-rect.left+cropX)/scale,py=(e.clientY-rect.top+cropY)/scale;
-  let best=null;for(const b of targetBoxes)if(px>=b.x-4&&px<=b.x+b.w+4&&py>=b.y-4&&py<=b.y+b.h+6&&(best===null||b.d<best.d))best=b;
-  if(best&&Math.hypot(player.x-floor[best.id].x,player.z-floor[best.id].z)<3.2&&!tote.length)grabFig(best.id);
-   else if(tote.length&&focus?.kind==='shelf')placeDirect(focus.id);
- }
+ // A quick tap on the view interacts with the CENTER RETICLE, never
+ // with a different off-center object obscured by the player's finger.
+ if(dragSum<10&&Math.abs(e.clientY-downY)<12&&playing&&!modal)interact();
 });
 canvas.addEventListener('pointercancel',()=>dragging=false);
+
 const joy=$('joystick'),stick=$('stick');
 joy.addEventListener('pointerdown',e=>{if(modal||!playing)return;e.preventDefault();touch.joyId=e.pointerId;joy.setPointerCapture(e.pointerId);joyMove(e)});
 joy.addEventListener('pointermove',e=>{if(e.pointerId!==touch.joyId)return;joyMove(e)});
@@ -914,10 +922,12 @@ window.BitBazaarQA={
  stats:()=>({floor:floor.filter(f=>f.onFloor).length,tote:tote.length,carrying:tote[0]??null,droppedPositions:groundPositions.size,migratedCarryCount,placed:rows.flat(2).length,completedRows:rows.flat(1).filter(r=>r.length===10).length,capacity:NUM_RACKS*ROWS*PER_ROW,fixtures:fixtures.length,floorFixtures:NUM_FLOOR,wallFixtures:NUM_WALL,displayFaces:shelves.length,distinctAssets:DB.figures.length,renderedFigures,midRendered,farRendered,retainedNear,retainedMid,retainedFar,occlusionChecks,occludedCandidates,visibleSlope,midLimit,farLimit,midDistance,farDistance,nearbyExamined,farCandidatesExamined,renderFrames,renderLimit,viewDistance,drawInterval:Math.round(drawInterval),lastRuntimeMs,extremeFrames,sprites:sprites.stats()}),
  pick:(id)=>{if(!Number.isInteger(id)||id<0||id>=DB.figures.length||tote.length||!floor[id].onFloor)return false;grabFig(id);return tote[0]===id},
  place:(id,shelf,row)=>{if(!Number.isInteger(id)||id<0||id>=DB.figures.length)return false;if(!tote.length)grabFig(id);if(tote[0]!==id)return false;return placeFig(shelf,row)},
- directPlace:shelf=>placeDirect(shelf),putDown,undoLastPlacement,
+ directPlace:(shelf,row)=>placeDirect(shelf,row),putDown,undoLastPlacement,
  rowContents:(shelf,row)=>[...(rows[shelf]?.[row]||[])],
  figurePosition:id=>floor[id]?{x:floor[id].x,z:floor[id].z,onFloor:floor[id].onFloor}:null,
  reset:resetState, get player(){return player}, shelves, dataset:DB,
+ target:()=>{prepareOcclusion();return findFocus()},
+ horizon:()=>cameraHorizon(),aimPoint:()=>({x:AIM_X,y:AIM_Y}),
  visible:()=>({near:[...previousNear],mid:[...previousMid],far:[...previousFar]}),
  occludedAt:(x,z,excludeFixtureId=-1)=>shelfOccludes({x,z},excludeFixtureId),
  figurePosition:id=>floor[id]?{x:floor[id].x,z:floor[id].z,onFloor:floor[id].onFloor}:null,
