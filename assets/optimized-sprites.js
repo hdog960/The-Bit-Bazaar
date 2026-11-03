@@ -18,10 +18,23 @@ window.createBitBazaarSprites=function(db,baseImage){
   if(!force && budget<=0)return original(id);
   if(!force)budget--;
   const fig=db.figures[id],src=db.figures[fig.sourceId],variant=fig.editionVariant|0;
-  const c=document.createElement('canvas');c.width=32;c.height=40;
-  const g=c.getContext('2d',{willReadFrequently:true});g.imageSmoothingEnabled=false;
-  g.drawImage(baseImage,src.atlasX,src.atlasY,32,40,0,0,32,40);
-  const data=g.getImageData(0,0,32,40),p=data.data,tone=COLORS[variant%8];
+  // Recycle the oldest 32x40 canvas instead of continually allocating new GPU surfaces.
+  let c;
+  if(CACHE.size>=LIMIT){
+   const oldest=CACHE.keys().next().value;
+   item=CACHE.get(oldest);CACHE.delete(oldest);
+   c=item.canvas;item.url=null;evicted++;
+  }else{
+   c=document.createElement('canvas');c.width=32;c.height=40;
+   item={canvas:c,url:null};
+  }
+  const g=c.getContext('2d',{willReadFrequently:true});
+  if(!g)return original(id);
+  g.imageSmoothingEnabled=false;g.clearRect(0,0,32,40);
+  try{g.drawImage(baseImage,src.atlasX,src.atlasY,32,40,0,0,32,40);}catch(_){return original(id);}
+  let data;
+  try{data=g.getImageData(0,0,32,40);}catch(_){return original(id);}
+  const p=data.data,tone=COLORS[variant%8];
   for(let i=0;i<p.length;i+=4){
    if(p[i+3]<50)continue;
    const brightness=p[i]+p[i+1]+p[i+2];if(brightness<115)continue;
@@ -43,8 +56,7 @@ window.createBitBazaarSprites=function(db,baseImage){
   else if(mode===6){g.fillRect(24,23,7,8);g.fillStyle=bright;g.fillRect(25,24,5,6);g.fillStyle=light;g.fillRect(27,19,2,3);g.fillRect(26,18,4,1);}
   else{g.fillRect(3,15,8,7);g.fillRect(21,15,8,7);g.fillStyle=bright;g.fillRect(5,15,6,3);g.fillRect(22,15,6,3);}
   g.fillStyle=light;g.fillRect(10+id%11,30,2,3);
-  item={canvas:c,url:null};CACHE.set(id,item);created++;
-  if(CACHE.size>LIMIT){CACHE.delete(CACHE.keys().next().value);evicted++;}
+  CACHE.set(id,item);created++;
   return {image:c,x:0,y:0,item};
  }
  function draw(ctx,id,x,y,w,h){
