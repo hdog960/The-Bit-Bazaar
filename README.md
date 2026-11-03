@@ -1,5 +1,27 @@
 # The Bit Bazaar — The Great Figurine Sort
 
+## v0.11.0 — Phase 3 Collection Almanac discovery journal & iPhone map zoom
+Roadmap: [MASTER_ROADMAP_LOCKED.md](./MASTER_ROADMAP_LOCKED.md). **Phase 3 is still in progress**; do not begin Phase 4 Sacrifice Catalog prematurely. No customers or in-game shop sales.
+
+**Discovery journal**
+- Maintain `seenFigures: number[]` in the existing version-1 `bit-bazaar-save-v3` payload. A figurine becomes **discovered only when physically picked up or inspected in-world**. A shelf pickup also counts. Browsing an unobserved figure inside the Almanac cannot unlock its identity or lore.
+- Old saves (before v0.11) populate the journal conservatively from already-shelved figures, figures in hand and dropped ground-position entries. All other figures remain undiscovered until observed. Existing shelves, saved slot positions, 45 floor patches, 60 clean faces, 18 hidden collectibles and lifetime perfected sets remain unchanged.
+- For the 300 named sets, an interactive journal overview shows the number of real discovered figurines (of 3,000), figures on shelves, currently perfect rows, lifetime mastered sets, started sets, and full-but-unsorted rows.
+- **Six filters:** all, in progress, needs sorting, perfect now, undiscovered, mastered ever. **Four sorts:** collection number, closest to completion, most discovered, A–Z. Search by set name, theme or numeric set ID. Results are paginated 48 at a time to keep mobile DOM work bounded.
+- Individual set pages display ten real existing miniature sprites when discovered, **dark silhouette placeholders** for unseen IDs, set names/number, exact current shelf-slot order, and links to the specific assigned shelf. Unseen figure roles, names, lore and any loose/secret positions are NOT disclosed by the journal.
+- Inspection cards remain available for known figurines, and all 3,000 figure IDs continue to use the original atlas and collision-safe world positions.
+
+**Improved Store Map**
+- **FIT STORE / ZOOM 2× · DRAG** modes, with a panning viewport for magnifying rack labels on iPhone.
+- Dropdown to quickly locate only sets that have already been started in an actual assigned row. Selecting one zooms the logical focus to its real fixture, display face and highlighted collection row; the map still never points to scattered figurines.
+- Existing 40 fixture polygons, 60 real shelf faces, and player location/direction remain driven by game state; no map redraw work is performed every render frame.
+
+**QA:** automated tests checked initial 0/3,000 discoveries, paginated 48/96 set cards, unknown-vs-known figure privacy, pickup/drop/reload journal persistence, all six filters and closest-to-completion sort, a full unsorted 10-figure row earning 0 completion credit, rearranging to exact 1–10 earning 1 permanent mastered set, map collection lookup/zoom, old-save migration for carried/shelved/dropped figures and v0.11-compatible low-FX fallback. The 1,440-tick simulated performance run rendered 480 frames under the existing 112-canvas and near/mid/far limits. **Physical iPhone playtesting is still required.**
+
+**Safe fallback:** [baseline-v0.11.0-lowfx.html](./baseline-v0.11.0-lowfx.html) runs a ~20fps, low-draw renderer with the same `seenFigures` and restoration save schema. Severe simulated frame stalls navigate there instead of an older build that could lose discovery history.
+
+**Next:** Phase 3 polish for small-screen readability, longer session save QA and collector browsing; get feedback on the actual iPhone UI before Phase 4.
+
 ## v0.10.0 — Phase 2 polish + Phase 3 interactive floor-plan milestone
 The six-phase creative plan is defined by [MASTER_ROADMAP_LOCKED.md](./MASTER_ROADMAP_LOCKED.md). This release finishes an initial **Phase 2 cleaning-feedback pass** and begins **Phase 3**; it does not claim Phase 3's entire almanac and mapping work is finished.
 
