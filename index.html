@@ -11,7 +11,7 @@
 <link rel="icon" type="image/png" href="./icon.png" />
 <link rel="apple-touch-icon" href="./icon.png" />
 <title>The Bit Bazaar — The Great Figurine Sort</title>
-<link rel="stylesheet" href="./style-v0.5.0.css" />
+<link rel="stylesheet" href="./style-v0.7.0.css" />
 </head><body>
 <div id="game">
  <canvas id="world" width="480" height="270" aria-label="First-person view of a pixel-art figurine shop"></canvas>
@@ -38,12 +38,38 @@
  </div>
  <div id="mobileControls" aria-label="Touch game controls">
   <div id="joystick"><div id="stick"></div></div>
+  <button id="inspectBtn" class="inspect-action" aria-label="Inspect targeted or held figurine" hidden>⌕ LOOK</button>
   <button id="actionBtn" class="action"><span>✦</span><b id="actionLabel">PICK UP</b></button>
  </div>
  <div id="toast" role="status"></div>
+ <div id="perfectBanner" class="perfect-banner" role="status" aria-live="polite">
+  <div class="perfect-stars">✦ ★ ✦</div>
+  <h2>PERFECT 1–10!</h2>
+  <p id="perfectSetName"></p><small id="perfectFirst"></small>
+ </div>
+ <div id="inspectOverlay" class="inspect-overlay" hidden aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="inspectFigureName">
+  <div class="inspect-card">
+   <div class="inspect-topline"><span>✦ COLLECTOR'S CLOSE-UP</span><button id="closeInspect" class="inspect-close" aria-label="Close figurine inspection">✕</button></div>
+   <h2 id="inspectFigureName">FIGURINE</h2>
+   <div class="inspect-main">
+    <div class="inspect-art"><div id="inspectSprite"></div></div>
+    <div class="inspect-meta">
+     <div id="inspectFigureNumber" class="inspect-number"></div>
+     <div><span class="inspect-label" id="inspectSeriesNumber"></span><br/><strong id="inspectSeriesName"></strong></div>
+     <div class="inspect-minor" id="inspectRole"></div>
+     <div><span class="inspect-label">CURRENT STATUS</span><br/><strong id="inspectStatus"></strong></div>
+    </div>
+   </div>
+   <div class="inspect-story"><h3>COLLECTOR'S NOTE</h3><div id="inspectStory"></div></div>
+   <div class="inspect-actions">
+    <div id="inspectProgress" class="inspect-progress"></div>
+    <button id="inspectReturn" class="inspect-return">RETURN TO SHOP</button>
+   </div>
+  </div>
+ </div>
  <!-- Menus -->
  <div id="screen" class="screen shown">
-  <div class="title-card"><div class="eyebrow">★ CONGRATULATIONS ON YOUR NEW BUSINESS ★</div><h1>THE BIT<br><em>BAZAAR</em></h1><div class="pixel-stripes"></div><p>You inherited a nerdy figurine shop. Unfortunately, its entire collection is scattered across the floor.</p><div class="three-nums"><span><b>3,000</b><small>UNIQUE FIGURES</small></span><span><b>300</b><small>COMPLETE SETS</small></span><span><b>40</b><small>SHELF UNITS</small></span></div><p class="mission-text">Find figurines numbered <b>1–10</b> in each collection. Aim the <b>center reticle at one of the ten shelf slots</b> to place a figure anywhere in its matching row. Aim at a placed figure to lift it, or <b>swap</b> with a held figure. A set only counts as complete when it reads <b>1, 2, 3 … 10</b> from left to right.</p><button id="startBtn" class="primary large">OPEN THE SHOP <span>→</span></button><small class="instructions">iPhone: drag to aim left/right/up/down, target a FIGURE or exact SHELF SLOT, then tap PICK UP / LIFT / SWAP / PLACE. Desktop: WASD, drag to aim, E to act.</small></div>
+  <div class="title-card"><div class="eyebrow">★ CONGRATULATIONS ON YOUR NEW BUSINESS ★</div><h1>THE BIT<br><em>BAZAAR</em></h1><div class="pixel-stripes"></div><p>You inherited a nerdy figurine shop. Unfortunately, its entire collection is scattered across the floor.</p><div class="three-nums"><span><b>3,000</b><small>UNIQUE FIGURES</small></span><span><b>300</b><small>COMPLETE SETS</small></span><span><b>40</b><small>SHELF UNITS</small></span></div><p class="mission-text">Find figurines numbered <b>1–10</b> in each collection. Aim the <b>center reticle at one of the ten shelf slots</b> to place a figure anywhere in its matching row. Aim at a placed figure to lift it, or <b>swap</b> with a held figure. A set only counts as complete when it reads <b>1, 2, 3 … 10</b> from left to right.</p><button id="startBtn" class="primary large">OPEN THE SHOP <span>→</span></button><small class="instructions">iPhone: aim at a figure to PICK UP, LIFT or SWAP; use LOOK to inspect its enlarged pixel art, number and story. Desktop: E interact, F inspect, WASD move.</small></div>
  </div>
  <div id="drawer" class="drawer" aria-hidden="true">
   <div class="drawer-head"><span id="drawerKicker">STORE SYSTEM</span><button id="closeDrawer" class="chrome close" aria-label="Close panel">✕</button></div>
@@ -55,10 +81,10 @@
 <script src="./assets/collection.js"></script>
 <script src="./assets/collection-extension.js"></script>
 <script src="./assets/optimized-sprites.js"></script>
-<script src="./game-v0.6.0.js?v=0.6.0" defer></script>
+<script src="./game-v0.7.0.js?v=0.7.0" defer></script>
 <script>
 if ("serviceWorker" in navigator) {
-  addEventListener("load", () => navigator.serviceWorker.register("./sw.js?v=0.6.0", {updateViaCache:"none"}).catch(() => {}));
+  addEventListener("load", () => navigator.serviceWorker.register("./sw.js?v=0.7.0", {updateViaCache:"none"}).catch(() => {}));
 }
 </script>
 </body></html>
