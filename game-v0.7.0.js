@@ -344,7 +344,7 @@ function figurineLore(id){
  const a=leads[(fig.setId*7+fig.number*3)%leads.length];
  const b=quirks[(id*3+fig.setId)%quirks.length];
  const c=legendary[(id+fig.number*5)%legendary.length];
- return a+' in the '+set.theme+' stories, this '+fig.role.toLowerCase()+' '+b+'. '+c;
+ return fig.name+', known to other collectors as '+(fig.codename||'a quiet curiosity')+', is '+a.toLowerCase()+' in the '+set.name+' stories. This '+fig.role.toLowerCase()+' '+b+'. '+c;
 }
 function figurineLocation(id){
  if(tote.includes(id))return 'IN YOUR HAND';
