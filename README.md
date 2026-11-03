@@ -1,5 +1,26 @@
 # The Bit Bazaar — The Great Figurine Sort
 
+## v0.15.0 — Phase 3 direct HUNT-to-shelf navigation and stable mobile panel (Nov 3, 2026)
+This continues the locked [MASTER_ROADMAP_LOCKED.md](./MASTER_ROADMAP_LOCKED.md) without adding customers, shop sales, currency, new figure identities, or Sacrifice Catalog decorations.
+
+**Assigned shelf shortcut**
+- For a pinned HUNT collection that already has figures on a display, the live tracker now names the **actual shelf face and row** and offers **▦ SHOW SHELF ON MAP**. A tap opens the existing map in 2× zoom, centers the correct fixture, selects the correct face and highlights the matching collection row. The location is recomputed from live shelf state at tap time, so moving an assigned set is followed accurately.
+- For an unstarted set, the same area explicitly says **NO SHELF ASSIGNED YET** and explains that the first figure must be placed in a clean row. It provides no shortcut to loose or hidden pieces. The six-phase roadmap's Coward's Glasses tracking remains intentionally exclusive to Phase 5.
+- Almanac's prior **FIND THIS SHELF ON THE STORE MAP** now uses the same shared navigation function, reducing divergent implementations.
+
+**Mobile stability**
+- Retain the HUNT panel's scroll position and keyboard number focus when the tracker updates because of pickup, placement, sorting or pin refresh. Cycling to a different pinned set resets the tracker to the top.
+- Maintain at least **44px** for numbered figure buttons, restore a 150px maximum HUNT body height on very short (620px or less) screens, and scroll details within the existing compact notebook.
+
+**Save & performance:** unchanged `bit-bazaar-save-v3` JSON, including 3,000 figure IDs, all 300 assigned rows, 60 cleaned faces, 45 floor messes, 18 hidden collectible IDs, discovered ledger, pins and lifetime mastery. This is DOM/CSS-driven UI work only, with no new canvas sprite allocations, per-frame map loops or new artwork atlas.
+
+**Release:** `index.html` uses `game-v0.15.0.js` and `style-v0.15.0.css`, with a network-first `bit-bazaar-v0.15.0` service-worker cache. A corresponding `game-v0.15.0-lowfx.js` and `baseline-v0.15.0-lowfx.html` preserve performance recovery. Prior versions are retained for fallback.
+
+**QA status:** both JavaScript builds passed syntax checks and static structure checks prior to release. Confirm the actual GitHub Pages update and physically test an iPhone before considering Phase 3 complete. On a fresh save: pin an unstarted set, open HUNT and verify there is no map shortcut; place its first figure onto a cleaned shelf, and verify the new shortcut selects the exact face/row. Repeat after moving the set, cycling pins, reopening the app and in Low FX mode.
+
+**Next:** final end-to-end Phase 3 iPhone acceptance including map accuracy, long-session resilience and compact screen accessibility, then proceed to the much larger Phase 4 Sacrifice Catalog under the locked roadmap.
+
+
 ## v0.14.0 — Phase 3 tracker readability and figure-level guidance (Nov 3, 2026)
 This is a focused **Phase 3 mobile usability release**, not the Sacrifice Catalog. The approved [MASTER_ROADMAP_LOCKED.md](./MASTER_ROADMAP_LOCKED.md) remains unchanged.
 
