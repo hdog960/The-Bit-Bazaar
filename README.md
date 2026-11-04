@@ -1,5 +1,23 @@
 # The Bit Bazaar — The Great Figurine Sort
 
+## v0.30.0 — Aim-to-move artwork, destination previews and free relocation (November 4, 2026)
+
+The next Phase 4 milestone makes already-owned decorations easier to reposition directly from inside the store, without requiring the player to search their full collection.
+
+- Stand near any installed decoration that the existing world reticle can select (within nine world units) and choose **↔ MOVE ART** next to the unchanged **◇ EDIT ART** action. Core figure placement/cleanup targets retain priority. Normal EDIT ART still opens the highlighted owned piece in the Sacrifice Catalog for fine positional adjustments.
+- A separate *Move Owned Artwork* planner opens the real interactive overhead shop map, automatically filtered to that object's compatible wall/floor/rug/ceiling display category. The planner shows the actual artwork thumbnail, its current named anchor, and a destination preview. Open pins appear green; occupied positions remain amber; the artwork's present anchor is specially marked.
+- Tapping a display pin previews its name and availability; current or occupied positions cannot be confirmed. **✓ CONFIRM MOVE · FREE** is the only action that changes placement; **✕ CANCEL MOVE**, closing the map, or opening another drawer discards the preview safely. The existing owned-item move API rechecks compatibility and vacancy before saving.
+- Relocation never consumes perfect shelf rows or touches any figurine. Previously purchased artwork remains permanently owned. Existing adjustments are handled by the established moving behavior. The stored save shape, `bit-bazaar-save-v3` key, original IDs, and independent material choices are untouched.
+- Full and Low FX engines both integrate the feature. Versioned `game-v0.30.0.js`, `game-v0.30.0-lowfx.js`, `style-v0.30.0.css`, `assets/decor-map-v0.30.js`, launch/preview/recovery pages and network-first service-worker cache share the same version references. The v0.29 emergency assets remain available as optional fallbacks.
+- Locked scope preserved: **68 original individually authored decorations**, **169 physical anchors**, 40 shelf units/60 faces/300 rows, 300 named sets and 3,000 original figurine identities. No new commerce mechanics or save migrations.
+
+**Validation:** code-path consistency checks cover both engines, the source/target selector, disabled occupied/current positions, no-cost movement callback, cancellation without mutation, HTML references, and service-worker asset consistency. Live GitHub Pages rendering, physical iPhone tap/scroll behavior, and free-drag 3D placement have not been independently device-verified. This is a map-based location preview, not yet a world-space furniture ghost.
+
+**Next milestone:** improve direct world-view placement previews; expand the 68/180 gallery and display capacity while preserving mobile frame budget, save safety and the locked six-phase roadmap.
+
+---
+
+
 ## v0.29.0 — Aim-to-edit decorations and 12 more original artworks (November 4, 2026)
 
 A longer Phase 4 development milestone adding **twelve genuinely different painted pixel decorations** and the first **direct first-person artwork editor**, without disrupting 3,000 collectible figurines or existing saved players.
