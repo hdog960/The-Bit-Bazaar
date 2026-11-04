@@ -25,6 +25,9 @@ function create({catalog,api,owned,placed,rerender}){
   const x=place.x+a.dx*.25,z=place.z+a.dz*.25;
   if(kind==='floor')return !api.blocked(x,z,.38);
   if(kind==='rug'){
+   // v0.20's original eight rug anchors are grandfathered at their
+   // unchanged central orientation. Only *new* moves/turns need clearance.
+   if(a.dx===0&&a.dz===0&&a.turn===0)return true;
    const rotated=a.turn%2!==0,halfX=rotated?1.48:2.2,halfZ=rotated?2.2:1.48;
    // Nine-point bounded footprint check; never allow carpet beneath a rack.
    for(const xi of [-1,0,1])for(const zi of [-1,0,1])
