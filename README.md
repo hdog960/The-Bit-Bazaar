@@ -1,5 +1,30 @@
 # The Bit Bazaar — The Great Figurine Sort
 
+## v0.27.0 — Interactive decoration placement map (November 3, 2026)
+
+A substantial Phase 4 usability release: **visualize every available display position on the existing real-time shop map, check occupancy, then choose a physical placement location without buying or moving anything accidentally.** The existing **48 of 180 original artworks**, 129 display anchors, 60 five-tier shelf faces, full 3,000-figure inventory and locked [MASTER_ROADMAP_LOCKED.md](./MASTER_ROADMAP_LOCKED.md) remain unchanged.
+
+**A real first-person shop planning workflow, not a fake image**
+- Enter **◇ DECOR → VISUAL DECORATION MAP** to open the actual store's overhead map. Players can choose **SHELF MAP** (the original cleaning/sorting map), **WALL ART**, **FLOOR DISPLAYS**, **RUGS**, **CEILING**, or **SHELF TRIMS**. The selected category is drawn as numbered pins in the same physical 70×74 store coordinate system used for player movement and shelving.
+- The map shows the exact number of open locations in each category: **16 wall anchors**, **24 freestanding display pads**, **14 rug sites**, **15 hanging ceiling hooks** and **60 shelf-face finishes**, together **129 total anchors**. The default shelf task map is preserved and remains fully functional.
+- **Green pins mean open, amber pins mean occupied.** Tap or keyboard-select one to inspect its actual named location and any installed decoration. The selected pin has a distinct visual treatment. The existing map's FIT and ZOOM 2× interactions remain available to examine dense shelf faces; all overlays are generated only while the map drawer is open, never in the real-time 3D frame loop.
+- Choosing **USE SELECTED LOCATION** on an *open* pin sets the matching catalog destination and returns to the DECOR drawer. The player may then purchase a matching decoration or reposition a previously owned one using their unchanged explicit controls. Occupied pins cannot be used as new destinations. **The map never purchases, sacrifices rows, alters figurines, relocates an owned item, or writes to a save merely from selecting a pin.**
+- Shelf-finish pins use the real shelf-face/fixture geometry of the existing game map rather than approximate freestanding coordinates. Map pin markup escapes all item/location descriptions. Pin groups have keyboard Enter/Space support, accessible names, and at least 44px touch targets for the main mode/actions; SVG pins support the existing 2× map zoom for finer selection.
+- **RETURN TO DECOR** exits the map planner without altering anything. The original shop map and figure-hunt features remain available as before.
+
+**Compatibility and packaging**
+- `assets/decor-map-v0.27.js` is a separate, compact, lazy-rendering map component; `assets/decor-runtime-v0.27.js` only adds a catalog entry point and a non-destructive destination setter. Both full/Low FX engines integrate the same pinned map into their existing overhead floor plan.
+- `assets/save-manager-v0.27.js` preserves the existing `bit-bazaar-save-v3` and `decor:{owned,placed,adjustments,room}` validation rules. Original 129 anchor IDs, purchased items, room finishes, carpet rotation and saved figure positions remain compatible.
+- Versioned full `game-v0.27.0.js` and Low FX `game-v0.27.0-lowfx.js`, responsive `style-v0.27.0.css`, standard preview and Low FX recovery HTML, main `index.html`, and network-first `bit-bazaar-v0.27.0` service worker are committed. The service worker includes the new map module and preserves optional previous-version fallback files without touching local saves.
+
+**Validation**
+- **22/22 integrated map/catalog tests passed**: 129 preserved physical anchors, category-specific pin counts, exact occupant visibility, purchased-item state, occupied-pin rejection, sending open slots back to the catalog without changing ownership, and subsequent correct explicit purchase on the selected location.
+- Both full and Low FX game JavaScript files have been statically parsed with the map integration. The existing 3,000-piece collection code has not been changed.
+- **Limitations:** The new interaction still selects among fixed real shop anchors; truly unrestricted object dragging is a future Phase 4 goal. The map is planned for iPhone, but physical-device visual/touch QA and independent GitHub Pages propagation checks are not claimed by these simulated tests.
+
+**Next:** continue building toward 180 original decorations, add more wall display capacity and improve direct in-world decorating while preserving 24 FPS phone performance, safety of collection data and this visual placement workflow.
+
+
 ## v0.26.0 — More real shop display space and faster iPhone catalog (November 3, 2026)
 
 This Phase 4 milestone focuses on **physical placement freedom and responsive browsing**, not inflated art counts. The same **48 of 180 original hand-authored decorations** remain; all previous 104 mount IDs, historical purchases, 3,000 figures, 300 sets and [MASTER_ROADMAP_LOCKED.md](./MASTER_ROADMAP_LOCKED.md) are preserved.
