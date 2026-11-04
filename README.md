@@ -1,5 +1,33 @@
 # The Bit Bazaar — The Great Figurine Sort
 
+## v0.22.0 — Phase 4 physical shelf finishing and collector curios (Nov 3, 2026)
+This releases **36 of the 180 individually authored cosmetic decorations** specified in the approved [MASTER_ROADMAP_LOCKED.md](./MASTER_ROADMAP_LOCKED.md). The locked 180-piece category quotas and no-currency sacrifice design are unchanged. The first 28 previously authored and purchased items retain the same IDs and positions.
+
+**Eight new distinct cosmetic designs**
+- **Shelf finishes (4 / 15):** *Astral Brass Filigree* (4 perfect rows), *Ivyward Oak Lattice* (2), *Tidal Pearl Mosaic* (3), *Crimson Arcade Marquee* (5). Each has its own hand-authored 48×28 pixel texture, decorative material palette, and distinct physical geometric ornament design (stars, carved ivy, scalloped pearlescent waves, or arcade zigzags).
+- **Collector curios (4 / 10):** *The Unfinished Clockwork Heart* (3 rows), *Pocket Cosmos in a Bottle* (4), *The Paper Dragon Diorama* (2), and *Ember-Key Typewriter* (5). Each is an original transparent 32×40 pixel freestanding work with distinct silhouettes and descriptions. Curios share the existing floor display pads with lamps, plants and sculptures.
+
+**Physical shelf customization — functional implementation**
+- Appended **60 new placement anchors**, numbered **44–103**, one for every actual shelf face (both sides of 20 floor fixtures and the 20 wall shelves); previous wall, standing, rug and ceiling anchors 0–43 remain untouched.
+- The DECOR panel now offers **SHELF TRIMS** and **CURIOS** filters with real live counts, all 60 shelf-face locations in an iPhone-friendly dropdown, previous/next face controls, and **LOCATE SELECTED SHELF ON STORE MAP** for immediate spatial context.
+- A purchased shelf finish renders on all **five physical front shelf rail fascias** of the selected face using the existing perspective shelf geometry and distinctive motif strokes. These are real front-of-shelf decorative rails rather than fake or freestanding pictures. Shelf finishes do **not** consume or rearrange figurine slots and do not block cleaning, walking or picking up figurines. Unfinished/dirty shelves still show their original grime.
+- The newly attached rail-finishing renderer is called from the original `drawShelf` function in both normal and low-effects engines; drawing is culled beyond 19 floor units, with reduced detail at distance, no new image/canvas allocation per frame, and at most five tiers per visible decorated face. Shelf trims are excluded from the freestanding world-entity render list to prevent hovering icons.
+- Each original pixel thumbnail is encoded and cached **once per decoration**, avoiding repeated 36-item canvas conversion during catalog filtering, shelf navigation and re-placement.
+
+**Persistent purchases, compatibility and safety**
+- Purchases still require explicit consent and sacrifice **only current perfect rows**. Each purchased item releases ten original real figure IDs per sacrificed row to planned collision-safe floor positions; original IDs, historical collection mastery, one-figure carrying, permanent cleaning and other progress survive.
+- All eight items have permanent ownership, can be moved/stored/re-placed for free and are limited to their appropriate mount types. Two finishes cannot occupy one shelf face, and curios cannot take shelf trim positions.
+- Save key `bit-bazaar-save-v3` and optional `decor:{owned,placed}` structure are **unchanged**. The four earlier decoration mount types, original 28 items and 44 site IDs are compatible; pre-v0.22 backup files load. `assets/save-manager-v0.22.js` validates the shelf vs. floor mount distinction and prevents invalid duplicate installs.
+- Versioned full/Low FX engines `game-v0.22.0.js`, `game-v0.22.0-lowfx.js`, matching CSS and HTML and `assets/decor-expansion-v0.22.js` / `assets/decor-runtime-v0.22.js` are committed. `index.html` and the compact network-first `bit-bazaar-v0.22.0` offline worker point to the new build with optional v0.21 recovery assets.
+
+**QA before publication**
+- **18/18** catalog, authored artwork and save backup compatibility assertions passed: 36 unique ID/visual compositions, all 60 real shelf-anchor IDs, unchanged original 44 anchors, correct category quotas and rejecting invalid save imports.
+- **20/20** mocked gameplay tests passed: exact 40/20/20 scattered-figure costs, current-perfect row consumption, no double placement, free moves and storage, reload and lifetime mastery preservation, actual five-row fascia rendering, 60-face selector/map UI, category counts.
+- The JS in both normal and Low FX builds passed syntax and saved-data serializer regression checks. **Live GitHub Pages propagation, visual screenshots and physical iPhone gameplay/performance are not independently verified.**
+
+**Next:** continue remaining 144 individually authored pieces and expand from fixed decoration anchors toward richer positioning/rotation/material customization, while retaining accessible touch controls and good iPhone frame time. The final 180-item Phase 4 and all its acceptance criteria remain open until fully implemented.
+
+
 ## v0.21.0 — Phase 4 stained-glass architecture and hanging ceiling art (Nov 3, 2026)
 This release expands the true Sacrifice Catalog to **28 of 180 independently authored decorations**, introducing two *new* categories with visibly different mounting and rendering. The locked [MASTER_ROADMAP_LOCKED.md](./MASTER_ROADMAP_LOCKED.md) is unchanged. Physical-device acceptance and fully freeform interior decoration remain in progress.
 
