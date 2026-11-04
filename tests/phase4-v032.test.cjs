@@ -1,5 +1,5 @@
 'use strict';
-/* The Bit Bazaar v0.32 catalog & store-space regression tests.
+/* Archived Bit Bazaar v0.32 gallery regression — v0.33 should preserve these old assets.
  * Run: node tests/phase4-v032.test.cjs. No browser or external packages. */
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
 const assert=require('node:assert/strict');
@@ -121,7 +121,7 @@ assert.ok(beams>15&&panels===5,'custom violet shelf trim draws a unique pattern'
 assert.ok(code('game-v0.32.0.js').includes('openDecorMove:id=>'),'catalog shortcut wired standard');
 assert.ok(code('game-v0.32.0-lowfx.js').includes('openDecorMove:id=>'),'catalog shortcut wired Low FX');
 assert.ok(code('assets/decor-runtime-v0.32.js').includes('data-plan-art'),'owned card can move via map');
-const html=code('index.html'),sw=code('sw.js');
+const html=code('preview-v0.32.0.html'),sw=code('sw.js');
 for(const file of ['assets/decor-art-v0.32.js','assets/decor-sites-v0.32.js',
  'assets/decor-runtime-v0.32.js','game-v0.32.0.js','style-v0.32.0.css'])
  assert.ok(html.includes('./'+file),'index must load '+file);
@@ -129,5 +129,5 @@ assert.ok(html.indexOf('decor-art-v0.32.js')<html.indexOf('decor-sites-v0.32.js'
 assert.ok(html.indexOf('decor-sites-v0.32.js')<html.indexOf('decor-runtime-v0.32.js'),'new slots before runtime');
 for(const file of ['assets/decor-art-v0.32.js','assets/decor-sites-v0.32.js','assets/decor-runtime-v0.32.js'])
  assert.ok(sw.includes('./'+file),'offline cache must include '+file);
-assert.ok(sw.includes('bit-bazaar-v0.32.0'));
+assert.ok(sw.includes('bit-bazaar-v0.33.0'),'updated service worker includes stable v0.32 art and runtime');
 console.log('PASS Bit Bazaar v0.32: 20 unique works, 15 collision-checked anchors, exact quotas, non-destructive relocation, trim art, full/Low FX, cache integrity.');

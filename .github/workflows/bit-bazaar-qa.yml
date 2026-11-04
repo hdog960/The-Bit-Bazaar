@@ -12,33 +12,40 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: JavaScript syntax checks
+      - name: Check JavaScript syntax in both engines and active decor modules
         run: |
-          node --check game-v0.32.0.js
-          node --check game-v0.32.0-lowfx.js
+          node --check game-v0.33.0.js
+          node --check game-v0.33.0-lowfx.js
           node --check assets/decor-art-v0.32.js
+          node --check assets/decor-art-v0.33.js
           node --check assets/decor-sites-v0.32.js
-          node --check assets/decor-runtime-v0.32.js
+          node --check assets/decor-sites-v0.33.js
+          node --check assets/decor-runtime-v0.33.js
           node --check assets/decor-map-v0.31.js
           node --check assets/decor-world-v0.29.js
           node --check assets/save-manager-v0.29.js
           node --check sw.js
           node --check tests/phase4-v031.test.cjs
           node --check tests/phase4-v032.test.cjs
-      - name: Phase 4 relocation and preview regression checks
+          node --check tests/phase4-v033.test.cjs
+      - name: Verify original v0.31 movement and preview contracts
         run: node tests/phase4-v031.test.cjs
-      - name: Phase 4 artwork, capacity and save safety checks
+      - name: Verify v0.32 original art, catalog and append-only mounts
         run: node tests/phase4-v032.test.cjs
-      - name: Required regular and Low FX release assets
+      - name: Verify v0.33 art, site safety, ghost cycling and no-save preview
+        run: node tests/phase4-v033.test.cjs
+      - name: Verify launch, preview, fallback and PWA version alignment
         run: |
           test -f index.html
-          test -f preview-v0.32.0.html
-          test -f baseline-v0.32.0-lowfx.html
-          test -f style-v0.32.0.css
-          grep -q 'game-v0.32.0.js' index.html
-          grep -q 'game-v0.32.0-lowfx.js' baseline-v0.32.0-lowfx.html
-          grep -q 'decor-art-v0.32.js' index.html
-          grep -q 'decor-sites-v0.32.js' index.html
-          grep -q 'decor-runtime-v0.32.js' index.html
-          grep -q 'decorPreviewHud' index.html
-          grep -q 'bit-bazaar-v0.32.0' sw.js
+          test -f preview-v0.33.0.html
+          test -f baseline-v0.33.0-lowfx.html
+          test -f style-v0.33.0.css
+          grep -q 'game-v0.33.0.js' index.html
+          grep -q 'game-v0.33.0-lowfx.js' baseline-v0.33.0-lowfx.html
+          grep -q 'decor-art-v0.33.js' index.html
+          grep -q 'decor-sites-v0.33.js' index.html
+          grep -q 'decor-runtime-v0.33.js' index.html
+          grep -q 'decorPreviewPrevious' index.html
+          grep -q 'decorPreviewNext' index.html
+          grep -q 'decorPreviewFace' index.html
+          grep -q 'bit-bazaar-v0.33.0' sw.js

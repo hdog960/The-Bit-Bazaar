@@ -1,5 +1,48 @@
 # The Bit Bazaar — The Great Figurine Sort
 
+## v0.33.0 — Preview Carousel & Sixteen Original Works (November 4, 2026)
+
+A Phase 4 content, decoration-control and iPhone quality milestone. Continue the locked six-phase first-person figurine sorting game without adding traditional retail, sales or cash mechanics.
+
+**Sixteen hand-authored decorations — 104 / 180 total (57.8%)**
+
+The new artworks are individually pixel-authored at the same native 32×40, 40×28, 40×48 and 48×28 canvas sizes as the existing collection. All have original compositions, color design, price, item ID, description and corresponding world texture. They are **not** renamed, scaled, or recolored copies of an earlier decoration.
+
+- **Four framed scenes:** *Rainmarket at Blue Hour*, *The Glassmaker's Fox*, *The Starfold Library*, *The Mushroom Caravan*.
+- **Two architectural pieces:** *The Moonwatch Bell Tower* and *The Aquamarine Conservatory*.
+- **Three actual shelf-finish designs:** *Briarwood Gilded Rails*, *Afterhours Neon Herringbone* and *Deepsea Pearl Inlay*. Their five physical shelf tiers render with individually defined beam and inlay motifs; original shelf finish renderers remain unchanged.
+- **Three rugs:** *Cicada Path Tapestry*, *Terracotta Labyrinth Runner* and *Frost Lantern Textile*.
+- **Two ceiling ornaments:** *Porcelain Raindrop Mobile* and *Clocktower Seed Chimes*.
+- **Two standing decorations:** *Foxfire River Otter* statue and *Mooncap Bonsai* plant.
+
+The curated **NEW ARRIVALS** filter correctly contains all 16 newly authored decorations. The catalog still pages twelve cards at a time; artwork is drawn once at boot into compact canvases, not repeatedly generated in the 3D frame loop.
+
+**Six new side-corridor display pads — 190 / 190 implemented anchor IDs**
+
+Six collision-checked floor positions are added along the west and east shop passages, between shelf rows, with append-only IDs **184–189**. There are now **56 wall/endcap**, **45 floor**, **14 rug**, **15 ceiling**, and **60 shelf-finish** positions = **190 real, individually named locations**. Old anchor IDs 0–183 and all bought decorations remain unchanged. New pads are at least 4.1 world units from existing floor pads, at least 4.7 units from rugs, and outside the 40 physically modeled rack collision rectangles. There is no new collision object and no new restriction on moving, picking up or sorting the 3,000 figures.
+
+**Faster preview workflow, no monetary purchases**
+
+When previewing a moved owned decoration, the iPhone-friendly in-world preview panel now contains:
+- **‹ PREVIOUS SITE** and **NEXT SITE ›** to cycle through every compatible currently vacant location (excluding the art's present anchor and all occupied sites) without reopening the map.
+- **LOOK TOWARD** to rotate the camera *only* toward the ghost's current destination; the player is never teleported, and no item is moved.
+- A truthful **OPEN LOCATION X / Y** count and left/right/behind/straight-ahead directional guidance updated during play.
+- The existing **PLACE HERE · FREE**, **CHANGE LOCATION** and **CANCEL** options.
+
+Cycling, facing or cancelling a preview never changes the serialized `decor:{owned,placed,adjustments,room}` shape, never scatters figurines, never consumes perfected rows, and never writes a save. Real relocation revalidates ownership, mount type and vacancy, then writes exactly once on explicit confirmation. Shelf trim ghosts also use the default material tone the item will actually receive after moving, rather than incorrectly showing its old position's customized tint.
+
+**Release safety**
+
+- Standard and Low FX engines, matching preview/recovery HTML pages, cache-versioned CSS and service worker all ship with `v0.33.0`. The older v0.32.0 build remains available for fallback and recovery.
+- The unmodified `bit-bazaar-save-v3` storage key, all 300 set names and 3,000 collectible figure identities, map navigation, cleaning, hidden figures, legacy decor slot IDs and ownership records are untouched.
+- Added `tests/phase4-v033.test.cjs` to check unique canvas designs, mount counts, non-overlap, exact categorical additions, preview cycling (including blocked-site rejection), no-save cancellation, save-on-confirm, and both engine/HTML/PWA references. The existing v0.31 movement regression and archived v0.32 art regression continue running in GitHub Actions.
+- Visual behavior on the user's physical iPhone, real-home-screen cache update latency, and full-session frame time remain device QA to perform rather than verified facts.
+
+**Next milestones:** expand from 104 toward 180 originals, add more genuine floor/rug/hanging capacity ahead of the final catalog, refine freeform decorating and finish the planned Coward's Glasses/endgame stages on the locked master roadmap.
+
+---
+
+
 ## v0.32.0 — The Collector's Salon: 20 bespoke decorations, 15 new display sites, direct catalog moves (November 4, 2026)
 
 A substantial Phase 4 content-and-capacity milestone built on the verified v0.31 ghost placement preview. The game remains a cozy first-person figurine **collecting, cleaning and sorting game**, *not* a conventional merchant-management simulator.

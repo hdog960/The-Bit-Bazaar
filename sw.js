@@ -1,10 +1,10 @@
-/* The Bit Bazaar v0.32 — network-first iPhone Safari PWA.
+/* The Bit Bazaar v0.33 — network-first iPhone Safari PWA.
    Keeps local figure/decor saves in localStorage, never touches them. */
-const CACHE="bit-bazaar-v0.32.0";
+const CACHE="bit-bazaar-v0.33.0";
 const CORE=[
- "./index.html","./style-v0.32.0.css","./game-v0.32.0.js",
- "./game-v0.32.0-lowfx.js","./baseline-v0.32.0-lowfx.html",
- "./preview-v0.32.0.html",
+ "./index.html","./style-v0.33.0.css","./game-v0.33.0.js",
+ "./game-v0.33.0-lowfx.js","./baseline-v0.33.0-lowfx.html",
+ "./preview-v0.33.0.html",
  "./assets/collection.js","./assets/collection-extension.js",
  "./assets/optimized-sprites.js","./assets/figurines.png",
  "./assets/decor-v0.19.js","./assets/decor-expansion-v0.20.js",
@@ -13,15 +13,16 @@ const CORE=[
  "./assets/decor-endcaps-v0.28.js","./assets/decor-art-v0.28.js",
  "./assets/decor-art-v0.29.js","./assets/decor-art-v0.32.js",
  "./assets/decor-sites-v0.32.js",
+ "./assets/decor-art-v0.33.js","./assets/decor-sites-v0.33.js",
  "./assets/decor-workshop-v0.28.js","./assets/room-workshop-v0.24.js",
- "./assets/decor-runtime-v0.32.js","./assets/decor-map-v0.31.js",
+ "./assets/decor-runtime-v0.33.js","./assets/decor-map-v0.31.js",
  "./assets/decor-world-v0.29.js",
  "./assets/save-manager-v0.29.js","./manifest.webmanifest","./icon.png"
 ];
 const OPTIONAL=[
- "./game-v0.31.0.js","./game-v0.31.0-lowfx.js",
- "./style-v0.31.0.css","./baseline-v0.31.0-lowfx.html",
- "./assets/decor-runtime-v0.31.js","./assets/decor-map-v0.31.js",
+ "./game-v0.32.0.js","./game-v0.32.0-lowfx.js",
+ "./style-v0.32.0.css","./baseline-v0.32.0-lowfx.html",
+ "./assets/decor-runtime-v0.32.js","./assets/decor-map-v0.31.js",
  "./assets/save-manager-v0.29.js"
 ];
 self.addEventListener("install",event=>{
