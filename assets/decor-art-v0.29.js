@@ -185,6 +185,11 @@ function paint(item){
    rect(10,13,2,15,'#aed3d0');rect(26,16,2,13,'#93bec4');
    pixelStar(8,19,'#d2e7e7');pixelStar(28,14,'#b5c8da');
    rect(12,33,14,3,'#9a7c75');
+   // Tiny stormbound vessel rigging, spark reflections and glass embossing.
+   rect(14,26,2,1,'#d6ccba');rect(18,26,2,1,'#f2e1b1');
+   rect(23,28,2,1,'#e6ceab');pt(13,21,'#ecf0de');
+   rect(11,17,1,8,'#89b6bd');pt(25,22,'#fcdb9b');
+   rect(16,34,5,1,'#d6ab83');pt(18,8,'#ecd6ac');
   }else if(a==='inkwell'){
    rect(10,22,17,13,'#3e425e');rect(12,19,13,5,'#827789');
    rect(13,25,11,8,'#34384f');rect(15,29,8,2,'#e2b88c');
