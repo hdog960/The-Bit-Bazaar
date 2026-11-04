@@ -1,5 +1,35 @@
 # The Bit Bazaar — The Great Figurine Sort
 
+## v0.19.0 — Phase 4 living gallery: 12 original decorations across three categories (Nov 3, 2026)
+
+This milestone expands the first playable Sacrifice Catalog **from 3 to 12 distinct, individually authored decorations**, while keeping the locked 180-piece [MASTER_ROADMAP_LOCKED.md](./MASTER_ROADMAP_LOCKED.md) target intact. The original three paintings and all existing purchased ownership/placement IDs remain preserved.
+
+**Artwork now actually in the game (12 / 180):**
+- **Six framed wall artworks (6 / 35):** the original *The Midnight Moth*, *Rain on the Glasshouse* and *The Ember Drake*, plus the new bespoke *Clockwork Koi*, *The Stargazer's Atlas* and *Lantern Tide*. Each illustration has its own pixel composition and original collector text.
+- **Three sculptures (3 / 25):** *Copper Owl Sentinel*, *The Argent Knight* and *The Spiral Fossil* — independent silhouettes with pedestal, inlay, heraldry or carved growth bands.
+- **Three plants (3 / 20):** *Cloudfern Terrarium*, *Ruby Crown Cactus* and *Mooncap Mushrooms* — individually authored transparent 32 × 40 pixel sprites, displayed as free-standing 2.5D world objects.
+- Artwork prices are **1–7 current perfect rows**, not money. Purchases still randomly select distinct currently-perfect rows, return exactly ten original figurines per row to safe floor locations, and preserve their lifetime mastery.
+
+**Placement and interface**
+- The **◇ DECOR** panel gains functional filters for ALL, FRAMED, STATUES, PLANTS and OWNED, with actual counts rather than placeholder entries.
+- The existing **16 wall hanging points remain exactly where they were**. Added **12 open floor display pads** in corner gardens and between shelving aisles. A frame can only hang on a wall; a statue/plant can only occupy a floor pad. Display positions never overlap, and non-blocking floor decor cannot trap the player.
+- Separate wall and floor dropdowns, plus 12 numbered quick-select pad buttons, let players move furniture among available positions without paying more. Art not installed is still permanently owned and can be re-placed later.
+- Freestanding art is drawn using transparent, original pixel artwork as projected in-world sprites. It faces the viewer without adding collision geometry, sprite atlas reprocessing, or thousands of new draw calls.
+
+**Compatibility and safety**
+- The save structure remains `bit-bazaar-save-v3` with optional `decor: {owned, placed}`. Old v0.18 save files restore correctly, including the first three purchased paintings, because old IDs and 0–15 wall anchor positions are unchanged.
+- `assets/save-manager-v0.19.js` now rejects attempts to restore wall frames on floor positions or floor objects on wall positions. The existing backup, import confirmation and lifecycle save protections stay active.
+- `game-v0.19.0.js` and `game-v0.19.0-lowfx.js` both load the shared `assets/decor-v0.19.js` and `assets/decor-runtime-v0.19.js`; a matching `baseline-v0.19.0-lowfx.html` is included, and v0.18 remains an optional offline fallback.
+
+**Development checks**
+- Twelve separately authored paint instruction streams passed uniqueness and asset checks; all 12 selected floor pads were checked against the actual 40-rack collision geometry and are accessible.
+- Mock purchases and persistence passed **19/19** category, ownership, current-perfect-row, scattering, placement and save-loading tests.
+- Both new JavaScript engines passed syntax checks and retain all 3,000 collectibles and existing figure-save fields.
+- Live physical-iPhone art visibility, tapping, upload/backup behavior and longer-session performance remain to be tested by a player. The full 180-piece roster and unrestricted furnishing are **not yet complete**.
+
+**Next:** expand the catalog into additional decoration categories and introduce richer previews, finer positioning and material customization without compromising iPhone frame time.
+
+
 ## v0.18.0 — Phase 4 first playable Sacrifice Catalog gallery (Nov 3, 2026)
 This is a **small, real Phase 4 milestone: 3 of 180 original decorations now implemented**, not a claim that the final 180-piece catalog is complete. Phase 3's physical iPhone acceptance remains open. The canonical [MASTER_ROADMAP_LOCKED.md](./MASTER_ROADMAP_LOCKED.md) remains unchanged.
 
