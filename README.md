@@ -1,5 +1,34 @@
 # The Bit Bazaar — The Great Figurine Sort
 
+## v0.28.0 — Real 40-endcap gallery, 8 bespoke scenes, 169 display anchors (November 3, 2026)
+
+Phase 4 has advanced from **48 to 56 of the locked 180 individually authored decorations (31.1%)**, with 40 additional physical display hooks on the real side panels of freestanding shelving. The original 3,000 unique figures, 300 ten-piece sets, one-hand sorting, 60 five-tier shelf faces, cleaning and permanent mastery remain unchanged, as does the [MASTER_ROADMAP_LOCKED.md](./MASTER_ROADMAP_LOCKED.md). No customers, sales, currencies, or secondary progression have been introduced.
+
+**The store now has 169 usable decoration mount anchors**
+- Every one of the **20 two-sided freestanding shelf units has two real solid side/end panels**. The new `assets/decor-endcaps-v0.28.js` defines 40 independent endcap gallery hooks (IDs **129–168**) exactly along those side surfaces using the same fixture geometry as the first-person engine: center x=11+16×aisle and z=11+12×row; width 7.7 world units, with visible panel surface at x ± 3.935.
+- No earlier mount is removed, renamed or reordered: **169 = 56 wall/art/endcap hooks + 24 standing pads + 14 rugs + 15 ceiling hooks + 60 shelf-trim faces**. The 40 new wall-category hooks are **fixed narrow side-gallery portraits**: their artwork stays on the actual end panel, with an independent correctly projected 1.36-unit wide × 2.24-unit tall frame. They do **not** cover the collectible slots on the front and reverse faces of racks, add any obstacle, or interfere with the shelf cleaning system.
+- Endcap art cannot drift beyond its physical panel via the micro-position workshop: the controls explain the restriction and allow the player to **move the owned art to another gallery hook for free**. Old perimeter wall art retains its previously supported lateral adjustments. Imported backup files with illegitimate endcap offsets are rejected rather than silently changing saved artwork.
+- The interactive overhead **DECORATION MAP** now identifies **WALLS + ENDCAPS** and shows all 56 selectable wall-category pins, their occupied/available status, and an explicit *FIXED TO RACK SIDE* location description. Map selection stays non-destructive: buying and moving items still require the original separate commands.
+
+**Eight more independently painted pixel-art creations**
+- Four detailed **framed story scenes**, all original 32×40 canvas artworks: *The Moonlit Cartographer* (3 perfect rows; ocean navigator and star chart), *The Last Lantern of Autumn* (4; crimson leaves and a lit stone bridge), *Abyssal Observatory* (5; submerged telescope and fish), and *The Clockwork Orchard* (6; copper mechanical orchard).
+- Four independently drawn **architectural stained-glass pieces**, all original 40×48 canvases: *The Phoenix Rose Window* (6 perfect rows), *The Tidal Glass Archway* (5), *The Dwarven Rune Niche* (4), and *The Starsilk Cathedral Window* (7). Their distinct subjects include a red-and-gold phoenix, sea-glass wave mosaics, glowing amber runes and twin moons with woven star paths.
+- Catalog category totals are now **12 framed arts / 35** and **8 architecture / 20**. The eight new designs share the appropriate wall mount type and are newly browseable under the **✦ NEW 8** filter; the existing gallery is untouched. The WALL ART filter now correctly reports the combined 20 wall/architecture creations, rather than falsely labeling all wall content as just framed pictures.
+- All new pixel canvases are authored once at initialization and reused by the bounded existing decorator. Eight original IDs, different palettes, individually composed scenes, persistent owned art and unchanged 1–20-row cost rules are preserved. No unbounded atlas or animated sprite engine was added.
+
+**Progress, backup and iPhone protection**
+- The `bit-bazaar-save-v3` local save key and `decor:{owned,placed,adjustments,room}` structure remain identical. Earlier purchases on IDs 0–128 remain in place, original figures keep their identities, lifetime mastery stays permanent and all new purchases consume only presently perfect 1–10 rows.
+- Normal `game-v0.28.0.js`, Low FX `game-v0.28.0-lowfx.js`, shared `assets/decor-runtime-v0.28.js`, `assets/decor-map-v0.28.js`, `assets/decor-workshop-v0.28.js`, `assets/save-manager-v0.28.js`, matching HTML and `style-v0.28.0.css` are versioned. The site `index.html` references these in the correct order.
+- The network-first offline `bit-bazaar-v0.28.0` service worker precaches each asset separately; an unavailable optional or noncritical file cannot fail the entire installation. Previous release files remain best-effort fallback. The worker does not read, write or delete player saves.
+- **16/16** geometry/unique-art checks passed: all 56 paintings use distinct brush operations, the eight new scenes have rich original pixel drawing detail, all 40 endcaps align to the actual side panels, and every earlier mount remains untouched.
+- **30/30** integrated purchase/map/restore checks passed: four test purchases spent exactly 15 currently perfect rows and scattered **150 unique original figurine IDs**, old perimeter art continued working, new art remained aligned to real end panels, explicit free relocation and saves survived reload, and the overhead map respected occupied sites and safe destination selection.
+- **12/12** build checks passed, including JS syntax, correct normal and Low FX dependency order, unchanged 3,000-figure model, old save serialization and existing room-finish walk-around preview.
+
+**Not yet verified:** Direct visual QA in a physical iPhone Safari session and independent GitHub Pages deployment propagation are not established by these static and simulated tests. The game still uses safe fixed decoration anchors rather than full drag-anywhere freeform placing.
+
+**Next:** improve visible endcap hardware/lighting and mobile map navigation, continue building the **124 remaining individually authored** decorations, and eventually make in-world furniture editing direct, touch-friendly and performance-safe.
+
+
 ## v0.27.0 — Interactive decoration placement map (November 3, 2026)
 
 A substantial Phase 4 usability release: **visualize every available display position on the existing real-time shop map, check occupancy, then choose a physical placement location without buying or moving anything accidentally.** The existing **48 of 180 original artworks**, 129 display anchors, 60 five-tier shelf faces, full 3,000-figure inventory and locked [MASTER_ROADMAP_LOCKED.md](./MASTER_ROADMAP_LOCKED.md) remain unchanged.
