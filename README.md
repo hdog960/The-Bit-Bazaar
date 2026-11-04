@@ -1,5 +1,24 @@
 # The Bit Bazaar — The Great Figurine Sort
 
+## v0.31.0 — Real world-space ghost previews for owned artwork (November 4, 2026)
+
+The next Phase 4 milestone extends v0.30's direct relocation map into an actual **walk-around 3D placement preview**, without sacrificing shelf rows or writing a single save until the player confirms.
+
+- Aim at a purchased and displayed decoration, tap **↔ MOVE ART**, pick a compatible, vacant anchor on the existing accurate overhead map, then choose **👁 PREVIEW IN STORE**. **✓ MOVE NOW · FREE** still supports immediate placement as before.
+- In preview mode the player returns to first-person walking, with the original item still installed and a semi-transparent rendering of its original pixel art at the destination. Ghosts use the existing scene perspective and occlusion ordering, reused texture canvases and one bounded candidate per preview; no new texture atlases, mesh collisions or save schema fields.
+- A compact, iPhone-friendly preview HUD identifies the decoration and its proposed destination, gives approximate travel distance, and offers **PLACE HERE · FREE**, **CHANGE LOCATION**, or **CANCEL**. Change Location reopens the map with the previously selected destination. Desktop **T** targets MOVE ART, **Enter** confirms a preview, and **Escape** discards it.
+- Rug previews use the zero-degree default that actual relocation applies, rather than carrying old orientation from the original anchor. Shelf-material preview paints the target shelf's fascia while leaving the current installed material untouched until confirmed.
+- A preview never changes `decor:{owned,placed,adjustments,room}`, costs no row, modifies no floor positions, and never persists to `bit-bazaar-save-v3`. Cancelling, closing the viewer or switching to another menu clears transient preview state. The existing owned-item move command validates available mounts again and saves only on an explicit confirmation.
+- All 68 original decorations and 169 physical anchors remain unchanged. Both regular and Low FX engines, updated 3D runtime and map, preview/recovery HTML, responsive CSS, and network-first service worker share matching v0.31.0 references. Previous v0.30 assets remain optional fallback.
+- Added **`tests/phase4-v031.test.cjs`**, an isolated runnable Node regression test covering invalid sites, ownership, exact preview position, no-save cancellation, move confirmation, ghost drawing opacity, map-to-world flow and direct-move compatibility. The GitHub Actions QA workflow syntax-checks both engines and the release assets.
+
+**Validation boundary:** Code and regression contracts are provided, but actual iPhone Safari visual interaction and long-session framerate are still subject to hands-on testing. This milestone is a selectable world ghost at physically valid mounts, not yet arbitrary drag-anywhere furnishing.
+
+**Next:** expand mounting and authored art breadth toward 180, iterate the one-hand placement controls, and confirm all three completion journeys remain safe.
+
+---
+
+
 ## v0.30.0 — Aim-to-move artwork, destination previews and free relocation (November 4, 2026)
 
 The next Phase 4 milestone makes already-owned decorations easier to reposition directly from inside the store, without requiring the player to search their full collection.
