@@ -1,5 +1,37 @@
 # The Bit Bazaar — The Great Figurine Sort
 
+## v0.25.0 — Twelve original collector artworks and better browsing (November 3, 2026)
+
+Phase 4 has advanced to **48 / 180 independently authored decorations** (26.7% by item count). The original 36 decorations, all 104 prior mount positions, the `bit-bazaar-save-v3` format, 3,000 unique figurines, 300 ten-figure collections, optional room finish workshop and original locked [MASTER_ROADMAP_LOCKED.md](./MASTER_ROADMAP_LOCKED.md) are unchanged.
+
+**Twelve individual hand-authored pixel designs across six categories**
+- **Framed Art — 8 / 35:** *The Foxfire Railway* (3 perfect rows) is a copper-lantern steam train crossing a glowing forest; *Keeper of the Deep* (6) is an underwater clock tower with fish and marine vegetation. Both are separately drawn 32×40 story scenes.
+- **Statues — 5 / 25:** *The Moss-Crowned Golem* (8) has granite arms, moss, etched markings and a wildflower; *The Porcelain Fox* (4) features glazed ceramic fur, gold repair seams and a jade base.
+- **Plants — 5 / 20:** *Twilight Bonsai* (4) is a twisted tree with amethyst leaves and starlight blossoms; *Honeybell Orchid* (3) features hanging golden flowers, emerald stems and a small copper bee.
+- **Lighting — 6 / 20:** *The Firefly Jar Lamp* (2) contains individually positioned warm firefly lights and a smoked-glass vessel; *The Observatory Beacon* (7) is a taller astronomical signal lamp with etched brass and teal glass.
+- **Rugs — 6 / 20:** *Patchwork Dragon Quilt* (3) is a 40×28 crimson patchwork with a dragon emblem; *Winter Observatory Carpet* (5) is a deep-blue floor textile with silver sextant/snowflake imagery.
+- **Ceiling ornaments — 6 / 15:** *Singing Shell Cascade* (4) is a suspended array of pearls, shell forms and sea-glass chimes; *The Clockmaker's Comet* (6) is a copper-clockwork comet with staggered enamel and brass trails.
+- Existing **Architecture 4/20, Shelf Trims 4/15 and Curios 4/10** remain in-game. All nine category targets still total 180.
+
+**Better browsing and no broken purchases**
+- A **✦ NEW 12** tab displays only the twelve additions, while the rest of the catalog remains available under ALL, each category, and OWNED.
+- A thumb-sized **ORIGINAL ORDER / LOWEST COST / HIGHEST COST** sorter helps players choose the next sacrifice. Sorting is local to the view, never changes collection IDs, art ownership or pricing.
+- The six category pairs use their original existing wall, standing-pad, rug or ceiling mount types. Existing purchased artwork stays put when a version is updated.
+- Every purchase still requires confirmation (unless internal test mode) and spends only **currently perfect** ten-piece rows. Each sacrificed row returns all ten original figure IDs to collision-tested shop floor locations; historical perfection is not lost. Previously purchased decorations can be stored or moved for free.
+
+**Compatibility, delivery and testing**
+- New artwork is produced once at startup in individual small pixel canvases, never regenerated per frame. It uses the existing projection and sprite placement system; no expensive new floor atlas or blocking collision geometry was added.
+- `assets/decor-expansion-v0.25.js` extends the 36-piece catalog append-only, with 12 new unique IDs and a thumbnail cache. `assets/decor-runtime-v0.25.js` adds the NEW filter and sorting. `assets/save-manager-v0.25.js` preserves the exact previous backup validation rules and accepts the new item IDs through the live catalog.
+- Versioned normal `game-v0.25.0.js`, Low FX `game-v0.25.0-lowfx.js`, CSS, preview and Low FX recovery HTML are committed. `index.html` and the network-first offline `bit-bazaar-v0.25.0` worker reference the matching release, keeping best-effort v0.24 recovery assets.
+- **13/13 artwork/metadata validations passed**, including distinct 48-artwork drawing streams, 12 detailed new compositions, prices, dimensions, and existing anchor preservation.
+- **20/20 simulated purchase/ownership/menu tests passed:** six new categories + one existing purchase consumed exactly 25 perfect rows and scattered **250 unique original figurines**, restored seven owned items from save, validated room metadata, and demonstrated the NEW, cheapest and highest-cost sorts.
+- **12/12 build checks passed** for standard/Low FX syntax, exact save serialization, original 3,000-figure game, dependency order, and the existing room-material workshop.
+
+**Outstanding:** Live GitHub Pages propagation, real iPhone performance, and actual in-Safari visual verification are not claimed by these programmatic tests. The 180-piece catalog target still needs **132** more bespoke decorations; fully freeform placement remains a future goal.
+
+**Next milestone:** improve variety, placement capacity and direct scene editing while continuing original decoration batches toward the full 180-piece roster.
+
+
 ## v0.24.0 — Live room-finish customization and reversible walk-around preview (November 3, 2026)
 
 **The 36 original Sacrifice Catalog decorations and the locked 180-item roadmap are unchanged.** This milestone improves interior customization without new purchases, coins, customer systems, or any further sacrifices. [MASTER_ROADMAP_LOCKED.md](./MASTER_ROADMAP_LOCKED.md) remains authoritative.
