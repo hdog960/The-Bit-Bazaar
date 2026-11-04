@@ -26,7 +26,7 @@ const NEW=[
 const RUG_SLOTS=[
  [7,16,'WEST · ENTRY WALK'],[63,16,'EAST · ENTRY WALK'],
  [7,41,'WEST · MIDSTORE'],[63,41,'EAST · MIDSTORE'],
- [7,59,'WEST · BACK WALK'],[63,59,'EAST · BACK WALK'],
+ [5,59,'WEST · BACK WALK'],[65,59,'EAST · BACK WALK'],
  [35,7,'NORTH · WELCOME'],[35,66,'SOUTH · EXIT']
 ].map(([x,z,name],i)=>({id:28+i,kind:'rug',side:'FLOOR',name:name+' RUG SITE',x,z}));
 function drawLamp(item){
