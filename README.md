@@ -1,5 +1,39 @@
 # The Bit Bazaar — The Great Figurine Sort
 
+## v0.29.0 — Aim-to-edit decorations and 12 more original artworks (November 4, 2026)
+
+A longer Phase 4 development milestone adding **twelve genuinely different painted pixel decorations** and the first **direct first-person artwork editor**, without disrupting 3,000 collectible figurines or existing saved players.
+
+**New in-world decoration interaction**
+- Stand near a displayed artwork (within nine world units), aim the central reticle at the actual rendered painting, statue, plant, lamp, rug, hanging ornament, architectural feature or collector curio, and the game reveals a small **◇ EDIT ART** button with its correct item and display location. On desktop, press **R** while an artwork is targeted; on iPhone, tap the new 44+px button.
+- The exact same perspective geometry already used to render each decor is used for selection, including real rack-end hanging orientations, quarter-unit position adjustments, 90-degree rug rotations and suspended objects. The targeter uses a bounded nine-unit distance and delegates visibility checks to the current shelf-occlusion code; paintings on the far side of a rack cannot be selected through solid shelving.
+- Core gameplay has precedence: if the reticle is on a figurine, shelf slot or cleaning target, the standard pickup/clean/placement action remains unchanged. The ART button does **not** override E, space, the mobile action button, or inspect-figurine. Ordinary shelf-rail trims remain available through DECOR, not by hijacking shelf-row targets.
+- Selecting **EDIT ART** sets the existing Sacrifice Catalog to **OWNED**, finds the correct page automatically, highlights the actual installed artwork's card, and scrolls it into view once. From there the original safe **PLACE / MOVE**, **STORE**, micro-position, rotation and shelf-material actions remain available, with all their previous costs and checks. No art purchase, storage change, relocation, row sacrifice or save write occurs simply from targeting or opening.
+- `assets/decor-world-v0.29.js` is a small first-person ray/perspective selector; it only checks installed artwork and allocates no new canvases or textures while walking. It is initialized once in each of the two game engines. `assets/decor-runtime-v0.29.js` provides the non-destructive owned-item catalog focus, keeping browse, filters, 12-card pages and all 169 available physical anchors.
+
+**Twelve new individually authored pixel-art pieces — 68 / 180 total**
+- **Statues / 7 of 25:** *Ivory Stag Automaton* (7 perfect rows) is a pale ceramic stag with branching copper antlers and a clockwork heart. *The Lantern Librarian* (5) is a stone scholar with tiny scarlet books and an illuminated handheld lamp.
+- **Plants / 7 of 20:** *Velvet Sundew* (3) features scarlet leaves, luminous pearled dew and a midnight planter. *Copperleaf Fern* (4) depicts a multi-branch plant with jade/copper fronds and a painted blue pot.
+- **Lighting / 8 of 20:** *Celestial Globe Lamp* (6) is an illuminated planetary model inside metallic orbital rings. *Winter Hearth Lantern* (4) has ice-encrusted glazing surrounding a warmly glowing candle.
+- **Rugs / 8 of 20:** *The Alchemist's Checker Runner* (4) combines potion, key and rune panels within a burgundy textile. *Midnight Koi Tapestry* (6) draws two pale koi in a deep teal wave and lily-pad motif.
+- **Ceilings / 8 of 15:** *Aurora Paper Crane Mobile* (5) comprises independently colored hanging origami birds on a willow ring. *Brass Rain Chandelier* (8) suspends individually colored crystal raindrops from nested brass arcs.
+- **Curios / 6 of 10:** *Pocket Storm in a Bottle* (3) is a little thundercloud, lightning and ship trapped in a glass vessel. *The Inkwell Planetarium* (7) contains golden planets, drawn orbits and a bright silver quill.
+- The original **12 framed artworks / 35**, **8 architecture pieces / 20**, and **4 shelf trims / 15** remain intact, and all nine categories still sum to the approved `180` designs.
+- `assets/decor-art-v0.29.js` appends exactly 12 new art IDs to the previous 56 (no rename/reorder). Each has its own 32×40, 40×28, or 40×48 authored canvas and descriptive story. The existing 169 physical mounts, 300 ten-piece sets, 60 five-tier shelf faces, 45 cleaning messes and 18 hidden original figurines remain intact.
+
+**Progress and stability**
+- Save storage key `bit-bazaar-save-v3`, current/lifetime perfect distinctions, permanent owned artwork, `decor:{owned,placed,adjustments,room}`, existing material presets and walk-around preview remain unchanged. Nothing generates a duplicate figure or creates a new currency/shop-management mechanic.
+- The normal `game-v0.29.0.js` and emergency `game-v0.29.0-lowfx.js` both integrate the same selector and retain the existing safe FPS rollback. Responsive `style-v0.29.0.css`, mobile preview/fallback HTML, `assets/decor-runtime-v0.29.js`, and `assets/save-manager-v0.29.js` have matching version references.
+- The main `index.html` and network-first offline cache `bit-bazaar-v0.29.0` are updated to include the new gallery and world selector, with best-effort v0.28 recovery assets and **no service worker access to player localStorage**.
+
+**Programmatic acceptance testing**
+- **15/15** original artwork/target tests passed: the twelve new sprites were all different, retained the same 169 anchors, used 35+ distinct pixel operations each, preserved the 180 design quotas, and the first-person selector correctly handled visible floor, endcap, rug and ceiling objects while rejecting through-shelf and off-reticle targets.
+- **24/24** integrated mock gameplay tests passed: six newly added original pieces consumed exactly **28 presently perfect rows**, returning precisely **280 unique original figurines** to floor positions, preserving 60 lifetime achievements and successfully re-importing the save. The exact owned item opened from a target highlight without modifying the save, with only one automatic scroll.
+- **Device verification outstanding:** Real GitHub Pages propagation, direct visual inspection in Safari and physical iPhone gesture/performance QA remain unverified by simulated code tests. This is functional fixed-anchor editing and **not yet full free-drag furnishing**.
+
+**Next development targets:** improve in-world preview and repositioning, continue adding the **112 remaining original decorations**, and move toward full 180-item display capacity while keeping iPhone performance and the no-commerce collectible-first design protected.
+
+
 ## v0.28.0 — Real 40-endcap gallery, 8 bespoke scenes, 169 display anchors (November 3, 2026)
 
 Phase 4 has advanced from **48 to 56 of the locked 180 individually authored decorations (31.1%)**, with 40 additional physical display hooks on the real side panels of freestanding shelving. The original 3,000 unique figures, 300 ten-piece sets, one-hand sorting, 60 five-tier shelf faces, cleaning and permanent mastery remain unchanged, as does the [MASTER_ROADMAP_LOCKED.md](./MASTER_ROADMAP_LOCKED.md). No customers, sales, currencies, or secondary progression have been introduced.
