@@ -1,21 +1,22 @@
-/* The Bit Bazaar v0.26 — network-first, mobile offline shell. No save data is handled here. */
-const CACHE="bit-bazaar-v0.26.0";
+/* The Bit Bazaar v0.27 — network-first iPhone PWA.
+   No service worker reads, writes, or migrates the player's local save data. */
+const CACHE="bit-bazaar-v0.27.0";
 const CORE=[
- "./index.html","./style-v0.26.0.css","./game-v0.26.0.js",
- "./game-v0.26.0-lowfx.js","./baseline-v0.26.0-lowfx.html",
+ "./index.html","./style-v0.27.0.css","./game-v0.27.0.js",
+ "./game-v0.27.0-lowfx.js","./baseline-v0.27.0-lowfx.html",
  "./assets/collection.js","./assets/collection-extension.js",
  "./assets/optimized-sprites.js","./assets/figurines.png",
  "./assets/decor-v0.19.js","./assets/decor-expansion-v0.20.js",
  "./assets/decor-expansion-v0.21.js","./assets/decor-expansion-v0.22.js",
  "./assets/decor-expansion-v0.25.js","./assets/decor-sites-v0.26.js",
  "./assets/decor-workshop-v0.23.js","./assets/room-workshop-v0.24.js",
- "./assets/decor-runtime-v0.26.js","./assets/save-manager-v0.26.js",
- "./manifest.webmanifest","./icon.png"
+ "./assets/decor-runtime-v0.27.js","./assets/decor-map-v0.27.js",
+ "./assets/save-manager-v0.27.js","./manifest.webmanifest","./icon.png"
 ];
 const OPTIONAL=[
- "./game-v0.25.0.js","./game-v0.25.0-lowfx.js",
- "./style-v0.25.0.css","./baseline-v0.25.0-lowfx.html",
- "./assets/decor-runtime-v0.25.js","./assets/save-manager-v0.25.js"
+ "./game-v0.26.0.js","./game-v0.26.0-lowfx.js",
+ "./style-v0.26.0.css","./baseline-v0.26.0-lowfx.html",
+ "./assets/decor-runtime-v0.26.js","./assets/save-manager-v0.26.js"
 ];
 self.addEventListener("install",event=>{
  event.waitUntil(caches.open(CACHE).then(async cache=>{
