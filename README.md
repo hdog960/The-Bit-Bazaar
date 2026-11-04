@@ -1,5 +1,37 @@
 # The Bit Bazaar — The Great Figurine Sort
 
+## v0.26.0 — More real shop display space and faster iPhone catalog (November 3, 2026)
+
+This Phase 4 milestone focuses on **physical placement freedom and responsive browsing**, not inflated art counts. The same **48 of 180 original hand-authored decorations** remain; all previous 104 mount IDs, historical purchases, 3,000 figures, 300 sets and [MASTER_ROADMAP_LOCKED.md](./MASTER_ROADMAP_LOCKED.md) are preserved.
+
+**25 additional, physically grounded display sites**
+- Expanded from **104 to 129 original world placement anchors**, append-only IDs **104–128**. This adds **12 freestanding display pads** (24 total), **6 floor-rug sites** (14 total), and **7 ceiling hanging hooks** (15 total). All 60 shelf-face finishes and 16 wall-art hooks remain unchanged.
+- The 12 additional standing sites occupy clear west/east side passages and front/rear store aisles, rather than blocking the 20 floor racks or 20 wall racks. More purchased plants, curios, lamps and statues can be shown simultaneously.
+- Six new carpet sites lie between existing racks in the north and south aisle-crossings. Their full 4.4×2.96-footprint grid (including corners) was checked against the **same 40 physical fixture rectangles** used in the actual game, with perimeter clearance. They retain actual floor projection and rotation, with existing old rugs grandfathered.
+- Seven additional ceiling hanging points are above open aisles and separated from existing ceiling fixtures. The ceiling count is now **15**, matching the final locked ceiling decoration item quota.
+- Every new mount uses the previous 2.5D decoration projection with no additional collision boxes, floors, objects generated per frame, full-scene texture replacements or larger sprite atlases. This is not an assertion that all future 180 pieces can be installed simultaneously.
+
+**Faster, touch-friendly Sacrifice Catalog**
+- **12 decoration cards per page** instead of rendering all 48 into the drawer at once. PREVIOUS / NEXT controls appear before and after the visible cards, with explicit page numbers and item ranges. New Arrivals, category tabs and LOWEST/HIGHEST COST sort all reset browsing to the first page. When switching pages, the screen returns to the start of the actual card list.
+- Five dedicated **NEXT OPEN** buttons locate the next available wall hook, floor pad, rug site, ceiling hook or shelf-face trim. They wrap around the eligible locations, skipping occupied sites, without purchasing, moving or overwriting anything. They also show an informative notice when every eligible spot is occupied.
+- A live vacancy summary in the DECOR header displays the true number of free wall, floor, rug, ceiling and shelf mounts. Quick-select floor, rug and ceiling badges now show **correct category-ordinal numbers**, including new sites (e.g., R14 and C15), rather than confusing raw global slot IDs.
+- Buttons have 44–48px minimum touch heights, designed for Safari/Home Screen use. The four individual room material themes, walk-around preview, micro-placement, rug rotation and shelf material finishes remain intact.
+
+**Data safety and acceptance**
+- All previously bought art remains permanently owned at the **exact same slot IDs**. Save key `bit-bazaar-save-v3` and `decor:{owned,placed,adjustments,room}` shape are unchanged. New locations are appended only; earlier 0–103 entries are not reordered or modified.
+- `assets/decor-sites-v0.26.js` tests collision clearance as the catalog initializes, then adds exactly 25 new sites. `assets/decor-runtime-v0.26.js` provides the paged menu and vacancy finder while keeping the original purchase, transfer and world-rendering logic. `assets/save-manager-v0.26.js` validates all 129 positions against item mount kinds and continues to accept earlier saves.
+- A defensive guard now rejects non-finite figure scatter coordinates before a purchase can write localStorage. Actual purchases still spend **only currently perfect** rows and scatter exactly 10 existing figure IDs for each sacrificed row.
+- Standard `game-v0.26.0.js`, Low FX `game-v0.26.0-lowfx.js`, matching CSS, standard preview and emergency low-effects HTML are committed. The live `index.html` and network-first offline `bit-bazaar-v0.26.0` worker reference all v0.26 assets with best-effort v0.25 fallback.
+
+**Verification**
+- **11/11 anchor/geometry checks** passed: 129 total positions, 104 original IDs preserved, 12 standing + 6 rug + 7 ceiling, correct final category totals and no duplicate or out-of-room display coordinates.
+- **21/21 integrated mocked transaction/menu tests** passed after using exact in-game rack geometry: four purchases used 14 currently perfect rows, scattered exactly **140 unique figure IDs**, preserved the player's lifetime mastery, correctly saved new slots and placement adjustments, restored them after reload, and validated the purchased save.
+- **12/12 full/Low FX build checks** passed, including unchanged core figure serialization, preserved 3,000-piece game, properly ordered catalog module dependencies, responsive controls and matching Low FX fallback.
+- Live GitHub Pages deployment propagation, physical iPhone testing and direct visual screenshot QA **remain unverified**; these are programmatic QA results and not a claim of an actual hands-on playtest.
+
+**Next milestones:** keep adding individually authored decorations toward 180, expand decorative wall layout options, provide more direct in-world selection and make display capacity approach the full original-art collection without slowing iPhone rendering.
+
+
 ## v0.25.0 — Twelve original collector artworks and better browsing (November 3, 2026)
 
 Phase 4 has advanced to **48 / 180 independently authored decorations** (26.7% by item count). The original 36 decorations, all 104 prior mount positions, the `bit-bazaar-save-v3` format, 3,000 unique figurines, 300 ten-figure collections, optional room finish workshop and original locked [MASTER_ROADMAP_LOCKED.md](./MASTER_ROADMAP_LOCKED.md) are unchanged.
