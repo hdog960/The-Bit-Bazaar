@@ -1,7 +1,7 @@
 # The Bit Bazaar — The Great Figurine Sort
 
 ## v0.18.0 — Phase 4 first playable Sacrifice Catalog gallery (Nov 3, 2026)
-This is a **small, real Phase 4 milestone**, not a claim that the final 180-piece catalog is complete. Phase 3's physical iPhone acceptance remains open. The canonical [MASTER_ROADMAP_LOCKED.md](./MASTER_ROADMAP_LOCKED.md) remains unchanged.
+This is a **small, real Phase 4 milestone: 3 of 180 original decorations now implemented**, not a claim that the final 180-piece catalog is complete. Phase 3's physical iPhone acceptance remains open. The canonical [MASTER_ROADMAP_LOCKED.md](./MASTER_ROADMAP_LOCKED.md) remains unchanged.
 
 **Three completely original framed-pixel-art gallery pieces, out of the required 35 framed items / 180 total:**
 - **The Midnight Moth:** an astral moth in a golden frame, costing **2 currently PERFECT rows** (exactly 20 figurines re-scattered).
