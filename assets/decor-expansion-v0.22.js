@@ -148,11 +148,20 @@ function pixelArt(item){
 }
 const textures=new Map(NEW.map(item=>[item.id,pixelArt(item)]));
 if(textures.size!==8||SHELF_SLOTS.length!==60)throw Error('v0.22 expansion incomplete');
+// Cache all 36 thumbnail data URIs lazily. Browsing or relocating decorations
+// on iPhone must not repeatedly encode dozens of tiny canvases.
+const thumbnailCache=new Map();
+function thumbnail(id){
+ if(thumbnailCache.has(id))return thumbnailCache.get(id);
+ const canvas=textures.get(id),value=canvas?canvas.toDataURL('image/png'):previous.thumbnail(id);
+ if(value)thumbnailCache.set(id,value);
+ return value;
+}
 window.BIT_BAZAAR_DECOR=Object.freeze({
  items:Object.freeze([...previous.items,...NEW]),
  slots:Object.freeze([...previous.slots,...SHELF_SLOTS]),
  quotas:previous.quotas,
  texture:id=>textures.get(id)||previous.texture(id),
- thumbnail:id=>textures.has(id)?textures.get(id).toDataURL('image/png'):previous.thumbnail(id)
+ thumbnail
 });
 })();
