@@ -2213,6 +2213,9 @@ function frame(now){
 // Desktop WASD, mouse drag (no pointer lock required); click/tap on rendered object.
 window.addEventListener('keydown',e=>{
  if(e.code==='Escape'){if(!$('roomPreviewHud').hidden){decorEngine.room.back();return;}if(modal==='inspect')closeInspection();else if(modal)closeDrawer();else if($('confirm').hidden===false)$('confirm').hidden=true;return}
+ if(!$('roomPreviewHud').hidden&&['Tab','KeyI','KeyM','KeyF'].includes(e.code)){
+  e.preventDefault();return;
+ }
  if(e.target.tagName==='INPUT')return;
  if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Space','Tab'].includes(e.code))e.preventDefault();
  keys.add(e.code);if(e.code==='ShiftLeft'||e.code==='ShiftRight')shift=true;
