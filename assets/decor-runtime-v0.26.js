@@ -78,7 +78,8 @@ function create(api){
       x=f.x+f.nx*face*(f.depth/2+forward)+f.ux*lateral;
       z=f.z+f.nz*face*(f.depth/2+forward)+f.uz*lateral;
      }else{x=2.3+Math.random()*65.4;z=2.3+Math.random()*69.4;}
-     if(api.blocked(x,z,.32)||api.crowded(x,z)||
+     if(!Number.isFinite(x)||!Number.isFinite(z)||
+        api.blocked(x,z,.32)||api.crowded(x,z)||
          occupied.some(p=>(p.x-x)**2+(p.z-z)**2<.28))continue;
      position={x,z};break;
     }
