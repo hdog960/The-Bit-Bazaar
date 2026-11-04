@@ -1,5 +1,44 @@
 # The Bit Bazaar — The Great Figurine Sort
 
+## v0.32.0 — The Collector's Salon: 20 bespoke decorations, 15 new display sites, direct catalog moves (November 4, 2026)
+
+A substantial Phase 4 content-and-capacity milestone built on the verified v0.31 ghost placement preview. The game remains a cozy first-person figurine **collecting, cleaning and sorting game**, *not* a conventional merchant-management simulator.
+
+**20 truly individual original pixel artworks — 88 / 180 total (48.9%)**
+
+Each new composition is painted once into a tiny 32×40, 40×28, 40×48 or 48×28 canvas, with its own original silhouette, pixel details, palette, description and 1–20-perfect-row price. These are not color variants of previous paintings or statues.
+
+- **Framed story art — 17 / 35:** *The Emberglass Teahouse*, *The Ferryman of Lost Stars*, *The Glacier Clock Railway*, *Foxes & Ink*, *The Opal Skywhale*.
+- **Statues — 10 / 25:** *The Cinder Astronomer*, *The Opal Stone Turtle*, *The Wind-up Raven*.
+- **Plants — 9 / 20:** *Whisperglass Moss Garden*, *Saffron Coral Vine*.
+- **Lighting — 10 / 20:** *Hushfire Streetlamp*, *Jellymoon Lantern*.
+- **Rugs — 10 / 20:** *The Ember Maze Rug*, *Astral Orchard Carpet*.
+- **Architectural art — 10 / 20:** *Meteorite Glass Portal*, *Moss Cathedral Niche*.
+- **Ceilings — 10 / 15:** *Moonfall Bell Garland*, *Thistledown Orbit Mobile*.
+- **Shelf finishes — 5 / 15:** *Violet Stained Scrollwork*. Added a fully separate amethyst/silver floral inlay renderer for its physical five-tier fascia; the original four rail patterns are unchanged.
+- **Collector curios — 7 / 10:** *Clockfish Aquarium*.
+
+**A store that can actually display the collection**
+
+- 15 new independently targetable, **collision-checked floor pads** in three central aisles across all five floor-rack rows. Exact append-only IDs **169–183**, leaving all 169 existing anchors and saved artwork locations untouched.
+- **184 real placement anchors = 56 walls/endcaps + 39 standing floor pads + 14 rugs + 15 ceilings + 60 shelf-face trim sites.** This supports all 36 currently planned/available floor-mounted artworks at once while retaining three spare floor positions. Continued expansion toward the 180-piece final catalog remains necessary.
+- Every new floor pad is at least four world units from older floor pads and other newly added pads, and stays clear of all 40 actual rack collision rectangles. No collision objects, virtual walls or heavy new textures are introduced; the locations are already accessible through the real overhead decoration map.
+- Players can now choose **⌖ MAP MOVE** directly from an installed owned artwork's paginated catalog card. It opens the pre-filtered relocation map without needing to first find the decoration with the world reticle. **PLACE/MOVE** and **STORE**, the original world-edit shortcut, and the v0.31 ghost-preview flow remain available. Stored items cannot use the map-move shortcut until first installed.
+- The NEW ARRIVALS filter now includes **all twenty** freshly authored pieces rather than silently omitting eight; paging stays capped at 12 cards per page. Transparent previews of the new violet shelf trim appear on the selected physical shelf only until explicitly confirmed.
+
+**Safety, iPhone support and validation**
+
+- Normal and Low FX `game-v0.32.0` engines share the changes. `assets/decor-art-v0.32.js` appends the artworks, followed by `assets/decor-sites-v0.32.js` appending sites, before `assets/decor-runtime-v0.32.js` initializes. All launch, preview, Low FX recovery, CSS and network-first service worker references match v0.32.0. v0.31 runtime and recovery files remain available as optional fallback.
+- The original `bit-bazaar-save-v3` key, `decor:{owned,placed,adjustments,room}` shape, 300 named perfectible sets, 3,000 unique figure IDs and the one-figure inventory remain unchanged. Existing art ownership and slot IDs are never renumbered. Sacrifice purchases still cost only **currently** perfect rows and scatter exactly ten existing figures per sacrificed row, not new figure identities.
+- Added `tests/phase4-v032.test.cjs` to assert 20 independently painted canvases, art/slot ID preservation, category quotas, 15 valid appended mounts, floor capacity, non-destructive ghost previews, purple rail rendering, movement persistence, full/Low FX integration and worker asset ordering. Existing v0.31 relocation tests remain mandatory in the GitHub Actions workflow.
+- **Not automatically certified on physical iPhone:** Browser tap geometry, final Pages propagation, sustained device performance and every new visual appearance still require physical iPhone review. The new anchors are fixed and offset-adjustable, not completely free-drag furnishing.
+
+**Next:** build more of the remaining **92** original artworks and further display capacity as needed, then deepen visual drag-position affordances and game-wide iPhone QA without changing the locked six-phase design.
+
+---
+
+
+
 ## v0.31.0 — Real world-space ghost previews for owned artwork (November 4, 2026)
 
 The next Phase 4 milestone extends v0.30's direct relocation map into an actual **walk-around 3D placement preview**, without sacrificing shelf rows or writing a single save until the player confirms.

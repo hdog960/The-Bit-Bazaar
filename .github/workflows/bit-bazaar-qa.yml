@@ -14,24 +14,31 @@ jobs:
           node-version: '22'
       - name: JavaScript syntax checks
         run: |
-          node --check game-v0.31.0.js
-          node --check game-v0.31.0-lowfx.js
-          node --check assets/decor-runtime-v0.31.js
+          node --check game-v0.32.0.js
+          node --check game-v0.32.0-lowfx.js
+          node --check assets/decor-art-v0.32.js
+          node --check assets/decor-sites-v0.32.js
+          node --check assets/decor-runtime-v0.32.js
           node --check assets/decor-map-v0.31.js
           node --check assets/decor-world-v0.29.js
           node --check assets/save-manager-v0.29.js
           node --check sw.js
-      - name: Phase 4 regression checks
+          node --check tests/phase4-v031.test.cjs
+          node --check tests/phase4-v032.test.cjs
+      - name: Phase 4 relocation and preview regression checks
         run: node tests/phase4-v031.test.cjs
-      - name: Required release assets
+      - name: Phase 4 artwork, capacity and save safety checks
+        run: node tests/phase4-v032.test.cjs
+      - name: Required regular and Low FX release assets
         run: |
           test -f index.html
-          test -f preview-v0.31.0.html
-          test -f baseline-v0.31.0-lowfx.html
-          test -f style-v0.31.0.css
-          grep -q 'game-v0.31.0.js' index.html
-          grep -q 'game-v0.31.0-lowfx.js' baseline-v0.31.0-lowfx.html
-          grep -q 'decor-map-v0.31.js' index.html
-          grep -q 'decor-runtime-v0.31.js' index.html
+          test -f preview-v0.32.0.html
+          test -f baseline-v0.32.0-lowfx.html
+          test -f style-v0.32.0.css
+          grep -q 'game-v0.32.0.js' index.html
+          grep -q 'game-v0.32.0-lowfx.js' baseline-v0.32.0-lowfx.html
+          grep -q 'decor-art-v0.32.js' index.html
+          grep -q 'decor-sites-v0.32.js' index.html
+          grep -q 'decor-runtime-v0.32.js' index.html
           grep -q 'decorPreviewHud' index.html
-          grep -q 'bit-bazaar-v0.31.0' sw.js
+          grep -q 'bit-bazaar-v0.32.0' sw.js
