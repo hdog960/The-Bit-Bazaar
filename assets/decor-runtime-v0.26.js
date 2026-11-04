@@ -171,7 +171,12 @@ function create(api){
   let html='<div class="decor-intro"><span>PHASE 4 · THE ARTISAN GALLERY</span>'+
    '<h3>THE SACRIFICE CATALOG</h3>'+
    '<p>Exchange properly sorted shelves for permanent art, not currency. Only currently PERFECT rows pay for purchases. Every sacrificed figure returns to a real floor position. Your historic achievements remain intact.</p>'+
-   '<strong>'+availablePerfect+' PERFECT ROWS · '+owned.size+' / '+catalog.items.length+' DECORATIONS OWNED</strong></div>'+
+   '<strong>'+availablePerfect+' PERFECT ROWS · '+owned.size+' / '+catalog.items.length+' DECORATIONS OWNED</strong>'+
+   '<div class="decor-space-summary">'+
+   ['wall','floor','rug','ceiling','shelf'].map(kind=>
+    '<span>'+kind.toUpperCase()+' '+mounts[kind].filter(site=>available(site.id)).length+
+    ' / '+mounts[kind].length+' OPEN</span>').join('')+
+   '</div></div>'+
    '<div class="decor-filters" role="group" aria-label="Decoration categories">'+
    filters.map(([id,label])=>'<button type="button" data-decor-filter="'+id+'" aria-pressed="'+
     (activeFilter===id)+'" class="'+(activeFilter===id?'selected':'')+'">'+label+'</button>').join('')+
@@ -264,7 +269,7 @@ function create(api){
    '<span>PAGE '+(page+1)+' / '+pageCount+' · '+(page*PAGE_SIZE+1)+'–'+
      Math.min((page+1)*PAGE_SIZE,filtered.length)+' OF '+filtered.length+'</span>'+
    '<button type="button" data-decor-page="1"'+(page===pageCount-1?' disabled':'')+'>NEXT ›</button></nav>';
-  html+='<div class="decor-count">'+filtered.length+' DISTINCT DECORATIONS'+
+  html+='<div class="decor-count" id="decorCardStart">'+filtered.length+' DISTINCT DECORATIONS'+
    (activeFilter==='new'?' · JUST ARRIVED':'')+'</div>'+pager();
   for(const item of currentItems){
    const isOwned=owned.has(item.id),at=placed.get(item.id),wanted=desired(item.id),
@@ -316,6 +321,9 @@ function create(api){
   body.querySelectorAll('[data-decor-page]').forEach(el=>el.onclick=()=>{
    page=Math.min(pageCount-1,Math.max(0,page+Number(el.getAttribute('data-decor-page'))));
    render();
+   const anchor=api.body().querySelector('#decorCardStart');
+   if(anchor&&typeof anchor.scrollIntoView==='function')
+    anchor.scrollIntoView({block:'start',behavior:'auto'});
   });
   body.querySelectorAll('[data-buy-art]').forEach(el=>el.onclick=()=>buy(el.getAttribute('data-buy-art')));
   body.querySelectorAll('[data-move-art]').forEach(el=>el.onclick=()=>move(el.getAttribute('data-move-art')));
