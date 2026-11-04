@@ -1,5 +1,35 @@
 # The Bit Bazaar — The Great Figurine Sort
 
+## v0.18.0 — Phase 4 first playable Sacrifice Catalog gallery (Nov 3, 2026)
+This is a **small, real Phase 4 milestone**, not a claim that the final 180-piece catalog is complete. Phase 3's physical iPhone acceptance remains open. The canonical [MASTER_ROADMAP_LOCKED.md](./MASTER_ROADMAP_LOCKED.md) remains unchanged.
+
+**Three completely original framed-pixel-art gallery pieces, out of the required 35 framed items / 180 total:**
+- **The Midnight Moth:** an astral moth in a golden frame, costing **2 currently PERFECT rows** (exactly 20 figurines re-scattered).
+- **Rain on the Glasshouse:** rain-lit glasshouse with lush ferns, costing **3 currently PERFECT rows** (30 figurines).
+- **The Ember Drake:** a dragon defending a volcanic citadel, costing **5 currently PERFECT rows** (50 figurines).
+- Each artwork is authored individually at 32×40 source pixels, not a recolor of another piece, and is rendered in the first-person store as a cached framed image. Artwork is created once on startup; no full 3,000-figure atlas changes or new artwork canvases during gameplay frames.
+
+**Actual gameplay loop**
+- A new **◇ DECOR** entry in the main HUD opens the Sacrifice Catalog, showing images, descriptions, permanent ownership, exact row costs, and all nine category quotas to reach 180 at the full release.
+- Choose from **16 wall-mounted hanging points** distributed in the gaps between existing wall shelves. Selecting a free position and buying a piece requires sufficient currently perfect sets and a final explicit confirmation.
+- The transaction chooses the specified number of *random, different, currently perfect* rows, not previously perfected-but-now-imperfect sets. Each is emptied completely, and all of its ten original IDs are placed into collision-checked real floor positions.
+- Positions for *all* figures are planned before the purchase can proceed. The complete next save is written before the in-memory row arrays are changed; save-write failure cancels the purchase. One copy of the original shop before its first sacrifice is retained under `bit-bazaar-v3-before-first-sacrifice`.
+- Decorations become **permanently owned**. Move between free hanging points, store, and re-place at zero additional cost. Existing lifetimes mastered and observed IDs never decrement. No currency, sales, customers or automated collection is introduced.
+
+**Save, restoration and fallback**
+- The same `bit-bazaar-save-v3` JSON carries a new optional `decor: {owned, placed}` property. Older saves without this field load with an empty gallery, preserving all earlier figure, shelf, floor, hidden discovery and lifetime progress.
+- Matching normal and Low FX builds: `game-v0.18.0.js`, `game-v0.18.0-lowfx.js`, `style-v0.18.0.css`, `preview-v0.18.0.html`, and `baseline-v0.18.0-lowfx.html`.
+- New cached modules `assets/decor-v0.18.js` and `assets/decor-runtime-v0.18.js` own the authored art and game transactions. `assets/save-manager-v0.18.js` extends manual file-import validation to reject fake purchased item IDs, duplicate placements, occupied hooks or unowned art. It accepts older undecorated backup files. Previous working v0.17 assets remain separately available.
+
+**Verification**
+- Normal and Low FX JavaScript passed syntax checks.
+- Mocked Phase 4 purchases and storage passed **19/19** transaction/ownership cases, including 20/30 figure re-scattering, no repeat spending, exact current-perfect costs, permanent ownership and no double occupancy.
+- Save manager passed **10/10** decor/legacy backup validation cases.
+- **No physical iPhone or full browser render has yet been verified.** The first slice needs device testing before extending to the rest of the 180 required bespoke artworks and more flexible placement systems.
+
+**Next:** real iPhone test of framed-world art visibility, scrolling, selecting a wall hang point and retaining ownership after reload; broaden the original decorated category roster and improve placement previews / layout freedom. Do not claim Phase 4 complete until all 180 bespoke decorations and the full positioning, material and sacrifice acceptance criteria are implemented.
+
+
 ## v0.17.0 — Phase 3 save protection and resilient iPhone offline updates (Nov 3, 2026)
 This final Phase 3 safety pass extends the approved [MASTER_ROADMAP_LOCKED.md](./MASTER_ROADMAP_LOCKED.md). No Phase 4 decoration purchases, customer systems, new currency, or collection IDs are introduced.
 
