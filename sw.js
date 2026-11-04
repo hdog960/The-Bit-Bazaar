@@ -1,28 +1,29 @@
-/* Bit Bazaar v0.28 — network-first Safari PWA; saves stay in localStorage. */
-const CACHE="bit-bazaar-v0.28.0";
+/* The Bit Bazaar v0.29 — network-first iPhone Safari PWA.
+   Keeps local figure/decor saves in localStorage, never touches them. */
+const CACHE="bit-bazaar-v0.29.0";
 const CORE=[
- "./index.html","./style-v0.28.0.css","./game-v0.28.0.js",
- "./game-v0.28.0-lowfx.js","./baseline-v0.28.0-lowfx.html",
+ "./index.html","./style-v0.29.0.css","./game-v0.29.0.js",
+ "./game-v0.29.0-lowfx.js","./baseline-v0.29.0-lowfx.html",
  "./assets/collection.js","./assets/collection-extension.js",
  "./assets/optimized-sprites.js","./assets/figurines.png",
  "./assets/decor-v0.19.js","./assets/decor-expansion-v0.20.js",
  "./assets/decor-expansion-v0.21.js","./assets/decor-expansion-v0.22.js",
  "./assets/decor-expansion-v0.25.js","./assets/decor-sites-v0.26.js",
  "./assets/decor-endcaps-v0.28.js","./assets/decor-art-v0.28.js",
+ "./assets/decor-art-v0.29.js",
  "./assets/decor-workshop-v0.28.js","./assets/room-workshop-v0.24.js",
- "./assets/decor-runtime-v0.28.js","./assets/decor-map-v0.28.js",
- "./assets/save-manager-v0.28.js","./manifest.webmanifest","./icon.png"
+ "./assets/decor-runtime-v0.29.js","./assets/decor-map-v0.28.js",
+ "./assets/decor-world-v0.29.js",
+ "./assets/save-manager-v0.29.js","./manifest.webmanifest","./icon.png"
 ];
 const OPTIONAL=[
- "./game-v0.27.0.js","./game-v0.27.0-lowfx.js",
- "./style-v0.27.0.css","./baseline-v0.27.0-lowfx.html",
- "./assets/decor-runtime-v0.27.js","./assets/decor-map-v0.27.js",
- "./assets/save-manager-v0.27.js"
+ "./game-v0.28.0.js","./game-v0.28.0-lowfx.js",
+ "./style-v0.28.0.css","./baseline-v0.28.0-lowfx.html",
+ "./assets/decor-runtime-v0.28.js","./assets/decor-map-v0.28.js",
+ "./assets/save-manager-v0.28.js"
 ];
 self.addEventListener("install",event=>{
  event.waitUntil(caches.open(CACHE).then(async cache=>{
-  // Offline availability must not block delivery of a new online build
-  // when a nonessential image, icon or previous-version file is missing.
   await Promise.all(CORE.map(path=>cache.add(path).catch(()=>{})));
   await Promise.all(OPTIONAL.map(path=>cache.add(path).catch(()=>{})));
   await self.skipWaiting();
