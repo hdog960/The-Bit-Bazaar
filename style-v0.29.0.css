@@ -816,12 +816,12 @@ button.folio-figure-card:focus-visible{outline:2px solid #b4f0d7}
  padding:8px;border:2px solid #add5c1;background:#426c5f;color:#fff4d5;
  font:900 11px/1.2 monospace;touch-action:manipulation}
 .world-art-focus button:focus-visible{outline:3px solid #fff0be;outline-offset:2px}
-.decor-spotlight{border:3px solid #ffe4a3!important;background:#3c3c4b!important;
+.decor-spotlight{position:relative;margin-top:25px;border:3px solid #ffe4a3!important;background:#3c3c4b!important;
  box-shadow:0 0 0 3px #486e62,4px 5px #141b2a}
 .decor-spotlight .decor-kind{color:#c9f3ce}
 #decorSpotlightCard{scroll-margin-top:72px}
 .decor-spotlight::before{content:"✦ TARGETED ARTWORK · EDIT BELOW";display:block;
- font:900 9px monospace;color:#fff0c2;position:absolute;margin-top:-24px}
+ font:900 9px monospace;color:#fff0c2;position:absolute;top:-22px;left:3px}
 @media(max-width:600px){
  .world-art-focus{bottom:calc(env(safe-area-inset-bottom,0px) + 180px);
   width:min(345px,calc(100% - 30px));padding:7px;gap:6px}
