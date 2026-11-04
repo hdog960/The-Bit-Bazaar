@@ -27,7 +27,7 @@ const NEW=[
 const CEILING_SITES=[
  [19,7,'FRONT · AISLE A-B'],[35,7,'FRONT · CENTRAL'],[51,7,'FRONT · AISLE C-D'],
  [19,29,'MIDDLE · AISLE A-B'],[35,29,'MIDDLE · CENTRAL'],[51,29,'MIDDLE · AISLE C-D'],
- [19,53,'REAR · AISLE A-B'],[51,53,'REAR · AISLE C-D']
+ [19,53,'REAR · AISLE A-B'],[51,49,'REAR · AISLE C-D']
 ].map(([x,z,name],i)=>({id:36+i,kind:'ceiling',side:'CEILING',name:name+' CEILING HOOK',x,z}));
 function artCanvas(item){
  const canvas=document.createElement('canvas');canvas.width=40;canvas.height=48;
