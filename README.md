@@ -1,5 +1,36 @@
 # The Bit Bazaar — The Great Figurine Sort
 
+## v0.21.0 — Phase 4 stained-glass architecture and hanging ceiling art (Nov 3, 2026)
+This release expands the true Sacrifice Catalog to **28 of 180 independently authored decorations**, introducing two *new* categories with visibly different mounting and rendering. The locked [MASTER_ROADMAP_LOCKED.md](./MASTER_ROADMAP_LOCKED.md) is unchanged. Physical-device acceptance and fully freeform interior decoration remain in progress.
+
+**Eight new original 40×48 pixel compositions:**
+- **Architectural wall features (4 / 20):** *Moonstone Rose Window* (4 perfect rows), *Whispering Library Arch* (6), *Coral Tide Viewport* (3), and *Sunclock Stone Alcove* (5). These are larger architecturally framed visual inserts with individually authored pixels: stained glass, library shelving, an underwater porthole, and a sandstone sundial.
+- **Ceiling ornaments (4 / 15):** *Brass Celestial Orrery* (5 perfect rows), *Prism Rain Chandelier* (7), *Mothsilk Lantern Cloud* (3), and *Windsong Feather Mobile* (2). Each is independently drawn as a transparent suspended 2.5D ornament. These are decorative visuals, not interactive physics objects or dynamically cast real-time lighting.
+- The previous **20 original framed artworks, statues, plants, lamps and rugs** remain unchanged and retain their complete catalog IDs and all existing 36 anchor IDs.
+
+**Functional interior personalization**
+- The DECOR screen now offers **ARCHITECTURE** and **CEILINGS** filters alongside earlier item types, all with correct actual item/category counts.
+- Architecture uses existing wall mount points; a wall frame and an architecture feature cannot occupy the same point. Architecture renders larger than framed paintings, creating a distinct architectural treatment rather than a mere recolored picture.
+- Added **eight ceiling-only hooks** (IDs 36–43), in open aisle positions above the original shelving. The rear C-D hook was repositioned to avoid a built-in ceiling bulb. Ceiling ornaments display as actual in-world hanging sprites beneath the shop's ceiling.
+- A separate CEILING HANGING POINT dropdown and eight numbered, thumb-size quick-select controls let players choose, preview via catalog art, purchase, place, move, store or restore ceiling ornaments with no additional payment after purchase. Other placement selectors stay intact.
+- No new physical obstacles; ceilings remain nonblocking, while existing wall fixtures, independent floor display pads and rug sites are fully preserved.
+
+**Sacrifice, save, recovery and performance**
+- Every new purchase spends 2–7 **currently PERFECT** numbered collection rows and scatters exactly ten existing IDs per sacrificed row. The random row selection, preplanned collision-safe floor placement, pre-write transaction, lifetime mastery, one-hand carrying and 3,000 total collectible identities are unchanged.
+- The save key remains `bit-bazaar-save-v3`; the optional `decor:{owned,placed}` shape is unchanged. Pre-v0.21 purchases, ownership, wall hooks 0–15, standing pads 16–27 and rug sites 28–35 remain valid. Newly added ceiling anchors use 36–43.
+- Normal `game-v0.21.0.js` and Low FX `game-v0.21.0-lowfx.js` use `assets/decor-v0.19.js`, `assets/decor-expansion-v0.20.js`, `assets/decor-expansion-v0.21.js`, shared `assets/decor-runtime-v0.21.js`, and `assets/save-manager-v0.21.js`. The network-first offline worker caches these dependencies and preserves optional previous-release recovery assets. Sprites are drawn into small canvases once at startup, not once per game frame.
+- Save-file import validates the new ceiling/wall distinction and keeps accepting older shop backups without any decorations.
+
+**Verified programmatic QA**
+- **10/10 catalog checks:** 28 individually drawn original pixel compositions, unchanged prior item IDs and 36 earlier anchors, correct 8 new ceiling hook IDs, valid row costs and locked 180 quotas.
+- **17/17 simulated purchase checks:** wall/ceiling placement restrictions, 40/50/20 figurine scattering, no duplicate IDs, older purchases, lifetime mastery, free move/store, persistence and reload.
+- **14/14 UI, projection and backup checks:** correct category filters, hooks and quota counts, existing controls, in-world facade and ceiling rendering, legacy saves and rejection of invalid restore files.
+- **10/10 normal/Low FX build checks:** JavaScript parses, game/save structure unchanged, proper versioned backup/recovery paths and load order.
+- **Important:** These are static and simulated tests, not direct Safari or physical iPhone gameplay tests. The main GitHub repository has been updated; the live site may need to refresh its service worker cache.
+
+**Next:** test ceiling and wall-facade visuals directly on an iPhone, then continue the full 180-item roster with **shelf trims, curios and additional environmental materials**, and move toward finer positional controls and rotation without degrading phone performance.
+
+
 ## v0.20.0 — Phase 4 lamps and woven floor rugs (Nov 3, 2026)
 This is a playable **20 of 180** bespoke decoration milestone; it expands v0.19's 12 items without changing the approved [MASTER_ROADMAP_LOCKED.md](./MASTER_ROADMAP_LOCKED.md). The full final catalog and freeform placement are not implemented yet.
 
