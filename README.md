@@ -1,5 +1,31 @@
 # The Bit Bazaar — The Great Figurine Sort
 
+## v0.23.0 — Phase 4 actual placement freedom and shelf material workshop (Nov 3, 2026)
+This update adds **meaningful customization to the existing 36 original decorations**. Item count remains **36 / 180**. The approved [MASTER_ROADMAP_LOCKED.md](./MASTER_ROADMAP_LOCKED.md) still requires the remaining 144 bespoke decorations and eventually broader freeform placement/material controls.
+
+**Real hands-on customization (not just thumbnails):**
+- The catalog shows an interactive **FINE POSITION** panel on each owned *installed* piece, with touch-friendly **WEST / EAST / NORTH / SOUTH** controls. One tap moves a mounted decoration **0.25 world units**, to a maximum **±0.5 world units** from its chosen anchor in each allowed direction.
+- Floor curios, plants, lamps, ceiling objects and rugs can be nudged along the real world X/Z axes. Wall art slides **only along its wall** (north/south wall: east/west; east/west wall: north/south). Shelf finishes stay physically locked to their real five-row fascia; they do not drift or become floating icons.
+- Rugs now feature **true 0°, 90°, 180° and 270° physical orientation**. Their eight existing projected canvas strips transform in the correct rotated 3D plane, rather than merely rotating a menu image. Safe-footprint checks reject orientations or position tweaks that overlap permanent fixtures. The existing original unrotated rug at any of the eight long-standing locations remains fully supported, including older positions with slightly limited clearance.
+- Shelf finishes gain independently selectable **ORIGINAL GOLD, PEARL SILVER and AGED COPPER** metal accent treatments. The variation changes actual in-world front rail strokes across all five tiers, preserving the distinctive original item patterns, not counting palettes as separate new decorations. An owned installed item can be reset to its initial position/material at no cost.
+- The same existing purchase/move/store actions remain: purchasing sacrifices only currently perfect rows and scatters ten genuine original figure IDs per row; re-positioning, turning, changing metal accents and resetting cost **zero** additional rows. Moving an item to another main anchor resets its fine adjustments for safety; storing clears fine edits but retains ownership.
+
+**Compatible save and import**
+- The longstanding key `bit-bazaar-save-v3` is unchanged. Existing optional `decor:{owned,placed}` now additionally supports the optional compact property **`adjustments:[[itemId, dxSteps, dzSteps, quarterTurns, materialId], ...]`**, where offsets are bounded integer quarter-steps from -2 to +2, rug turns 0–3, shelf material IDs 0–2. Old saves simply load with original placements and default gold.
+- `assets/decor-workshop-v0.23.js` manages all fine edits and validates mount compatibility, wall direction and collision clearance, and sanitizes any unexpected data on restoration.
+- `assets/save-manager-v0.23.js` adds strict backup file checks rejecting unknown items, duplicate adjustments, invalid positions, out-of-range turns, wrong material categories and wall-through shifts. It still accepts pre-v0.23 backups without adjustments or even pre-Phase 4 data.
+- Both `game-v0.23.0.js` and `game-v0.23.0-lowfx.js` remain compatible with the original 3,000 figures and full shelf data. They share `assets/decor-runtime-v0.23.js`, the new workshop module, unchanged original decoration art modules, `style-v0.23.0.css`, and the versioned HTML entry/recovery files.
+- The network-first service worker `bit-bazaar-v0.23.0` caches the complete updated load order and retains best-effort last-version fallback files. It never reads or deletes user save data.
+
+**Verification**
+- **20/20** workshop migration, fine position, rug rotation, metal variants, store/load and import-validation checks passed, including a full set of legacy save cases.
+- **15/15** full simulated engine purchases and customization checks passed: exact purchase costs (1+4+2+2 perfect rows), figure IDs and mastery unaffected, real rug geometry transformed, different in-world shelf metal strokes, and settings persisted across runtime reload.
+- **9/9** build checks passed, including normal+low-effects JavaScript syntax, unchanged save serializer, original 3,000-figure engine and workshop script order.
+- **No physical iPhone or full live-browser visual review has yet been confirmed.** Cosmetic layout, thumb target comfort and true device performance still require a player test.
+
+**Next:** give the placement workshop an in-world live preview and expand material customization beyond shelf accents, then continue toward all 180 original decorations. The fixed-anchor positions are more flexible now, but full freeform placement is **not** complete.
+
+
 ## v0.22.0 — Phase 4 physical shelf finishing and collector curios (Nov 3, 2026)
 This releases **36 of the 180 individually authored cosmetic decorations** specified in the approved [MASTER_ROADMAP_LOCKED.md](./MASTER_ROADMAP_LOCKED.md). The locked 180-piece category quotas and no-currency sacrifice design are unchanged. The first 28 previously authored and purchased items retain the same IDs and positions.
 
