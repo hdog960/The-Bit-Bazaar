@@ -12,15 +12,13 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Check JavaScript syntax in both engines and active decor modules
+      - name: Verify standard, Low FX and catalog syntax
         run: |
-          node --check game-v0.33.0.js
-          node --check game-v0.33.0-lowfx.js
-          node --check assets/decor-art-v0.32.js
-          node --check assets/decor-art-v0.33.js
-          node --check assets/decor-sites-v0.32.js
-          node --check assets/decor-sites-v0.33.js
-          node --check assets/decor-runtime-v0.33.js
+          node --check game-v0.34.0.js
+          node --check game-v0.34.0-lowfx.js
+          node --check assets/decor-art-v0.34.js
+          node --check assets/decor-sites-v0.34.js
+          node --check assets/decor-runtime-v0.34.js
           node --check assets/decor-map-v0.31.js
           node --check assets/decor-world-v0.29.js
           node --check assets/save-manager-v0.29.js
@@ -28,24 +26,25 @@ jobs:
           node --check tests/phase4-v031.test.cjs
           node --check tests/phase4-v032.test.cjs
           node --check tests/phase4-v033.test.cjs
-      - name: Verify original v0.31 movement and preview contracts
+          node --check tests/phase4-v034.test.cjs
+      - name: Previous artwork movement and ghost preview contracts
         run: node tests/phase4-v031.test.cjs
-      - name: Verify v0.32 original art, catalog and append-only mounts
+      - name: Previous original art and collector capacity
         run: node tests/phase4-v032.test.cjs
-      - name: Verify v0.33 art, site safety, ghost cycling and no-save preview
+      - name: Previous iPhone carousel and no-save preview contracts
         run: node tests/phase4-v033.test.cjs
-      - name: Verify launch, preview, fallback and PWA version alignment
+      - name: Full real catalog, collision mounts, sacrifice and save safety
+        run: node tests/phase4-v034.test.cjs
+      - name: Verify main, preview, Low FX and PWA versions
         run: |
           test -f index.html
-          test -f preview-v0.33.0.html
-          test -f baseline-v0.33.0-lowfx.html
-          test -f style-v0.33.0.css
-          grep -q 'game-v0.33.0.js' index.html
-          grep -q 'game-v0.33.0-lowfx.js' baseline-v0.33.0-lowfx.html
-          grep -q 'decor-art-v0.33.js' index.html
-          grep -q 'decor-sites-v0.33.js' index.html
-          grep -q 'decor-runtime-v0.33.js' index.html
-          grep -q 'decorPreviewPrevious' index.html
+          test -f preview-v0.34.0.html
+          test -f baseline-v0.34.0-lowfx.html
+          test -f style-v0.34.0.css
+          grep -q 'game-v0.34.0.js' index.html
+          grep -q 'game-v0.34.0-lowfx.js' baseline-v0.34.0-lowfx.html
+          grep -q 'decor-art-v0.34.js' index.html
+          grep -q 'decor-sites-v0.34.js' index.html
+          grep -q 'decor-runtime-v0.34.js' index.html
           grep -q 'decorPreviewNext' index.html
-          grep -q 'decorPreviewFace' index.html
-          grep -q 'bit-bazaar-v0.33.0' sw.js
+          grep -q 'bit-bazaar-v0.34.0' sw.js

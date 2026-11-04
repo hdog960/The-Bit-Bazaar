@@ -1,5 +1,47 @@
 # The Bit Bazaar — The Great Figurine Sort
 
+## v0.34.0 — Cross-Aisle Gallery: 120 Original Works and Full Rug Capacity (November 4, 2026)
+
+Phase 4 of the locked Bit Bazaar roadmap advances from 104 to **120 / 180 individually authored original decorations (66.7%)**. The 3,000 one-at-a-time figurines, 300 named sets, five rows per shelf face, and current-vs-lifetime PERFECT distinction remain unchanged. The store is still a quiet first-person collectible sorting adventure, **not** a customer/employee/currency simulator.
+
+### Sixteen brand-new hand-painted compositions
+
+All sixteen are separate fixed-resolution 16-bit-inspired works, painted once into individual 32×40, 40×28, 40×48 or 48×28 canvases, with individually authored scenes/silhouettes, text, cost (1–20 currently perfected rows), original ID and mount type. No cheap recolors or recycled previous items.
+
+- **Framed art — now 26 / 35:** *The Night Orchard Express* (a miniature starry train), *The Mountain Giant's Tea* (tea with a giant), *The Drowned Post Office* (fish-delivered mail), *The Sunrise Kitekeepers* (fish-shaped kites), and *The Clockwork Rainforest* (bronze insects in a mechanical jungle).
+- **Architecture — 13 / 20:** *Amber Moss Observatory* (gothic greenhouse-style astronomy window).
+- **Statues — 12 / 25:** *Porcelain Wolf Sentinel* (gold-seamed ceramic wolf).
+- **Plants — 11 / 20:** *Prismatic Pitcher Grove* (gem-colored hanging pitcher flowers).
+- **Lighting — 11 / 20:** *The Goldfish Beacon* (illuminated miniature aquarium lantern).
+- **Rugs — 15 / 20:** *The Mapmaker's Midnight Route* and *The Lily Fox Carpet*.
+- **Ceilings — 14 / 15:** *Singing Whale Mobile* and *The Clocksmith's Meteor Bells*.
+- **Shelf Trims — 10 / 15:** *Starlit Cedar Rails* and *Glassleaf Silver Trims* with **two separately authored, five-tier physical shelf fascia renderers** in the live 3D shop.
+- **Curios — 8 / 10:** *Lighthouse in a Jar*, a micro-ocean diorama.
+
+The **NEW ARRIVALS** filter shows exactly this latest sixteen-item group. Earlier artwork is still present in the full catalog and can be kept, stored or relocated for free once purchased.
+
+### Twelve physically grounded, append-only display sites
+
+The new cross-aisle gallery adds **six rugs** and **six suspended ornament hooks** with permanent IDs **190–201**, leaving earlier 0–189 IDs, decorated site names, current ownership, color presets, coordinates and saved adjustments untouched.
+
+- 56 physical wall and endcap galleries, **45 floor pads**, **20 rug positions**, **21 ceiling hooks**, and 60 shelf-face trim installations = **202 fixed nonblocking display anchors**.
+- Rug anchors are at (27,17), (27,41), (27,65), (43,17), (43,41) and (43,65). They are in walking connector aisles across the shelves, never inside a rack, and use verified 4.4-by-2.96 world-unit rug footprints. New rug centers keep at least six units from any other rug and 5.4 units from floor display pads. Six hanging sites share those same x/z coordinates at the ceiling layer, keeping at least 7.5 units from other overhead fixtures.
+- Nothing is renumbered and no additional collision boxes, closed aisles, obstructed rows or figurine objects are created.
+- The **rug quick-select** and **ceiling gallery** touch controls now lay out cleanly across five columns on common phones (four on very narrow screens), with larger accessible tap targets and visible focus outlines. The existing exact shop map, in-world translucent preview, destination cycling, Look Toward button and zero-cost move/store commands remain available.
+
+### Safety and testing
+
+- Both `game-v0.34.0.js` and `game-v0.34.0-lowfx.js` use the same new `assets/decor-runtime-v0.34.js`. The files `assets/decor-art-v0.34.js` and `assets/decor-sites-v0.34.js` load in order before the runtime on all three HTML entrypoints.
+- The network-first PWA cache has a fresh `bit-bazaar-v0.34.0` version and preserves `bit-bazaar-save-v3`, all player progress and the optional previous v0.33 recovery assets.
+- A new end-to-end **`tests/phase4-v034.test.cjs`** loads the entire actual art/source chain, asserts exactly 120 unique artwork IDs and 202 physical site IDs, checks each new canvas is independently authored, verifies rug geometry / floor-space clearance / hanging separation, and checks all nine category quotas.
+- The same test executes a real `buy` transaction on a new three-row-cost decoration: **exactly three currently perfect rows emptied and 30 existing figure IDs scattered**, before-save backup written, lifetime mastery unchanged, and ownership persisted. It also checks ghost cycling and cancellation do not save, a real confirmed art move saves once, a new shelf finish renders on all five original tiers, and both standard and Low FX shells are wired.
+- Previous v0.31/v0.32/v0.33 safety checks remain in the GitHub Actions workflow. Live iPhone rendering and long-session frame behavior still require physical device QA; no device-only claim is being made.
+
+**Next:** continue the 60 remaining originals, plan more room for the eventual 75 possible floor sculptures/plants/lighting/curios, and refine freeform decorating without risking the locked collection/sorting design.
+
+---
+
+
 ## v0.33.0 — Preview Carousel & Sixteen Original Works (November 4, 2026)
 
 A Phase 4 content, decoration-control and iPhone quality milestone. Continue the locked six-phase first-person figurine sorting game without adding traditional retail, sales or cash mechanics.

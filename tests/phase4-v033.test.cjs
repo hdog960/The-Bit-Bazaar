@@ -121,7 +121,7 @@ assert.equal(runtime.ownedIds().length,4,'nothing lost from ownership');
 assert.equal(runtime.drawShelfFinish(0,{w:7.7},1,1,6,
  ()=>{},()=>{finishBeams++;}),true,'new real shelf trim draws');
 assert.ok(finishBeams>=25,'hand-authored new trim produces distinct rail marks');
-const html=code('index.html'),sw=code('sw.js');
+const html=code('preview-v0.33.0.html'),sw=code('sw.js');
 for(const f of ['assets/decor-art-v0.33.js','assets/decor-sites-v0.33.js',
  'assets/decor-runtime-v0.33.js','game-v0.33.0.js','style-v0.33.0.css'])
  assert.ok(html.includes('./'+f),'main shell loads '+f);
@@ -129,7 +129,7 @@ assert.ok(html.indexOf('decor-art-v0.33.js')<html.indexOf('decor-sites-v0.33.js'
 assert.ok(html.indexOf('decor-sites-v0.33.js')<html.indexOf('decor-runtime-v0.33.js'));
 for(const f of ['assets/decor-art-v0.33.js','assets/decor-sites-v0.33.js',
  'assets/decor-runtime-v0.33.js'])assert.ok(sw.includes('./'+f),'PWA caches '+f);
-assert.ok(sw.includes('bit-bazaar-v0.33.0'));
+assert.ok(sw.includes('bit-bazaar-v0.34.0'));
 for(const f of ['game-v0.33.0.js','game-v0.33.0-lowfx.js']){
  const source=code(f);
  for(const name of ['decorPreviewPrevious','decorPreviewNext','decorPreviewFace',
