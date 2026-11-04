@@ -11,7 +11,7 @@
 <link rel="icon" type="image/png" href="./icon.png" />
 <link rel="apple-touch-icon" href="./icon.png" />
 <title>The Bit Bazaar — The Great Figurine Sort</title>
-<link rel="stylesheet" href="./style-v0.20.0.css" />
+<link rel="stylesheet" href="./style-v0.21.0.css" />
 </head><body>
 <div id="game">
  <canvas id="world" width="480" height="270" aria-label="First-person view of a pixel-art figurine shop"></canvas>
@@ -108,12 +108,13 @@
 <script src="./assets/optimized-sprites.js"></script>
 <script src="./assets/decor-v0.19.js"></script>
 <script src="./assets/decor-expansion-v0.20.js"></script>
-<script src="./assets/decor-runtime-v0.20.js"></script>
-<script src="./assets/save-manager-v0.20.js"></script>
-<script src="./game-v0.20.0.js?v=0.20.0" defer></script>
+<script src="./assets/decor-expansion-v0.21.js"></script>
+<script src="./assets/decor-runtime-v0.21.js"></script>
+<script src="./assets/save-manager-v0.21.js"></script>
+<script src="./game-v0.21.0.js?v=0.21.0" defer></script>
 <script>
 if ("serviceWorker" in navigator) {
-  addEventListener("load", () => navigator.serviceWorker.register("./sw.js?v=0.20.0", {updateViaCache:"none"}).catch(() => {}));
+  addEventListener("load", () => navigator.serviceWorker.register("./sw.js?v=0.21.0", {updateViaCache:"none"}).catch(() => {}));
 }
 </script>
 </body></html>
