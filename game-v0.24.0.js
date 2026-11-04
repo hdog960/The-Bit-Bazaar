@@ -1766,7 +1766,7 @@ function drawWall(wall){
  if(d1<.15){const t=(.15-d1)/(d2-d1);x1+=(x2-x1)*t;z1+=(z2-z1)*t;}
  else if(d2<.15){const t=(.15-d2)/(d1-d2);x2+=(x1-x2)*t;z2+=(z1-z2)*t;}
  solidQuad(project(x1,z1,4.8),project(x2,z2,4.8),project(x2,z2,0),project(x1,z1,0),
-  roomWall[wall.n%2]);
+  wall.n%2?roomWall[0]:roomWall[1]);
  for(const h of [.25,4.35])line3(x1,z1,h,x2,z2,h,h===.25?roomWall[2]:roomWall[3],h===4.35?2.5:2);
  // Shelves now provide the environmental detail; no giant wall slogans.
 }
