@@ -52,6 +52,7 @@ function create({catalog,api,owned,placed,rerender}){
  function onMove(id,from,to){
   if(from!==to)settings.delete(id);
  }
+ function onStore(id){settings.delete(id);}
  function pos(id,slot){
   const point=catalog.slots[slot],a=current(id);
   return {...point,x:point.x+a.dx*.25,z:point.z+a.dz*.25};
@@ -125,7 +126,7 @@ function create({catalog,api,owned,placed,rerender}){
     Number(el.getAttribute('data-tone'))));
   body.querySelectorAll('[data-w-reset]').forEach(el=>el.onclick=()=>reset(el.getAttribute('data-w-reset')));
  }
- return {load,snapshot,resetAll,onMove,pos,rotation:id=>current(id).turn,
+ return {load,snapshot,resetAll,onMove,onStore,pos,rotation:id=>current(id).turn,
   tone:id=>current(id).tone,get:id=>({...current(id)}),valid,shift,rotate,material,reset,controls,bind};
 }
 window.BIT_BAZAAR_WORKSHOP=Object.freeze({create});
