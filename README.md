@@ -1,5 +1,33 @@
 # The Bit Bazaar — The Great Figurine Sort
 
+## v0.20.0 — Phase 4 lamps and woven floor rugs (Nov 3, 2026)
+This is a playable **20 of 180** bespoke decoration milestone; it expands v0.19's 12 items without changing the approved [MASTER_ROADMAP_LOCKED.md](./MASTER_ROADMAP_LOCKED.md). The full final catalog and freeform placement are not implemented yet.
+
+**Eight new original pixel-art designs**
+- **Four floor lighting sculptures (4 / 20):** *Aurora Orrery Lamp* (3 perfect rows), *Hearthglass Lantern* (2), *Verdigris Lighthouse* (5), and *Moonflower Floorlight* (4). Each has independent hand-drawn transparent pixel silhouettes and different luminous details. These are decorative glowing objects, **not** dynamic room illumination.
+- **Four horizontally displayed carpets (4 / 20):** *Sunken Compass Carpet* (1 perfect row), *Mosswork Runestone Rug* (2), *Starfall Observatory Runner* (3), and *Amber Honeycomb Mat* (4). Each rug has a separate 40×28 custom-authored textile drawing with individually designed compass, rune, constellation, or honeycomb patterns.
+- All 12 pre-existing artworks remain intact: **6 frames / 35**, **3 sculptures / 25**, **3 plants / 20**. New counts across these five implemented categories are **6+3+3+4+4 = 20 / 180**. The other four roadmap categories remain unimplemented, not placeholders presented as inventory.
+
+**New, genuinely different placement**
+- Existing IDs and physical locations of all **16 wall hooks and 12 freestanding display pads** are unchanged. Eight unique **rug-only sites** are added as IDs 28–35, located in collision-checked open walkways.
+- The decoration menu now has **LIGHTS** and **RUGS** filters, an independent rug-site selector, and quick-select numbered rug locations. Rug slots cannot hold wall frames, lamps or statues; rugs cannot occupy wall or stand positions.
+- Lamps use the existing bounded freestanding 2.5D sprite projection. Rugs lie **flat on the actual shop floor**, using at most eight small projected texture strips per rug to approximate perspective. No additional per-frame canvas creation, collision obstacles or mandatory map redesign.
+- A maximum of four rugs and four lamps from this release can be installed concurrently, keeping the added rendering cost bounded and preserving iPhone performance goals.
+
+**Economy, persistence, and rollback**
+- Purchases continue to select only **currently perfect** 1–10 rows and scatter exactly 10 real collectible IDs per row to safe floor positions. No coins or other currency exist. Once a decoration is purchased, it remains owned forever; moving or storing it costs nothing.
+- The existing `bit-bazaar-save-v3` format and optional `decor:{owned,placed}` field are preserved. Older purchased items and their positions 0–27 remain valid; rug positions are append-only. `assets/save-manager-v0.20.js` validates exact placement-kind compatibility while accepting older saves.
+- Normal engine `game-v0.20.0.js`, Low FX engine `game-v0.20.0-lowfx.js`, `assets/decor-expansion-v0.20.js`, `assets/decor-runtime-v0.20.js`, versioned CSS and two matching HTML launch pages are committed. `index.html` and network-first PWA worker `bit-bazaar-v0.20.0` reference the complete new release, retaining older emergency fallback assets.
+
+**Development checks**
+- Unique art drawings and backward compatibility of the first 12 decoration IDs passed **6/6** catalog checks.
+- All eight rug sites were verified against the game's 40 actual shelf fixture collision rectangles and previously existing floor-pad positions.
+- Normal and low-effects builds passed **10/10** build and structural checks. Purchase/ownership, category restrictions and reload passed **15/15** mocked behavioral checks. Perspective rug rendering and save validation passed **7/7** tests.
+- Live browser display and physical iPhone testing have **not** been independently completed. Before broadening the catalog, confirm that rug floors render clearly in Safari, new menu tabs scroll, and previously purchased art remains intact.
+
+**Next:** improve preview/placement freedom and introduce architectural finishes, ceiling ornaments, shelf trims and decorative curios while creating each of the remaining 160 individual art pieces under the locked 180-piece roster.
+
+
 ## v0.19.0 — Phase 4 living gallery: 12 original decorations across three categories (Nov 3, 2026)
 
 This milestone expands the first playable Sacrifice Catalog **from 3 to 12 distinct, individually authored decorations**, while keeping the locked 180-piece [MASTER_ROADMAP_LOCKED.md](./MASTER_ROADMAP_LOCKED.md) target intact. The original three paintings and all existing purchased ownership/placement IDs remain preserved.
