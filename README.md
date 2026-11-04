@@ -1,5 +1,35 @@
 # The Bit Bazaar — The Great Figurine Sort
 
+## v0.24.0 — Live room-finish customization and reversible walk-around preview (November 3, 2026)
+
+**The 36 original Sacrifice Catalog decorations and the locked 180-item roadmap are unchanged.** This milestone improves interior customization without new purchases, coins, customer systems, or any further sacrifices. [MASTER_ROADMAP_LOCKED.md](./MASTER_ROADMAP_LOCKED.md) remains authoritative.
+
+**Real independent materials for four shop surfaces**
+- **Floors:** Heirloom Slate (the original), Warm Honey Tiles, Sea Glass Stone and Terracotta Mosaic. The selected RGB tile palette is used directly in the 480×270 procedural per-pixel floor renderer, with its normal grout, grain and fog preserved. Palette colors are obtained once per floor draw, not recomputed per pixel.
+- **Walls:** Mulberry Plaster (original), Morning Cream, Lagoon Teal, Old-Brick Rose. Changes are applied to the actual distant wall polygon fill, baseboard and upper border, not merely a menu thumbnail.
+- **Ceiling:** Midnight Violet (original), Cloudlinen, Sapphire Night and Copper Glow. The actual ceiling background and horizontal tile details change; ceiling lights remain functional decorative geometry.
+- **Shelving:** Heritage Walnut (original), Golden Oak, Painted Sage and Inkwood & Brass. The physical shelf backs, fascia and five miniature support boards update in both standard and Low FX game renderers; existing paid decorative shelf-rail motifs layer on top, retaining their independent gold/silver/copper accent selection.
+
+**A genuine walk-around preview with apply or discard**
+- From **◇ DECOR**, open the new **THE INTERIOR WORKSHOP**, choose any combination of the 4×4 material options, and tap **WALK-AROUND PREVIEW**.
+- The drawer closes and world rendering resumes using a temporary draft. Players may walk and look around the real shop with normal touch/desktop movement controls; a compact overlay offers **APPLY** (saves all four finish choices), **EDIT** (return to the workshop retaining unsaved choices), and **DISCARD** (restore the previously saved room without writing anything). Normal pick-up/drop interactions and competing map/collection buttons are disabled while previewing.
+- The workshop also offers **APPLY FINISHES** or **REVERT CHOICES** directly in the menu. No decoration ownership or sacrifice is required to style the core shop.
+- Material choices are deliberately limited to four authored themes per surface, so this is a functional expanded-customization milestone, **not yet unrestricted per-tile editing or full freeform decoration placement**.
+
+**Compatibility and performance**
+- Existing save key `bit-bazaar-save-v3`, all 300 collections / 3,000 original figurines, 60 five-tier shelf faces, historical mastery, cleaning, and previous 36 decorations are preserved.
+- The optional `decor.room` field stores a four-element integer array `[floor,wall,ceiling,shelves]` (indexes 0–3). Older saves missing the property use the exact original colors. The new `assets/save-manager-v0.24.js` rejects invalid room selectors on import and keeps accepting old v0.23 or pre-decoration backups.
+- `assets/room-workshop-v0.24.js` handles draft/committed palettes, previews, save state and menu actions. `assets/decor-runtime-v0.24.js` integrates it into the existing gallery. Both full and Low FX game builds call the same color hooks directly from their old world draw paths.
+- `index.html` and the versioned network-first service worker `bit-bazaar-v0.24.0` now reference all required release assets, preserving previous v0.23 fallback files. No new runtime sprite atlas or per-frame canvas allocations were added.
+
+**Programmatic validation**
+- **20/20** stand-alone room workshop tests passed, covering all original palettes, fully reversible previews, independent selections, apply/save, persistence, malformed settings, and legacy save imports.
+- **20/20** integrated gameplay tests passed, covering exact 10/20/40 figurine scatter costs, genuine owned decoration persistence alongside room materials, zero historic mastery loss, 4-surface reloads and canceled previews.
+- Standard and Low FX script syntax and structural build tests passed. The live published entry point and offline cache were updated, but **a full browser render, GitHub Pages propagation, and real iPhone visual QA remain unverified**.
+
+**Next:** polish in-world preview interaction and mobile comfort after playtesting, add more original decorative items toward the remaining 144, and continue expanding independent materials without overloading the 24 FPS iPhone renderer.
+
+
 ## v0.23.0 — Phase 4 actual placement freedom and shelf material workshop (Nov 3, 2026)
 This update adds **meaningful customization to the existing 36 original decorations**. Item count remains **36 / 180**. The approved [MASTER_ROADMAP_LOCKED.md](./MASTER_ROADMAP_LOCKED.md) still requires the remaining 144 bespoke decorations and eventually broader freeform placement/material controls.
 
