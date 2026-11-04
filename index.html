@@ -11,7 +11,7 @@
 <link rel="icon" type="image/png" href="./icon.png" />
 <link rel="apple-touch-icon" href="./icon.png" />
 <title>The Bit Bazaar — The Great Figurine Sort</title>
-<link rel="stylesheet" href="./style-v0.17.0.css" />
+<link rel="stylesheet" href="./style-v0.18.0.css" />
 </head><body>
 <div id="game">
  <canvas id="world" width="480" height="270" aria-label="First-person view of a pixel-art figurine shop"></canvas>
@@ -21,6 +21,7 @@
   <div class="brand"><div class="brand-mark">★</div><div><b>THE BIT BAZAAR</b><small>THE GREAT FIGURINE SORT</small></div></div>
   <div class="top-stats"><div class="stat"><b id="placed">0</b><span>/ 3,000 SHELVED</span></div><div class="stat"><b id="complete">0</b><span>/ 300 PERFECT SETS</span></div></div>
   <div class="top-actions">
+   <button id="decorBtn" class="chrome small" aria-label="Open the Sacrifice Catalog">◇ DECOR</button>
    <button id="mapBtn" class="chrome small" aria-label="Open interactive store map">▦ MAP</button>
    <button id="albumBtn" class="chrome small" aria-label="Open collectible almanac">✦ COLLECTION</button>
   </div>
@@ -105,11 +106,13 @@
 <script src="./assets/collection.js"></script>
 <script src="./assets/collection-extension.js"></script>
 <script src="./assets/optimized-sprites.js"></script>
-<script src="./assets/save-manager-v0.17.js"></script>
-<script src="./game-v0.17.0.js?v=0.17.0" defer></script>
+<script src="./assets/decor-v0.18.js"></script>
+<script src="./assets/decor-runtime-v0.18.js"></script>
+<script src="./assets/save-manager-v0.18.js"></script>
+<script src="./game-v0.18.0.js?v=0.18.0" defer></script>
 <script>
 if ("serviceWorker" in navigator) {
-  addEventListener("load", () => navigator.serviceWorker.register("./sw.js?v=0.17.0", {updateViaCache:"none"}).catch(() => {}));
+  addEventListener("load", () => navigator.serviceWorker.register("./sw.js?v=0.18.0", {updateViaCache:"none"}).catch(() => {}));
 }
 </script>
 </body></html>
