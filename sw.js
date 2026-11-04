@@ -1,20 +1,20 @@
-/* Bit Bazaar v0.17: compact, fault-tolerant network-first offline app shell.
-   Saves stay in localStorage; the worker never reads or modifies user progress. */
-const CACHE="bit-bazaar-v0.17.0";
+/* Bit Bazaar v0.18 — compact, network-first offline app shell.
+   Cache only the current playable release; never touch local save storage. */
+const CACHE="bit-bazaar-v0.18.0";
 const CORE=[
- "./index.html",
- "./style-v0.17.0.css","./game-v0.17.0.js",
- "./game-v0.17.0-lowfx.js","./baseline-v0.17.0-lowfx.html",
+ "./index.html","./style-v0.18.0.css","./game-v0.18.0.js",
+ "./game-v0.18.0-lowfx.js","./baseline-v0.18.0-lowfx.html",
  "./assets/collection.js","./assets/collection-extension.js",
  "./assets/optimized-sprites.js","./assets/figurines.png",
- "./assets/save-manager-v0.17.js",
- "./manifest.webmanifest","./icon.png"
+ "./assets/decor-v0.18.js","./assets/decor-runtime-v0.18.js",
+ "./assets/save-manager-v0.18.js","./manifest.webmanifest","./icon.png"
 ];
-// The older release remains available offline when each individual fetch works.
-// Optional files must never block installation of an otherwise healthy update.
+// A previous working build is cached opportunistically for emergency use.
+// Missing optional assets cannot cause current-version install failure.
 const OPTIONAL=[
- "./game-v0.16.0.js","./game-v0.16.0-lowfx.js",
- "./style-v0.16.0.css","./baseline-v0.16.0-lowfx.html"
+ "./game-v0.17.0.js","./game-v0.17.0-lowfx.js",
+ "./style-v0.17.0.css","./baseline-v0.17.0-lowfx.html",
+ "./assets/save-manager-v0.17.js"
 ];
 self.addEventListener("install",event=>{
  event.waitUntil(caches.open(CACHE).then(async cache=>{
@@ -43,8 +43,6 @@ self.addEventListener("fetch",event=>{
   const cache=await caches.open(CACHE);
   const saved=await cache.match(request,{ignoreSearch:true});
   if(saved)return saved;
-  // A missing script/image must never be served HTML: that hides the true error
-  // and results in confusing syntax failures. Navigation may use the app shell.
   if(request.mode==="navigate"){
    const shell=await cache.match("./index.html");
    if(shell)return shell;
