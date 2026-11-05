@@ -142,10 +142,8 @@ assert.equal(runtime.state().owned.length,55);
 assert.equal(runtime.state().placed.length,54);
 assert.equal(saves,3);
 const main=code('preview-v0.39.0.html'),worker=code('sw.js');
-for(const pth of ['assets/decor-runtime-v0.39.js','game-v0.39.0.js','style-v0.39.0.css']){
- assert.ok(main.includes('./'+pth),'main shell loads '+pth);
- assert.ok(worker.includes('./'+pth),'offline cache contains '+pth);
-}
+for(const pth of ['assets/decor-runtime-v0.39.js','game-v0.39.0.js','style-v0.39.0.css'])
+ assert.ok(main.includes('./'+pth),'historical v0.39 preview retains '+pth);
 assert.ok(main.indexOf('decor-workshop-v0.38.js')<
  main.indexOf('decor-runtime-v0.39.js'),'precision workshop initialized first');
 assert.ok(main.includes('assets/decor-art-v0.37.js'),'all 180 original artworks preserved');
@@ -156,5 +154,5 @@ for(const pathName of ['game-v0.39.0.js','game-v0.39.0-lowfx.js']){
    'bit-bazaar-save-v3','visibleDecor(cameraDepth,cameraSide,visibleSlope,'])
  assert.ok(content.includes(marker),'both renderers share new gallery budget '+marker);
 }
-assert.ok(worker.includes('bit-bazaar-v0.40.0'));
+assert.ok(worker.includes('bit-bazaar-v0.41.0'));
 console.log('PASS v0.39: 55 owned works loaded, near-art guarantee, stable budgeted distant sprites, ghost always visible, no-save previews, cache after precision/move/store/load, 5 shelf tiers, rug 8/4/2 LOD, complete 180-art chain and both iPhone builds.');

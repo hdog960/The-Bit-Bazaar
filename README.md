@@ -1,5 +1,28 @@
 # The Bit Bazaar — The Great Figurine Sort
 
+## v0.41.0 — Exposed Artwork Slices and Accurate In-World Inspection (November 4, 2026)
+
+Phase 4 dense-gallery visual refinement following the successful 180-artwork content milestone. In v0.40 a solid rack blocked the center of a decoration and therefore incorrectly hid the entire illustration even when its edges were plainly visible beside the shelf. v0.41 replaces that near-range all-or-nothing decision with four horizontal, physical shelf-tested artwork lanes.
+
+### Better visual occlusion without redraws or replacement art
+
+- **Partial visibility:** Within 16 world units, actual physical placement, camera facing and mounted orientation determine four equal-width portions of an original pixel-art decoration. Each portion tests the same original solid-shelf ray used by miniature and cleaning visibility. A visible left side stays visible when the center and right side lie behind a rack; unseen portions cannot draw through a shelf. Completely obstructed artwork remains culled.
+- **Exact original pixels:** Standard wall paintings, floor statues/plants/lamps/curios, overhead mobiles and rugs draw only the exposed source-image portions through the existing 2D canvas transform. No generated replacement art, new texture atlases or additional image canvases. Fully exposed items still need only their original **one** billboard draw, or the original eight/four/two rug perspective slices.
+- **Bounded effort:** Farther than 16 world units the fast v0.40 center-ray test remains, so dense areas do not turn into hundreds of additional cross-shelf checks. Near items use at most four horizontal bands and preserve the close-art draw-priority guarantee. This is strip-based, *not* fully pixel-perfect 3D volume clipping, and is designed as an efficient iPhone-compatible step.
+- **Honest physical interaction:** Updated `assets/decor-world-v0.41.js` records where the center crosshair falls horizontally inside the artwork's projected 2.5D rectangle. The reticle checks physical shelf visibility at that **specific image section**, rather than trusting the object's center. Consequently a partly exposed sculpture can be inspected through its visible edge, while targeting a blocked portion does not interact through shelf metal.
+- **Saved and previewed art:** Free relocation ghost previews use the same clipping; no artwork can ghost through solid racks and a partially exposed ghost stays in the camera without requiring an actual move. Preview confirmation/cancel remains available in the HUD independently of rendered visibility. The preview never changes owned artwork, figure placements, paid rows or save data.
+
+### Preservation / engineering
+
+- Both `game-v0.41.0.js` and `game-v0.41.0-lowfx.js` use `assets/decor-visibility-v0.41.js`, `assets/decor-world-v0.41.js` and `assets/decor-runtime-v0.41.js`, with identical iPhone Home Screen paths and an updated `bit-bazaar-v0.41.0` network-first service worker. Complete v0.40 standard/Low FX modules remain as recovery files.
+- The original **3,000 unique figurines, 300 numbered sets, 60 shelf faces, 45 messes, 18 hidden finds, 180 handmade art pieces and 232 mounting locations** are unchanged. In particular `bit-bazaar-save-v3` and `decor:{owned,placed,adjustments,room}` are completely unchanged. The same protected numeric left-to-right #1–10 figure sorting, single-figure carrying, lifetime achievements and currently perfect-row sacrificial purchases work as before.
+- New regression suite `tests/phase4-v041.test.cjs` tests partly exposed art whose center is obstructed; right-side obstruction only; full obstruction; overhead and rug clipping without extra canvases; one-draw unoccluded fast path; valid and blocked in-world reticle targeting; no-save ghost cancellation; 16-unit distance threshold; and current standard/Low FX load order. Earlier suites v0.31 through v0.40 continue unchanged in substance.
+
+**Phase 4 acceptance:** The new slice checks are automated and source-verified. Physical iPhone testing, partially occluded details for surfaces that cross multiple rack planes, and save/reopen testing are still necessary before declaring the game production-acceptance complete or beginning Phase 5 Coward's Glasses.
+
+---
+
+
 ## v0.40.0 — Physical Decoration Sightlines and Shelf-End Visibility (November 4, 2026)
 
 This Phase 4 refinement fixes a specific visual consistency issue: previously the first-person reticle respected solid shelf blockers but the 2.5D decoration renderer could still draw an installed sculpture, framed picture or transparent relocation ghost through opaque shelving. The art-layer fix uses the **same ray-to-solid-shelf visibility rules** as pickup/inspection, without changing figure inventory, the user's ability to clean or sort, or the physical store layout.
