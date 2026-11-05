@@ -167,7 +167,7 @@ assert.ok(html.indexOf('decor-art-v0.36.js')<html.indexOf('decor-sites-v0.36.js'
 assert.ok(html.indexOf('decor-sites-v0.36.js')<html.indexOf('decor-runtime-v0.36.js'));
 for(const p of ['assets/decor-art-v0.36.js','assets/decor-sites-v0.36.js','assets/decor-runtime-v0.36.js'])
  assert.ok(sw.includes('./'+p),'offline cache must preload '+p);
-assert.ok(sw.includes('bit-bazaar-v0.37.0'));
+assert.ok(sw.includes('bit-bazaar-v0.38.0'));
 assert.ok(code('baseline-v0.36.0-lowfx.html').includes('game-v0.36.0-lowfx.js'));
 const active=code('assets/decor-runtime-v0.36.js');
 for(const text of ["data-decor-search-apply","data-decor-search-clear",

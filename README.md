@@ -1,5 +1,40 @@
 # The Bit Bazaar — The Great Figurine Sort
 
+## v0.38.0 — Precision Workshop: Preview, Apply, Cancel and Collision-Safe Arrangement (November 4, 2026)
+
+Following the v0.37 completion of **180/180 individually authored original artworks**, this release focuses on the remaining **Phase 4 acceptance work**: real positioning freedom, physical clearance and friendly iPhone controls. It adds no new figurines or decorations and keeps the original six-phase locked roadmap intact.
+
+### Touch-friendly top-down precision gallery
+
+Each installed, permanently owned decoration can now use a non-destructive **precision editor** in the Sacrifice Catalog. The positioning arrows take **0.25 world-unit steps**, while **⌖ OPEN TOP-DOWN POSITION GRID** opens a bounded **5×5** preview for one artwork at a time. The grid can choose safe **0.5-unit stepping stones** and shows unavailable cells as ×. An item can stage a draft using arrows, the grid, or rug rotation, then choose **✓ APPLY POSITION · FREE** to commit once, or **✕ CANCEL PREVIEW** to discard it completely. A reset option also previews the original placement rather than silently changing a save. No perfect rows, figure IDs or currency are involved in moving existing art.
+
+- **Freestanding sculptures, plants, lamps, curios, rugs and hanging ornaments** can now offset as far as **±1.00 world unit per axis** where actual shelves and installed artwork permit. Exact 0.25-unit steps remain supported, and the editor displays current draft coordinates and unsaved status in clear text.
+- **Wall art** remains limited to safe **±0.50** shifts along the real hanging face to prevent floating through physical shelving and walls. **Endcap hooks** remain rigidly tied to their actual steel side panels. **Shelf finishes** still follow their original fixed 60 shelf-face mounts.
+- Rug rotations remain available in **90° increments**, with a nine-point 4.4 × 2.96 footprint test. The editor also checks proximity to other already installed floor art/rugs and other hanging ornaments, not just shelves. Unsafe moves are disabled/rejected.
+- The existing three optional shelf-rail metallic finishes are selectable as **staged choices**, and only an explicit Apply updates the saved material; all 15 bespoke 3D five-tier original patterns still render as before.
+- Only one 5×5 placement grid is expanded at any time, avoiding a giant grid for all 180 item cards. The iPhone layout has improved 44px+ touch targets, readable contrast, focus rings and clear preview/confirm controls.
+
+**Important:** The precision grid is an overhead draft view in the catalog, while the 3D shop continues showing the saved position until Apply. This avoids fake in-world previews and prevents an unsaved position from accidentally being treated as real. Closing the drawer or switching to the map discards all unconfirmed fine-position changes.
+
+### Faster real-world site selection on the map
+
+The overhead physical shop map's decoration planner now adds **⌖ CLOSEST OPEN** and **› NEXT OPEN** buttons, including the free owned-art relocation planner. Those controls move the **selected map pin only**, with no world movement or save write; players still explicitly preview their proposed destination in the first-person game and then confirm or cancel. For a relocation, closest means nearest to the currently installed original site; otherwise it uses the selected site or shop center. Shelf trims with no physical map coordinates say **FIRST OPEN** rather than claiming a false nearest distance.
+
+This helps particularly with **75 freestanding floor positions**, 56 wall/endcap positions, 20 rugs, 21 ceiling hooks, and 60 shelf trims (232 persistent locations in all). The original map, 3D ghost previews, **Look Toward**, Previous/Next Site, free relocation, and existing open/occupied indicators remain intact.
+
+### Save and long-session safety
+
+- The **same** `bit-bazaar-save-v3` key, `decor:{owned,placed,adjustments,room}` structure and old `[artId,dx,dz,turn,tone]` adjustment tuple are preserved. A new ±1.00 offset uses integer steps 0–4 and survives save/reload; no save migration, forced reset, or new currency system.
+- Previously saved ±0.50 micro-adjustments are grandfathered during restoration **even if a newer adjacent decoration would now fail the stricter spacing rule**. Edits are checked against the new physical scene, but older player work is never silently discarded by upgraded collision code.
+- The new `assets/decor-workshop-v0.38.js` and `assets/decor-map-v0.38.js` are loaded on the main, preview and Low FX pages, and used by both `game-v0.38.0.js` and `game-v0.38.0-lowfx.js`. The original 180-piece `assets/decor-runtime-v0.37.js` and every older art/module are reused without duplication. Previous v0.37 scripts and the original workshop/map are retained as optional PWA recovery assets.
+- `tests/phase4-v038.test.cjs` checks staged arrows and grid, unsafe neighboring-art moves, no-save cancel/apply, preserved five-field storage on reload, rug footprint collisions, shelf finish tones, the closest/next open map selection, no changes to figure inventory or sacrifice behavior and version alignment. All seven prior Phase 4 test suites remain mandatory in the GitHub Actions pipeline.
+- **Physical device note:** Automated JavaScript and save/collision checks do not replace actual hand-tested iPhone scrolling, small-screen layout, visual occlusion or long-session frame timing. These remain the next Phase 4 acceptance targets.
+
+**Next:** real iPhone art readability and dense-gallery occlusion review; adaptive quality/performance safeguards for all 232 display anchors and a full save-and-reopen playtest. Begin Phase 5 Coward's Glasses only after Phase 4 is truly accepted, not merely because the 180-art count is complete.
+
+---
+
+
 ## v0.37.0 — The Complete Original Gallery: All 180 Artworks (November 4, 2026)
 
 This milestone finishes **the *content-count* objective** of the locked Phase 4 Sacrifice Catalog: exactly **180 separately named, individually illustrated original decorations** across all nine original quotas. The one-at-a-time 3,000-figurine sorting experience, cleaning progress, 300 named sets, current perfect rows, lifetime achievement memory, map, saves and all existing shop fixtures remain unchanged.
