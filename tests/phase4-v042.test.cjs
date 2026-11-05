@@ -146,12 +146,12 @@ async function main(){
  saveOK=true;
  events.click({target:{closest:q=>q==='#verifySaveFile'?{}:null}});
  assert.ok(status.textContent.includes('SHOP VERIFIED'));
- const html=code('index.html'),sw=code('sw.js');
+ const html=code('preview-v0.42.0.html'),sw=code('sw.js');
  for(const p of ['assets/save-manager-v0.42.js','game-v0.42.0.js','style-v0.42.0.css']){
   assert.ok(html.includes('./'+p),'main shell uses '+p);
   assert.ok(sw.includes('./'+p),'offline cache preloads '+p);
  }
- assert.ok(sw.includes('bit-bazaar-v0.42.0'));
+ assert.ok(sw.includes('bit-bazaar-v0.43.0'));
  assert.ok(code('baseline-v0.42.0-lowfx.html').includes('game-v0.42.0-lowfx.js'));
  for(const p of ['game-v0.42.0.js','game-v0.42.0-lowfx.js']){
   const game=code(p);

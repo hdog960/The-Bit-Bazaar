@@ -1,5 +1,47 @@
 # The Bit Bazaar — The Great Figurine Sort
 
+## v0.43.0 — All 3,000 Figurines: Physical Shop Integrity Audit and Stale-Drop Fix (November 5, 2026)
+
+This is a concrete Phase 4 reliability pass. Bit Bazaar remains the same first-person iPhone Safari/Home Screen game with **3,000 real original figurine identities**, 300 named sets × 10 figures, 60 usable shelf faces, 45 permanent floor messes, 18 originally concealed figures, 180 bespoke decorations and 232 mounting locations. The existing six-phase creative roadmap is unchanged.
+
+### Fixed a genuine figure save / portable backup mismatch
+
+The player can place a held figurine on the floor, pick it up again, and then choose to shelve it. Previously, `grabFig(id)` marked a picked-up figurine as held but left behind its **old custom floor-position entry** in `groundPositions` until shelf placement. This meant a legitimate intermediate game save after picking up a figure could contain the same figure ID both in `tote` and in the saved `ground` override array. The live game recovered on reload by ignoring invalid overrides, but the v0.42 downloadable file validator correctly detected a duplicate location and refused the backup.
+
+**v0.43 fixes the state at its source**, in both `game-v0.43.0.js` and `game-v0.43.0-lowfx.js`: the instant a loose or previously dropped figurine moves into the player's hand, its stale stored floor override is removed. Setting the figure back down still writes the new true floor position and shelving still removes the override. This keeps automatic saves and portable backups consistent through the whole drop → pickup → carry → place sequence, not merely after the final placement.
+
+### On-demand, read-only figure audit
+
+Added `assets/figure-integrity-v0.43.js`: a 3,000-object inventory audit running **only when the player requests it** or when a verified save/export is prepared. It never runs in the 20–24fps renderer or changes game state.
+
+The audit checks that all 3,000 original figure IDs and physical figure objects exist exactly once, and classifies each figure as one of four **mutually exclusive** states:
+
+- **Shelved** in a numbered row / slot, with matching row membership and no repeated ID.
+- **Held** in the player's single-figure hand, and not simultaneously loose or shelved.
+- **Loose** in the first-person floor world, with a true `onFloor` state and finite coordinates.
+- **Concealed** among the 18 original cleaning discoveries and not yet collectable; revealed figures must not disappear or become hidden again.
+
+It additionally verifies the existing bucket-based spatial index contains **one and only one reference to each real figure object**; optional dropped-floor coordinates belong only to loose, revealed figures and match their actual physical positions; and the total accounting is exactly **3,000 / 3,000**. Issues are reported by code and figure ID. No automatic reset, arbitrary figure replacement or silent save repair is performed.
+
+### In-game Almanac controls
+
+The Almanac's **YOUR SHOP · SAVE PROTECTION** panel now contains **◇ AUDIT 3,000 FIGURES**, beside the existing verified-save, JSON download, guarded file import and previous-import recovery tools. A successful audit reads:
+
+`3,000 / 3,000 FIGURES ACCOUNTED FOR · [shelved] shelved · [held] held · [loose] on floor · [concealed] still hidden`
+
+The `✓ VERIFY SAVE` and `↓ DOWNLOAD SAVE` actions also run this live audit in the actual game after saving and validating the stored JSON. An inconsistent current physical shop fails with a visible reason and **cannot create a falsely reassuring exported backup**; a valid saved shop continues using the original `bit-bazaar-save-v3` format. The total 180-art catalog and its purchases, owned placements, lifetime/mastered achievements, and save-file import/export schema remain unmodified.
+
+### Engineering checks and acceptance status
+
+- `tests/phase4-v043.test.cjs` exercises a synthetic but complete 3,000-figure store: all 18 concealed figures, a full ten-piece shelf row, single carried figurine, one newly revealed figurine, drop → pick position cleanup, returning a sacrificial row's 10 original figures to floor, a moved physical spatial-index reference, duplicate index entries, unavailable figure detection, inconsistent hidden flags and both standard/Low FX source wiring.
+- The original eleven Phase 4 suites plus the v0.42 backup test remain in the GitHub Actions pipeline. Main, archived preview and Low FX use a common integrity module and new manager. `sw.js` progresses to `bit-bazaar-v0.43.0`, retaining the v0.42 engine and file-manager artifacts as offline recovery.
+- This proves source-level consistency and automated integrity scenarios, **not** a measured hands-on iPhone GPU stress pass or live Files-app download/import test. Final device QA and dense-display checks remain the last Phase 4 acceptance gates before the locked Phase 5 Coward's Glasses.
+
+**Next:** gather real iPhone feedback on the gallery and Save Protection tools, do a sustained large-store device playtest, then review the full Phase 4 sign-off before adding the Phase 5 optional collection helper.
+
+---
+
+
 ## v0.42.0 — Verified Save Backups and Pre-Import Recovery (November 5, 2026)
 
 This release is a targeted Phase 4 **save/reopen and downloadable backup reliability pass** after the original 180-art content milestone and precision-placement updates. The full game stays first-person, iPhone Safari/Home Screen compatible, free, with the same **3,000 figurine IDs, 300 unique named sets, 60 shelf faces, 45 one-time floor messes, 18 hidden figures, 180 individual original decorations and 232 physical decoration anchors**. No feature in this release asks players to reset progress or spend perfect rows.
