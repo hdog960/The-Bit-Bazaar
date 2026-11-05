@@ -130,5 +130,5 @@ for(const p of ['game-v0.40.0.js','game-v0.40.0-lowfx.js']){
  ])assert.ok(source.includes(phrase),p+' must wire both visual and reticle sightlines '+phrase);
 }
 assert.ok(code('baseline-v0.40.0-lowfx.html').includes('game-v0.40.0-lowfx.js'));
-assert.ok(worker.includes('bit-bazaar-v0.44.0'));
+assert.ok(worker.includes('bit-bazaar-v0.45.0'));
 console.log('PASS v0.40: WEST/EAST endcap reverses hidden, owning fixture excluded, shelf-obscured art suppressed before budget, near clear art retained, ghosts respect solid racks but not draw budget, save unchanged, both iPhone engines and offline cache aligned.');

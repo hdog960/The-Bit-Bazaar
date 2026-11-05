@@ -1,3 +1,16 @@
+## v0.45.0 — Verified iPhone Save to Files / Share (November 5, 2026)
+
+**Phase 4 reliability work, not Phase 5.** The Collection Almanac's Save Protection section has a new **SAVE TO FILES / SHARE** button alongside the existing **DOWNLOAD SAVE**, **RESTORE FILE**, **UNDO LAST FILE RESTORE**, **VERIFY SAVE** and 3,000-figure audit. On iPhone, choose Save to Files from the native share sheet and confirm the JSON exists in Files before deleting any browser data.
+
+- The new action first saves the **current actual running shop**, validates the original `bit-bazaar-save-v3` schema including all purchased and placed artwork, and invokes the existing independent audit of all 3,000 physical figures. It will not share stale or unverified progress.
+- When Web Share supports JSON files, shares a dated, original-format `Bit-Bazaar-Save-YYYY-MM-DD.json` through the browser's file share sheet. The same `format:bit-bazaar-save-backup`, `exportVersion:1` file can be imported with **RESTORE FILE** on iPhone; no new save format, account or server is introduced.
+- Unsupported browsers, dismissals and sharing errors do **not** claim success or silently trigger a second download. An unsupported device points back to the existing **DOWNLOAD SAVE** method. The browser cannot confirm that the user actually selected Save to Files, so the UI instructs a manual check.
+- Existing file import protects the current saved shop as a reversible local copy and has explicit confirmation. The original reliable previous-version fallback, 180 unique decorations, 232 mounts, 300 sets, all 3,000 figurine IDs, 60 shelf faces, 18 hidden finds, 45 permanent floor messes and one-figure carrying are preserved.
+- New v0.45 automated regression simulates the iPhone share sheet, valid JSON, cancellation, unavailable share support, quota/storage failure, physical inventory audit failure, native file import and rollback. Existing historical suites remain in CI.
+- **Acceptance:** Deployment/automated tests alone are not physical iPhone Files or Home Screen validation. Phase 4 stays open pending a real save-to-Files/reimport and dense gallery stress test before Phase 5 Coward's Glasses.
+
+---
+
 ## v0.44.0 — Opt-in real iPhone Phase 4 playtest recorder (November 5, 2026)
 
 The collector's Almanac now provides **PHASE 4 · IPHONE DEVICE CHECK**. Press START, close the Almanac, walk past your busiest decorated aisles for at least 30 seconds, return to the Almanac, and press FINISH and COPY REPORT. This collects real-device evidence for Phase 4 acceptance, not a simulated certification.
