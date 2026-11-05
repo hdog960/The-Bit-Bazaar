@@ -159,15 +159,16 @@ const trim='starlit-cedar-rails';
 runner.load({decor:{owned:[trim],placed:[[trim,44]],adjustments:[],room:[]}});
 assert.equal(runner.drawShelfFinish(0,{w:7.7},1,1,6,()=>{},()=>{beamCount++}),true);
 assert.ok(beamCount>=25,'new cedar shelf overlay painted on all five existing tiers');
-const html=src('index.html'),sw=src('sw.js');
+const html=src('preview-v0.34.0.html'),sw=src('sw.js');
 for(const file of ['assets/decor-art-v0.34.js','assets/decor-sites-v0.34.js',
  'assets/decor-runtime-v0.34.js','game-v0.34.0.js','style-v0.34.0.css'])
  assert.ok(html.includes('./'+file),'the release loads '+file);
 assert.ok(html.indexOf('decor-art-v0.34.js')<html.indexOf('decor-sites-v0.34.js'));
 assert.ok(html.indexOf('decor-sites-v0.34.js')<html.indexOf('decor-runtime-v0.34.js'));
-for(const file of ['assets/decor-art-v0.34.js','assets/decor-sites-v0.34.js',
- 'assets/decor-runtime-v0.34.js'])assert.ok(sw.includes('./'+file),'offline cache includes '+file);
-assert.ok(sw.includes('bit-bazaar-v0.34.0'),'fresh PWA cache');
+for(const file of ['assets/decor-art-v0.34.js','assets/decor-sites-v0.34.js'])
+ assert.ok(sw.includes('./'+file),'historical files remain in active catalog '+file);
+assert.ok(html.includes('./assets/decor-runtime-v0.34.js'),'archived preview uses archived runtime');
+assert.ok(sw.includes('bit-bazaar-v0.35.0'),'fresh PWA cache');
 assert.ok(src('baseline-v0.34.0-lowfx.html').includes('game-v0.34.0-lowfx.js'));
 for(const game of ['game-v0.34.0.js','game-v0.34.0-lowfx.js']){
  const code=src(game);

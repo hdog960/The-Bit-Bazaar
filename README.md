@@ -1,5 +1,52 @@
 # The Bit Bazaar — The Great Figurine Sort
 
+## v0.35.0 — Living Collector Gallery: 140 Original Works, 63 Floor Pads, Faster Browsing (November 4, 2026)
+
+This major Phase 4 milestone extends the current six-phase **locked** design. Still a first-person iPhone Safari / Home Screen figurine-cleaning and numerical-sorting adventure: no customers, employees, selling, inventory duplication or cash economy.
+
+### Twenty unique hand-authored decorations — 140 / 180 (77.8%)
+
+The latest twenty each have a real, individually constructed pixel painting on a small cached canvas, an original name, a distinct silhouette, a descriptive visual story, a mounting category, and a sacrifice price of 1–20 **currently** PERFECT rows. No recolored placeholders or swapped names.
+
+- **3 framed scenes:** *The Cloudberry Clockmaker*, *The Iridescent Tidepool* and *The Lantern Fox's Letter*.
+- **4 sculptures:** *Wandering Brass Automaton*, *Moonstone Crane Guardian*, *Obsidian Stag Reliquary* and *The Marmalade Baker*.
+- **3 plants/terrariums:** *Sapphire Weeping Willow*, *Amberwort Terrarium* and *Starlit Lotus Basin*.
+- **4 lamps:** *Butterfly Lampstand*, *Midnight Lighthouse Lamp*, *Lavender Firefly Tree* and *Copper Sun Clock Lamp*.
+- **1 detailed rug:** *Cobalt Harlequin Mosaic*.
+- **2 architectural art pieces:** *Rainforest Arch Window* and *Golden Astral Mirror*.
+- **1 overhead chandelier:** *Crystalline Dragonfly Chandelier* (completes the 15/15 ceiling-art target).
+- **1 five-tier shelf-finish design:** *Frostwalnut Silver Filigree*, with a special separate 3D fascia-rendering pattern rather than just a flat thumbnail.
+- **1 standing curio:** *The Sleeping Sea Globe*.
+
+Category counts after this update: **29/35** framed, **16/25** statues, **14/20** plants, **15/20** lighting, **16/20** rugs, **15/20** architectural, **15/15** ceiling, **11/15** shelf finish, **9/10** curios. All nine original quotas stay unchanged; there are exactly **40 original decorations still to build**.
+
+### Eighteen new nonblocking floor-display pads
+
+Eighteen carefully spaced standing-art mounting sites were added in free collector walkways as permanent **IDs 202–219**, leaving all 202 earlier mounted-site IDs, decorations and saved display positions untouched. They are at least **4.6 world units from any earlier standing-pad center**, **4.7 from rugs**, and **5.4 from other new pads**, as well as outside all 40 modeled shelf-unit footprints and clear of the shop entrance. Nothing new blocks walking, looking, cleaning, shelf pickup, sorting or floor figure scattering.
+
+There are now **220 physical gallery sites**: **56 wall/endcap**, **63 floor**, **20 rug**, **21 ceiling** and **60 real shelf-finish** mounting points. This supports 63 of the eventually planned 75 standing pieces at once. Remaining capacity will be expanded along with the last 40 artworks.
+
+### Catalog usability and save-protection improvements
+
+- Two new high-contrast, iPhone-friendly filters: **◇ UNOWNED** and **✦ CAN CLAIM**. CAN CLAIM only lists permanent unowned pieces affordable using the player's **current** perfect-row count that have at least one compatible empty mount; it never assumes past lifetime perfection can buy a new piece.
+- The existing **✦ NEW** tab correctly includes all **20** fresh hand-authored pieces and preserves twelve-card pagination.
+- On an owned or affordable unowned artwork whose selected mounting point is already unavailable, **⌖ FIND OPEN SITE** chooses a genuinely vacant compatible location and returns the player to that artwork's card, without purchasing or writing a save. Card pagination remains correct even when the item is on a later page.
+- Pressing **PLACE / MOVE** at an artwork's *already installed* site is now safely rejected with **ALREADY DISPLAYED HERE**, rather than running the normal move code and resetting saved micro-position/color adjustments or writing unnecessary changes.
+- All previously developed overhead store map, physical first-person ghost preview, Previous/Next Site carousel, Look Toward control, room materials editor, free owned-art relocation and actual one-figure inventory remain available.
+
+### Actual code-level validation and old-save integrity
+
+- `assets/decor-art-v0.35.js` has 20 original fixed-size, individually distinct pixel compositions; `assets/decor-sites-v0.35.js` adds 18 validated append-only floor pads, before `assets/decor-runtime-v0.35.js` initializes. Both `game-v0.35.0.js` and `game-v0.35.0-lowfx.js` integrate the same gallery and provide read-only QA probes.
+- `bit-bazaar-save-v3`, `decor:{owned,placed,adjustments,room}`, the 300 named ten-piece sets, the exact 3,000 stable figure IDs, cumulative perfect-row history, and all existing anchors are completely unchanged in format. Previous v0.34 files remain as optional service-worker recovery assets.
+- `tests/phase4-v035.test.cjs` loads the entire actual older asset chain and verifies 140 original IDs, 220 physical IDs, category quotas, distinct tiny canvases and site geometry. It exercises the live decoration runtime in a four-PERFECT-row purchase scenario and confirms exactly **40 existing figure IDs** are scattered, four rows cleared, lifetime-perfect credit retained, pre-first-sacrifice backup stored and ownership committed. It also tests no-save site selection, no-op same-site relocation, cancellable ghost previews and new shelf-finish rendering, plus ordinary/Low FX/PWA version compatibility.
+- All historical Phase 4 safety suites v0.31 through v0.34 remain active; old test expectations were updated only to reference their archived HTML and current worker version, not to mask gameplay regressions.
+- **Physical device limitation:** Automated tests and live deployment verification do not constitute a full iPhone Safari touch, artwork appearance, collision or framerate playtest. Continued real-device feedback remains important.
+
+**Next:** complete the final 40 original decorations in the remaining category quotas, expand to at least 75 functional standing-art sites, and refine flexible decoration placement further before moving to the optional Coward's Glasses stage. No changes to the locked six-phase master roadmap.
+
+---
+
+
 ## v0.34.0 — Cross-Aisle Gallery: 120 Original Works and Full Rug Capacity (November 4, 2026)
 
 Phase 4 of the locked Bit Bazaar roadmap advances from 104 to **120 / 180 individually authored original decorations (66.7%)**. The 3,000 one-at-a-time figurines, 300 named sets, five rows per shelf face, and current-vs-lifetime PERFECT distinction remain unchanged. The store is still a quiet first-person collectible sorting adventure, **not** a customer/employee/currency simulator.
