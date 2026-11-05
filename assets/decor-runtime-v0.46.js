@@ -265,7 +265,9 @@ function create(api){
   let written=false;
   try{written=api.save()!==false;}catch(_){}
   if(!written){
-   placed.set(id,from);workshop.load({decor:previous});
+   // Restore the original Map insertion order as well as the exact mount.
+   placed.clear();for(const [oldId,oldSlot] of previous.placed)placed.set(oldId,oldSlot);
+   workshop.load({decor:previous});
    invalidateRenderCache();render();
    api.notify('ART MOVE CANCELLED · SAVE STORAGE FAILED',true);return false;
   }
@@ -281,7 +283,9 @@ function create(api){
   let written=false;
   try{written=api.save()!==false;}catch(_){}
   if(!written){
-   placed.set(id,from);workshop.load({decor:previous});
+   // Restore the original Map insertion order as well as the exact mount.
+   placed.clear();for(const [oldId,oldSlot] of previous.placed)placed.set(oldId,oldSlot);
+   workshop.load({decor:previous});
    invalidateRenderCache();render();
    api.notify('ART STORAGE CANCELLED · SAVE STORAGE FAILED',true);return false;
   }
