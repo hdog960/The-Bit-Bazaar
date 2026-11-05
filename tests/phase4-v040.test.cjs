@@ -112,10 +112,10 @@ assert.equal(runtime.state().placed.length,40);
 assert.equal(saves,0);
 const main=code('preview-v0.40.0.html'),worker=code('sw.js');
 for(const file of ['assets/decor-visibility-v0.40.js','assets/decor-runtime-v0.40.js',
- 'game-v0.40.0.js','style-v0.40.0.css']){
- assert.ok(main.includes('./'+file),'main iPhone shell loads '+file);
- assert.ok(worker.includes('./'+file),'PWA precaches '+file);
-}
+ 'game-v0.40.0.js','style-v0.40.0.css'])
+ assert.ok(main.includes('./'+file),'archived v0.40 preview loads '+file);
+// The active v0.42 offline cache keeps v0.41 as the supported rollback.
+// Older historical releases remain in Git history and preview HTML.
 assert.ok(main.indexOf('decor-world-v0.29.js')<main.indexOf('decor-visibility-v0.40.js'));
 assert.ok(main.indexOf('decor-visibility-v0.40.js')<main.indexOf('game-v0.40.0.js'));
 assert.ok(main.indexOf('decor-workshop-v0.38.js')<main.indexOf('decor-runtime-v0.40.js'));
