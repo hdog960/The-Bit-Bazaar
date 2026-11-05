@@ -33,7 +33,7 @@ window.BIT_BAZAAR_ROOM={create:()=>({
  state:()=>[],load:()=>{},reset:()=>{},render:()=>'',bind:()=>{}
 })};
 vm.runInContext(code('assets/decor-runtime-v0.41.js'),context,{timeout:3000,filename:'runtime'});
-let saves=0,blocking=p=>p.x>-.3;
+let saves=0,blocking=p=>p.x>-.1;
 let camera={x:-2,z:6,yaw:0};
 const eye=window.BIT_BAZAAR_DECOR_VISIBILITY.create({
  catalog,getCamera:()=>camera,isBlocked:(p)=>blocking(p)
@@ -113,7 +113,7 @@ const all=rt.visibleDecor(depth,side,2,8,eye.hidden,eye.bands,0);
 assert.equal(all.length,4,'every clear installed art remains visible');
 assert.equal(all.every(e=>e.bands===null),true,'no partial drawing overhead for clear artwork');
 assert.equal(saves,0);
-blocking=p=>p.x>-.3;
+blocking=p=>p.x>-.1;
 let visualOffset=.5;
 const world=window.BIT_BAZAAR_DECOR_WORLD.create({
  catalog,getPlaced:()=>[['floor-a',0]],position:()=>slots[0],
