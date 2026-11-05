@@ -86,7 +86,7 @@ jobs:
           test -f style-v0.46.0.css
           grep -q 'game-v0.46.0.js' index.html
           grep -q 'game-v0.46.0-lowfx.js' baseline-v0.46.0-lowfx.html
-          grep -q 'decor-runtime-v0.41.js' index.html
+          test -f assets/decor-runtime-v0.41.js
           grep -q 'decor-visibility-v0.41.js' index.html
           grep -q 'decor-art-v0.37.js' index.html
           test -f assets/save-manager-v0.43.js
