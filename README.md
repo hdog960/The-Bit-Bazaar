@@ -1,5 +1,35 @@
 # The Bit Bazaar — The Great Figurine Sort
 
+## v0.39.0 — Dense Gallery Rendering, Stable Occlusion-Aware Budgets and Long-Session Protection (November 4, 2026)
+
+A Phase 4 performance and art-readability pass after v0.38's free staged fine-positioning workshop. All **180 separately authored original decorations**, **232 saved display sites**, 300 named ten-piece figurine sets, 60 cleanable shelf faces and original six-phase roadmap remain intact; **no collectible IDs, decoration IDs, saved site IDs, prices or save keys change**.
+
+### Real renderer efficiency
+
+- `assets/decor-runtime-v0.39.js` caches each committed physical decoration's 2.5D x/z placement and which shelf finish belongs on each real shelf face. Instead of allocating a fresh placement object for every owned artwork and scanning every owned decoration for every visible shelf on every render tick, cached locations remain stable until purchase, move, store, confirmed precise adjustment, reload or a new game. No preview ever enters the saved cache.
+- All fifteen shelf-trim palette definitions are now hoisted to one reusable module-scope lookup table, not rebuilt as a new 15-entry object on every decorated shelf's render.
+- Original individual five-tier shelf designs are still drawn **at full detail up close**. Beyond 10 world units, inlay spacing becomes coarser (three instead of five motifs per tier), and beyond 15 units all five true fascia panels and highlight rails remain but fine inlays are skipped because they would be too small to read.
+- Rug perspective retains all **eight** affine 2.5D texture slices up close, uses **four** slices at medium distance and **two** when farther away. The same original pixel textures, exact shapes, rotations, materials, relative geometry and save behavior are retained, and no new sprites, canvases or atlases are allocated per frame.
+
+### Bounded dense-gallery draw with guaranteed near art
+
+- Scans the cached visible positions, rejects offscreen pieces before doing unnecessary side projection, and prioritizes **every artwork within 12 camera-depth units**; these close-up items are **never discarded**, even when the display budget is full.
+- When a fully decorated gallery has an unusually high number of more distant visible pieces, selects only the nearest subset (normal graphics: **36**, adaptive reduced graphics: **20**; Low FX: **24** or **16**). Already selected distant art gets a two-world-unit preference to reduce distracting oscillation at visibility boundaries; actual painter depth sort and all near shelf/figurine interactions remain unchanged.
+- Owned-art relocation ghosts are **never removed by the per-frame decoration quota**. They remain temporary, save-free preview visuals that can still be confirmed or canceled.
+- The read-only `window.BitBazaarQA.decorRenderStats()` and `BitBazaarQA.stats().decorRender` report installed count, checked non-shelf artwork, frustum count, near count, rendered count, budget-skipped distant pieces, and whether the ghost was shown. These are measurable diagnostics, not in-world progression or save changes.
+- The existing 20–24fps iPhone adaptive renderer, visual-occlusion geometry used for figurines, safe slow-frame recovery, original sorting reticle, and manual Low FX recovery all remain functional.
+
+### Code-level acceptance / rollback
+
+- Added `tests/phase4-v039.test.cjs` to stress-load a dense gallery with 55 owned art pieces, verify the near-art guarantee and stable far cap, reject offscreen work, keep the ghost visible even when budget is exhausted, and assert exact render position after an applied 0.25-unit move. It verifies no-write preview, save/reload, shelf-finish cache changes on move/store, five-tier inlay detail levels, eight/four/two rug slices and identical main/Low FX modules.
+- All **eight historical suites v0.31 through v0.38** remain active alongside this ninth test. Archived suites inspect their historical preview shells and the latest worker's real fallback dependencies rather than demand full precaching of every prior major engine. The versioned `sw.js` cache is now `bit-bazaar-v0.39.0` with v0.38 recovery artifacts.
+- No actual on-device GPU measurements were possible in automated Node validation. This update implements and tests draw-budget control, **not** a claim of measured real-device FPS improvement. A hands-on iPhone visual/performance session and crowded-gallery inspection is still necessary before accepting Phase 4 fully.
+
+**Next:** validate real iPhone long-session frame timing and dense-gallery appearance; address any view-dependent artifacts, sprite occlusion or touch-panel issues discovered, then complete Phase 4 QA before starting the optional Coward's Glasses feature.
+
+---
+
+
 ## v0.38.0 — Precision Workshop: Preview, Apply, Cancel and Collision-Safe Arrangement (November 4, 2026)
 
 Following the v0.37 completion of **180/180 individually authored original artworks**, this release focuses on the remaining **Phase 4 acceptance work**: real positioning freedom, physical clearance and friendly iPhone controls. It adds no new figurines or decorations and keeps the original six-phase locked roadmap intact.

@@ -12,13 +12,13 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Syntax-check both engines and precision placement scripts
+      - name: Syntax-check standard, Low FX, gallery performance and all current modules
         run: |
-          node --check game-v0.38.0.js
-          node --check game-v0.38.0-lowfx.js
+          node --check game-v0.39.0.js
+          node --check game-v0.39.0-lowfx.js
+          node --check assets/decor-runtime-v0.39.js
           node --check assets/decor-workshop-v0.38.js
           node --check assets/decor-map-v0.38.js
-          node --check assets/decor-runtime-v0.37.js
           node --check assets/decor-art-v0.37.js
           node --check assets/decor-world-v0.29.js
           node --check assets/save-manager-v0.29.js
@@ -31,31 +31,34 @@ jobs:
           node --check tests/phase4-v036.test.cjs
           node --check tests/phase4-v037.test.cjs
           node --check tests/phase4-v038.test.cjs
-      - name: Historical v0.31 art-map and previews
+          node --check tests/phase4-v039.test.cjs
+      - name: Verify historical v0.31 map-to-world relocation
         run: node tests/phase4-v031.test.cjs
-      - name: Historical v0.32 artwork placement
+      - name: Verify historical v0.32 original art additions
         run: node tests/phase4-v032.test.cjs
-      - name: Historical v0.33 original pixel art and previews
+      - name: Verify historical v0.33 preview cycling and originals
         run: node tests/phase4-v033.test.cjs
-      - name: Historical v0.34 three-row sacrifice
+      - name: Verify historical v0.34 atomic three-row sacrifice
         run: node tests/phase4-v034.test.cjs
-      - name: Historical v0.35 four-row sacrifice
+      - name: Verify historical v0.35 four-row sacrifice and floor pads
         run: node tests/phase4-v035.test.cjs
-      - name: Historical v0.36 five-row sacrifice and catalog search
+      - name: Verify historical v0.36 searchable gallery and five-row sacrifice
         run: node tests/phase4-v036.test.cjs
-      - name: Complete v0.37 180-piece catalog and six-row sacrifice
+      - name: Verify v0.37 complete 180 original items and six-row sacrifice
         run: node tests/phase4-v037.test.cjs
-      - name: v0.38 precision editor, collisions, cancel and save/reload compatibility
+      - name: Verify v0.38 save-safe precision placement and map controls
         run: node tests/phase4-v038.test.cjs
-      - name: Validate main, Low FX, preview, map and PWA version alignment
+      - name: Stress-test v0.39 dense-gallery draw limits and save invalidation
+        run: node tests/phase4-v039.test.cjs
+      - name: Verify iPhone entrypoints, Low FX, original art and offline cache
         run: |
           test -f index.html
-          test -f preview-v0.38.0.html
-          test -f baseline-v0.38.0-lowfx.html
-          test -f style-v0.38.0.css
-          grep -q 'game-v0.38.0.js' index.html
-          grep -q 'game-v0.38.0-lowfx.js' baseline-v0.38.0-lowfx.html
+          test -f preview-v0.39.0.html
+          test -f baseline-v0.39.0-lowfx.html
+          test -f style-v0.39.0.css
+          grep -q 'game-v0.39.0.js' index.html
+          grep -q 'game-v0.39.0-lowfx.js' baseline-v0.39.0-lowfx.html
+          grep -q 'decor-runtime-v0.39.js' index.html
           grep -q 'decor-workshop-v0.38.js' index.html
-          grep -q 'decor-map-v0.38.js' index.html
           grep -q 'decor-art-v0.37.js' index.html
-          grep -q 'bit-bazaar-v0.38.0' sw.js
+          grep -q 'bit-bazaar-v0.39.0' sw.js

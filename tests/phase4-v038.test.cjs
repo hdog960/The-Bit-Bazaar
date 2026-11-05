@@ -160,13 +160,13 @@ assert.deepEqual(moves,[['statueA',5]]);
 assert.equal(map.moving(),false);
 assert.equal(saves,4,'Map only asks the owning runtime to handle persisted moves');
 // Verify HTML shells and PWA reference exactly the same v0.38 modules.
-const main=read('index.html'),sw=read('sw.js');
+const main=read('preview-v0.38.0.html'),sw=read('sw.js');
 for(const file of ['assets/decor-workshop-v0.38.js','assets/decor-map-v0.38.js',
  'game-v0.38.0.js','style-v0.38.0.css']){
  assert.ok(main.includes('./'+file),'the entrypoint loads '+file);
  assert.ok(sw.includes('./'+file),'PWA cache includes '+file);
 }
-assert.ok(sw.includes('bit-bazaar-v0.38.0'));
+assert.ok(sw.includes('bit-bazaar-v0.39.0'));
 assert.ok(main.indexOf('decor-workshop-v0.38.js')<main.indexOf('decor-runtime-v0.37.js'));
 assert.ok(main.indexOf('decor-runtime-v0.37.js')<main.indexOf('decor-map-v0.38.js'));
 assert.ok(read('baseline-v0.38.0-lowfx.html').includes('game-v0.38.0-lowfx.js'));
