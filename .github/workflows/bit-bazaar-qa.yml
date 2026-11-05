@@ -14,8 +14,11 @@ jobs:
           node-version: '22'
       - name: Syntax-check standard and Low FX visual occlusion and all regression scripts
         run: |
-          node --check game-v0.45.0.js
-          node --check game-v0.45.0-lowfx.js
+          node --check game-v0.46.0.js
+          node --check game-v0.46.0-lowfx.js
+          node --check assets/decor-runtime-v0.46.js
+          node --check assets/decor-workshop-v0.46.js
+          node --check assets/room-workshop-v0.46.js
           node --check assets/decor-visibility-v0.41.js
           node --check assets/decor-runtime-v0.41.js
           node --check assets/decor-workshop-v0.38.js
@@ -42,6 +45,7 @@ jobs:
           node --check tests/phase4-v043.test.cjs
           node --check tests/phase4-v044.test.cjs
           node --check tests/phase4-v045.test.cjs
+          node --check tests/phase4-v046.test.cjs
       - name: Historical v0.31 world relocation and figure priority
         run: node tests/phase4-v031.test.cjs
       - name: Historical v0.32 original art and space preservation
@@ -72,20 +76,25 @@ jobs:
         run: node tests/phase4-v044.test.cjs
       - name: v0.45 native iPhone Files backup and recovery
         run: node tests/phase4-v045.test.cjs
-      - name: Validate all iPhone entrypoints and v0.45 offline cache
+      - name: v0.46 atomic decoration move, store, precision and room-save recovery
+        run: node tests/phase4-v046.test.cjs
+      - name: Validate all iPhone entrypoints and v0.46 offline cache
         run: |
           test -f index.html
-          test -f preview-v0.45.0.html
-          test -f baseline-v0.45.0-lowfx.html
-          test -f style-v0.45.0.css
-          grep -q 'game-v0.45.0.js' index.html
-          grep -q 'game-v0.45.0-lowfx.js' baseline-v0.45.0-lowfx.html
+          test -f preview-v0.46.0.html
+          test -f baseline-v0.46.0-lowfx.html
+          test -f style-v0.46.0.css
+          grep -q 'game-v0.46.0.js' index.html
+          grep -q 'game-v0.46.0-lowfx.js' baseline-v0.46.0-lowfx.html
           grep -q 'decor-runtime-v0.41.js' index.html
           grep -q 'decor-visibility-v0.41.js' index.html
           grep -q 'decor-art-v0.37.js' index.html
           test -f assets/save-manager-v0.43.js
           grep -q 'figure-integrity-v0.43.js' index.html
-          grep -q 'bit-bazaar-v0.45.0' sw.js
+          grep -q 'bit-bazaar-v0.46.0' sw.js
           grep -q 'device-qa-v0.44.js' index.html
           grep -q 'save-manager-v0.45.js' index.html
           grep -q 'save-manager-v0.45.js' sw.js
+          grep -q 'decor-workshop-v0.46.js' index.html
+          grep -q 'room-workshop-v0.46.js' index.html
+          grep -q 'decor-runtime-v0.46.js' index.html
