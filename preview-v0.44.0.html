@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8" /><meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover" />
+<meta name="theme-color" content="#161327" />
+<meta name="application-name" content="The Bit Bazaar" />
+<meta name="apple-mobile-web-app-title" content="Bit Bazaar" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="description" content="A first-person pixel-art figurine store sorting adventure. Collect all 3,000 figurines in 300 complete ten-piece sets." />
+<link rel="manifest" href="./manifest.webmanifest" />
+<link rel="icon" type="image/png" href="./icon.png" />
+<link rel="apple-touch-icon" href="./icon.png" />
+<title>The Bit Bazaar — The Great Figurine Sort</title>
+<link rel="stylesheet" href="./style-v0.44.0.css" />
+</head><body>
+<div id="game">
+ <canvas id="world" width="480" height="270" aria-label="First-person view of a pixel-art figurine shop"></canvas>
+
+ <aside id="roomPreviewHud" class="room-preview-hud" hidden aria-label="Live store material preview" role="region">
+  <strong>✦ WALK-AROUND MATERIAL PREVIEW</strong>
+  <small>Look and walk around. Your saved room stays unchanged until you apply.</small>
+  <div class="room-preview-buttons">
+   <button id="roomPreviewApply" type="button">✓ APPLY</button>
+   <button id="roomPreviewEdit" type="button">← EDIT</button>
+   <button id="roomPreviewCancel" type="button">✕ DISCARD</button>
+  </div>
+ </aside>
+ <div class="vignette"></div>
+ <div id="crosshair" aria-hidden="true"><i></i><i></i></div>
+ <header id="topbar">
+  <div class="brand"><div class="brand-mark">★</div><div><b>THE BIT BAZAAR</b><small>THE GREAT FIGURINE SORT</small></div></div>
+  <div class="top-stats"><div class="stat"><b id="placed">0</b><span>/ 3,000 SHELVED</span></div><div class="stat"><b id="complete">0</b><span>/ 300 PERFECT SETS</span></div></div>
+  <div class="top-actions">
+   <button id="decorBtn" class="chrome small" aria-label="Open the Sacrifice Catalog">◇ DECOR</button>
+   <button id="mapBtn" class="chrome small" aria-label="Open interactive store map">▦ MAP</button>
+   <button id="albumBtn" class="chrome small" aria-label="Open collectible almanac">✦ COLLECTION</button>
+  </div>
+ </header>
+ <div id="progress-track"><div id="progress-fill"></div></div>
+ <div id="hud-left">
+  <div class="tag" id="aisleLabel">ENTRANCE · MAIN FLOOR</div>
+  <div class="restoration-counter"><span>SHELVES <b id="restoredCount">0</b>/60</span>
+   <span class="restoration-floor">FLOOR <b id="floorCleanCount">0</b>/45</span>
+   <span class="restoration-secret">HIDDEN <b id="hiddenCount">0</b>/18</span>
+  </div>
+  <section id="huntDock" class="hunt-dock" aria-label="Optional pinned collection tracker">
+   <button type="button" id="huntToggle" class="hunt-toggle" aria-controls="huntBody" aria-expanded="false">☆ PIN A HUNT</button>
+   <div id="huntBody" class="hunt-body" hidden></div>
+  </section>
+  <div class="mission"><span class="tinycaps">YOUR NEW SHOP</span><strong>Three thousand tiny treasures.</strong><span>Restore the shop, pin your favorite sets, and follow their 1–10 checklists while you collect.</span></div>
+ </div>
+ <aside id="worldArtFocus" class="world-art-focus" hidden aria-label="Selected installed artwork">
+  <span class="world-art-copy"><strong id="worldArtName">ARTWORK</strong>
+   <small id="worldArtLocation">DISPLAY LOCATION</small></span>
+  <div class="world-art-actions"><button id="worldArtEdit" type="button" aria-label="Open this artwork in the decoration editor">◇ EDIT ART</button>
+   <button id="worldArtMove" type="button" aria-label="Move this owned artwork to another display location at no cost">↔ MOVE ART</button></div>
+ </aside>
+ <aside id="decorPreviewHud" class="decor-world-preview" hidden aria-label="World-space decoration placement preview" role="region">
+  <span class="preview-kicker">✦ PREVIEW MODE · NO CHANGES SAVED</span>
+  <strong id="decorPreviewName">OWNED ARTWORK</strong>
+  <small id="decorPreviewDestination">DISPLAY LOCATION</small>
+  <span id="decorPreviewDistance" class="decor-preview-distance">WALK TOWARD THE DESTINATION TO SEE THE GHOST</span>
+  <span id="decorPreviewCount" class="decor-preview-count">OPEN LOCATION 1 / 1</span>
+  <div class="decor-preview-cycle" role="group" aria-label="Browse vacant compatible artwork locations">
+   <button type="button" id="decorPreviewPrevious" aria-label="Preview the previous open location">‹ PREVIOUS SITE</button>
+   <button type="button" id="decorPreviewNext" aria-label="Preview the next open location">NEXT SITE ›</button>
+  </div>
+  <div class="decor-preview-buttons">
+   <button type="button" id="decorPreviewFace">⌖ LOOK TOWARD</button>
+   <button type="button" id="decorPreviewConfirm">✓ PLACE HERE · FREE</button>
+   <button type="button" id="decorPreviewMap">⌖ CHANGE LOCATION</button>
+   <button type="button" id="decorPreviewCancel">✕ CANCEL</button>
+  </div>
+ </aside>
+ <div id="interact" class="interact hidden"><span id="interactName">OBJECT</span><small id="interactDescription">PRESS E TO INTERACT</small>
+  <div id="cleanStage" class="clean-stage" hidden>
+   <span id="cleanStageLabel">CLEANING 0/3</span>
+   <span class="clean-stage-track"><i id="cleanStageFill"></i></span>
+  </div></div>
+ <div id="bottom">
+  <div class="hint" id="desktopHint">WASD MOVE&nbsp; · &nbsp;DRAG TO LOOK&nbsp; · &nbsp;E INTERACT&nbsp; · &nbsp;TAB COLLECTION</div>
+  <div id="carryBar" class="carry-hud" aria-live="polite">
+   <span id="carryThumb" class="carry-thumb"><span class="empty-hand-icon">✦</span></span>
+   <span class="carry-words"><b id="carryTitle">EMPTY HANDS</b><small id="carryDetail">PICK UP ONE FIGURE</small><em id="carrySet">WALK UP TO A FIGURINE</em></span>
+   <button id="putDownBtn" class="put-down" aria-label="Put held figurine on the floor" hidden>PUT DOWN</button>
+  </div>
+ </div>
+ <div id="mobileControls" aria-label="Touch game controls">
+  <div id="joystick"><div id="stick"></div></div>
+  <button id="inspectBtn" class="inspect-action" aria-label="Inspect targeted or held figurine" hidden>⌕ LOOK</button>
+  <button id="actionBtn" class="action"><span>✦</span><b id="actionLabel">PICK UP</b></button>
+ </div>
+ <div id="toast" role="status"></div>
+ <div id="cleanBurst" class="clean-burst" aria-hidden="true">
+  <div class="clean-sparkles"><i></i><i></i><i></i></div>
+  <span id="cleanBurstLabel">DUST WIPED</span>
+ </div>
+ <div id="restoreBanner" class="restore-banner" role="status" aria-live="polite">
+   <div class="restore-banner-stars">✦ ✨ ✦</div>
+   <strong id="restoreBannerTitle">SHOP RESTORED</strong>
+   <small id="restoreBannerCaption"></small>
+ </div>
+ <div id="perfectBanner" class="perfect-banner" role="status" aria-live="polite">
+  <div class="perfect-stars">✦ ★ ✦</div>
+  <h2>PERFECT 1–10!</h2>
+  <p id="perfectSetName"></p><small id="perfectFirst"></small>
+ </div>
+ <div id="inspectOverlay" class="inspect-overlay" hidden aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="inspectFigureName">
+  <div class="inspect-card">
+   <div class="inspect-topline"><span>✦ COLLECTOR'S CLOSE-UP</span><button id="closeInspect" class="inspect-close" aria-label="Close figurine inspection">✕</button></div>
+   <h2 id="inspectFigureName">FIGURINE</h2>
+   <div class="inspect-main">
+    <div class="inspect-art"><div id="inspectSprite"></div></div>
+    <div class="inspect-meta">
+     <div id="inspectFigureNumber" class="inspect-number"></div>
+     <div><span class="inspect-label" id="inspectSeriesNumber"></span><br/><strong id="inspectSeriesName"></strong></div>
+     <div class="inspect-minor" id="inspectRole"></div>
+     <div><span class="inspect-label">CURRENT STATUS</span><br/><strong id="inspectStatus"></strong></div>
+    </div>
+   </div>
+   <div class="inspect-story"><h3>COLLECTOR'S NOTE</h3><div id="inspectStory"></div></div>
+   <div class="inspect-actions">
+    <div id="inspectProgress" class="inspect-progress"></div>
+    <button id="inspectReturn" class="inspect-return">RETURN TO SHOP</button>
+   </div>
+  </div>
+ </div>
+ <!-- Menus -->
+ <div id="screen" class="screen shown">
+  <div class="title-card"><div class="eyebrow">★ CONGRATULATIONS ON YOUR NEW BUSINESS ★</div><h1>THE BIT<br><em>BAZAAR</em></h1><div class="pixel-stripes"></div><p>You inherited a nerdy figurine shop. Unfortunately, there is discarded packaging, scattered rubbish and old stains all over the shop. The shelves are dusty and cobwebbed, and nearly all its collection is scattered across the floor.</p><div class="three-nums"><span><b>3,000</b><small>UNIQUE FIGURES</small></span><span><b>300</b><small>COMPLETE SETS</small></span><span><b>40</b><small>SHELF UNITS</small></span></div><p class="mission-text"><b>START BY CLEANING!</b> Aim at dusty shelves, loose paper, cardboard boxes or floor stains with EMPTY HANDS. Clean shelves in three stages; gather paper, flatten and remove boxes, and scrub floors until they shine. Restored shelves accept figures, and some messes conceal lost miniatures. Find figurines numbered <b>1–10</b> in each collection. Aim the <b>center reticle at one of the ten shelf slots</b> to place a figure anywhere in its matching row. Aim at a placed figure to lift it, or <b>swap</b> with a held figure. A set only counts as complete when it reads <b>1, 2, 3 … 10</b> from left to right.</p><button id="startBtn" class="primary large">OPEN THE SHOP <span>→</span></button><small class="instructions">iPhone: aim your reticle at a dusty shelf, floor litter, boxes or stains and tap CLEAN with EMPTY HANDS. PUT DOWN frees your hands. Aim to PICK UP, LIFT, SWAP and PLACE figurines. Use ☆ PIN A HUNT in the world to see any pinned set's collecting checklist without opening the Almanac. Desktop: E interact, F inspect, M map, WASD move.</small></div>
+ </div>
+ <div id="drawer" class="drawer" aria-hidden="true">
+  <div class="drawer-head"><span id="drawerKicker">STORE SYSTEM</span><button id="closeDrawer" class="chrome close" aria-label="Close panel">✕</button></div>
+  <h2 id="drawerTitle">POCKET TOTE</h2><div class="drawer-body" id="drawerBody"></div>
+ </div>
+ <div class="drawer-shade" id="drawerShade"></div>
+ <div id="confirm" class="confirm" hidden><div><h3>START A FRESH SHOP?</h3><p>This deletes your current sorting progress. Your 3,000 figurines will be scattered again.</p><button id="cancelReset" class="chrome">CANCEL</button><button id="doReset" class="danger">RESET STORE</button></div></div>
+</div>
+<script src="./assets/collection.js"></script>
+<script src="./assets/collection-extension.js"></script>
+<script src="./assets/optimized-sprites.js"></script>
+<script src="./assets/decor-v0.19.js"></script>
+<script src="./assets/decor-expansion-v0.20.js"></script>
+<script src="./assets/decor-expansion-v0.21.js"></script>
+<script src="./assets/decor-expansion-v0.22.js"></script>
+<script src="./assets/decor-expansion-v0.25.js"></script>
+<script src="./assets/decor-sites-v0.26.js"></script>
+<script src="./assets/decor-endcaps-v0.28.js"></script>
+<script src="./assets/decor-art-v0.28.js"></script>
+<script src="./assets/decor-art-v0.29.js"></script>
+<script src="./assets/decor-art-v0.32.js"></script>
+<script src="./assets/decor-sites-v0.32.js"></script>
+<script src="./assets/decor-art-v0.33.js"></script>
+<script src="./assets/decor-sites-v0.33.js"></script>
+<script src="./assets/decor-art-v0.34.js"></script>
+<script src="./assets/decor-sites-v0.34.js"></script>
+<script src="./assets/decor-art-v0.35.js"></script>
+<script src="./assets/decor-sites-v0.35.js"></script>
+<script src="./assets/decor-art-v0.36.js"></script>
+<script src="./assets/decor-art-v0.37.js"></script>
+<script src="./assets/decor-sites-v0.36.js"></script>
+<script src="./assets/decor-workshop-v0.38.js"></script>
+<script src="./assets/room-workshop-v0.24.js"></script>
+<script src="./assets/decor-runtime-v0.41.js"></script>
+<script src="./assets/decor-map-v0.38.js"></script>
+<script src="./assets/decor-world-v0.41.js"></script>
+<script src="./assets/decor-visibility-v0.41.js"></script>
+<script src="./assets/figure-integrity-v0.43.js"></script>
+<script src="./assets/save-manager-v0.43.js"></script>
+<script src="./assets/device-qa-v0.44.js"></script>
+<script src="./game-v0.44.0.js?v=0.43.0" defer></script>
+<!-- v0.17 preview intentionally does not update the active service worker. -->
+</body></html>

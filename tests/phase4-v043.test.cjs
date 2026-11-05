@@ -103,7 +103,7 @@ for(const p of ['game-v0.43.0.js','game-v0.43.0-lowfx.js']){
   p+' displays the one-tap integrity test');
  assert.ok(game.includes("bit-bazaar-save-v3"),'stable save key');
 }
-const main=code('index.html'),sw=code('sw.js');
+const main=code('preview-v0.43.0.html'),sw=code('sw.js');
 for(const p of ['assets/figure-integrity-v0.43.js',
  'assets/save-manager-v0.43.js','game-v0.43.0.js','style-v0.43.0.css']){
  assert.ok(main.includes('./'+p),'active game loads '+p);
@@ -114,5 +114,5 @@ assert.ok(main.indexOf('figure-integrity-v0.43.js')<
 assert.ok(main.indexOf('figure-integrity-v0.43.js')<
  main.indexOf('game-v0.43.0.js'));
 assert.ok(code('baseline-v0.43.0-lowfx.html').includes('game-v0.43.0-lowfx.js'));
-assert.ok(sw.includes('bit-bazaar-v0.43.0'));
+assert.ok(sw.includes('bit-bazaar-v0.44.0'));
 console.log('PASS v0.43: all 3,000 unique live IDs, conceal/reveal, carried and shelf state, no-save audit, sacrifice return, missing pieces, stale overrides, spatial index consistency and both mobile builds.');

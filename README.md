@@ -1,3 +1,16 @@
+## v0.44.0 — Opt-in real iPhone Phase 4 playtest recorder (November 5, 2026)
+
+The collector's Almanac now provides **PHASE 4 · IPHONE DEVICE CHECK**. Press START, close the Almanac, walk past your busiest decorated aisles for at least 30 seconds, return to the Almanac, and press FINISH and COPY REPORT. This collects real-device evidence for Phase 4 acceptance, not a simulated certification.
+
+- **Zero save mutations:** no touch to `bit-bazaar-save-v3`, decoration purchases, figure placements or existing player progress. It samples only while a player explicitly starts recording. On each rendered frame only constant-time counters are updated; decoration visibility stats are read every 12 frames.
+- Reports observed draw cadence, average and worst render time, slow (>43ms), very slow (>85ms), critical (>115ms) frames, adaptive slow-mode activity, gallery rendering/culling, bounded sprite cache, current store state and a one-time read-only audit of all 3,000 physical figures.
+- Severe-frame automatic Low FX recovery stores a partial report in **separate sessionStorage**, available again after the fallback loads; no shop save changes.
+- Both standard and Low FX new v0.44 game shells, a new lightweight QA script, new regression test and mobile Almanac styling are included. The entire v0.43 build remains available as recovery.
+- **Preserved:** 3,000 collectibles / 300 sets / 60 faces / 45 permanent floor messes / 18 hidden discoveries / 180 original decoration designs / 232 mounting sites, with the original data and save format.
+- **Status:** Phase 4 final QA, not yet signed off. Hands-on dense gallery visuals, real Files backup/import, and Home Screen recovery still require iPhone confirmation. Phase 5 Coward's Glasses remains pending.
+
+---
+
 # The Bit Bazaar — The Great Figurine Sort
 
 ## v0.43.0 — All 3,000 Figurines: Physical Shop Integrity Audit and Stale-Drop Fix (November 5, 2026)
