@@ -1,5 +1,30 @@
 # The Bit Bazaar — The Great Figurine Sort
 
+## v0.40.0 — Physical Decoration Sightlines and Shelf-End Visibility (November 4, 2026)
+
+This Phase 4 refinement fixes a specific visual consistency issue: previously the first-person reticle respected solid shelf blockers but the 2.5D decoration renderer could still draw an installed sculpture, framed picture or transparent relocation ghost through opaque shelving. The art-layer fix uses the **same ray-to-solid-shelf visibility rules** as pickup/inspection, without changing figure inventory, the user's ability to clean or sort, or the physical store layout.
+
+### Physical drawing and inspection now agree
+
+- New lightweight `assets/decor-visibility-v0.40.js` is shared by standard and Low FX builds. It accepts a candidate art ID, physical mounting slot, physical world position, live camera position and the original exact rack intersection test. It does not modify saves, figures, art locations, geometry, canvases, colors or any player progress.
+- All installed floor statues, plants, lamps, rugs, wall pictures and ceiling ornaments are checked after the existing camera-frustum rejection, **before** the capped far-art selection. A piece hidden by opaque shelving cannot consume one of the limited rendering slots needed for visible artwork.
+- Real endcap-mounted portraits are rendered only on the exterior face of their own metal side panel. The renderer excludes **only** that end panel's physical fixture from the shelf intersection test, while all *other* shelves remain opaque. This matches the first-person inspection reticle's existing front-face rule and prevents showing paintings through a rack's solid back.
+- The player's core figurine pickup, shelf numerical sorting, shelf cleaning, floor debris cleaning and current first-person focus continue to take priority over art inspection. The game did not change any underlying collection interactions.
+- A temporary owned-art relocation preview is also hidden by a solid rack when the player cannot yet see its destination. The **separate confirmation HUD** continues to work and keeps the preview active; the player can walk or turn to inspect the chosen site, then confirm or cancel. Crucially, the preview is still **never dropped by the distant-art budget** when the sightline is clear.
+- Read-only frame diagnostics now add `hiddenByFixtures` and `ghostBlocked` alongside v0.39's `installed`, `frustum`, `near`, `shown` and `skippedBudget` counters.
+
+### Preservation and QA
+
+- All **180 individually authored original decorations**, **232 permanent physical anchors**, the 3,000 unique figurine identities, 300 named number-ordered sets, 60 shelving faces, 45 floor messes and 18 hidden finds remain intact.
+- No change to **`bit-bazaar-save-v3`** or `decor:{owned,placed,adjustments,room}`; no remapping of owned art, current or lifetime PERFECT rows, purchased gallery pieces, cleaning/achievement credit, or existing position offsets. The former v0.39 render runtime remains available as an optional offline recovery asset.
+- `tests/phase4-v040.test.cjs` exercises WEST/EAST-facing endcap visibility, correct owner fixture exclusion, floor/ceiling visibility, shelf-hidden artwork removed before draw limits, protected nearby pieces, no-write occluded and clear preview states, unchanged saved ownership/placements, and the shared visibility module connected in *both* standard and Low FX builds.
+- All **nine previous Phase 4 regression suites** remain mandatory; the network-first Home Screen cache advances to `bit-bazaar-v0.40.0`.
+
+**Acceptance status:** The implementation and automated tests address the physical shelf sightline defect. A proper device-side visual inspection remains important, particularly for partly occluded rugs and ceilings, because the current renderer hides *whole artwork objects based on their center sightline* rather than clipping every pixel against 3D geometry. Phase 4 is not yet fully certified; continue with handheld visual feedback and a complete save/reload playtest before entering the locked Phase 5 Coward's Glasses milestone.
+
+---
+
+
 ## v0.39.0 — Dense Gallery Rendering, Stable Occlusion-Aware Budgets and Long-Session Protection (November 4, 2026)
 
 A Phase 4 performance and art-readability pass after v0.38's free staged fine-positioning workshop. All **180 separately authored original decorations**, **232 saved display sites**, 300 named ten-piece figurine sets, 60 cleanable shelf faces and original six-phase roadmap remain intact; **no collectible IDs, decoration IDs, saved site IDs, prices or save keys change**.
