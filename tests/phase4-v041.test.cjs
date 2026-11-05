@@ -134,10 +134,11 @@ assert.equal(rt.state().placed.length,4);
 assert.equal(saves,0);
 const html=code('preview-v0.41.0.html'),sw=code('sw.js');
 for(const p of ['assets/decor-visibility-v0.41.js','assets/decor-runtime-v0.41.js',
- 'assets/decor-world-v0.41.js','game-v0.41.0.js','style-v0.41.0.css']){
- assert.ok(html.includes('./'+p),'active iPhone shell loads '+p);
- assert.ok(sw.includes('./'+p),'offline cache includes '+p);
-}
+ 'assets/decor-world-v0.41.js','game-v0.41.0.js','style-v0.41.0.css'])
+ assert.ok(html.includes('./'+p),'archived v0.41 preview loads '+p);
+for(const p of ['assets/decor-visibility-v0.41.js','assets/decor-runtime-v0.41.js',
+ 'assets/decor-world-v0.41.js'])
+ assert.ok(sw.includes('./'+p),'active build still depends on '+p);
 assert.ok(html.indexOf('decor-visibility-v0.41.js')<html.indexOf('game-v0.41.0.js'));
 assert.ok(code('baseline-v0.41.0-lowfx.html').includes('game-v0.41.0-lowfx.js'));
 for(const p of ['game-v0.41.0.js','game-v0.41.0-lowfx.js']){
