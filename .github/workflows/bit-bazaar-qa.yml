@@ -12,13 +12,13 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Syntax-check both engines, current runtime, all art and tests
+      - name: Syntax-check standard, Low FX, all newest artwork and tests
         run: |
-          node --check game-v0.36.0.js
-          node --check game-v0.36.0-lowfx.js
-          node --check assets/decor-art-v0.36.js
+          node --check game-v0.37.0.js
+          node --check game-v0.37.0-lowfx.js
+          node --check assets/decor-art-v0.37.js
+          node --check assets/decor-runtime-v0.37.js
           node --check assets/decor-sites-v0.36.js
-          node --check assets/decor-runtime-v0.36.js
           node --check assets/decor-map-v0.31.js
           node --check assets/decor-world-v0.29.js
           node --check assets/save-manager-v0.29.js
@@ -29,28 +29,30 @@ jobs:
           node --check tests/phase4-v034.test.cjs
           node --check tests/phase4-v035.test.cjs
           node --check tests/phase4-v036.test.cjs
-      - name: Historical v0.31 placement and ghost controls
+          node --check tests/phase4-v037.test.cjs
+      - name: Preserve original v0.31 map relocation and previews
         run: node tests/phase4-v031.test.cjs
-      - name: Historical v0.32 artwork and space preservation
+      - name: Preserve v0.32 artwork/shelf locations
         run: node tests/phase4-v032.test.cjs
-      - name: Historical v0.33 low-cost and cancelable previews
+      - name: Preserve v0.33 preview cancellation and search
         run: node tests/phase4-v033.test.cjs
-      - name: Historical v0.34 purchase and shelf artwork
+      - name: Preserve v0.34 3-row sacrifice and display art
         run: node tests/phase4-v034.test.cjs
-      - name: Historical v0.35 four-perfect-row purchase and discovery views
+      - name: Preserve v0.35 4-row sacrifice and original floor pads
         run: node tests/phase4-v035.test.cjs
-      - name: v0.36 full 160-work catalog, 75 standing sites and live search UI tests
+      - name: Preserve v0.36 searchable gallery and 75 floor sites
         run: node tests/phase4-v036.test.cjs
-      - name: Verify all three entry points, engine alignment, and offline cache
+      - name: Complete 180/180 content, six-row sacrifice, own-all UI and safe saves
+        run: node tests/phase4-v037.test.cjs
+      - name: Verify three entrypoints and correct iPhone PWA version
         run: |
           test -f index.html
-          test -f preview-v0.36.0.html
-          test -f baseline-v0.36.0-lowfx.html
-          test -f style-v0.36.0.css
-          grep -q 'game-v0.36.0.js' index.html
-          grep -q 'game-v0.36.0-lowfx.js' baseline-v0.36.0-lowfx.html
-          grep -q 'decor-art-v0.36.js' index.html
-          grep -q 'decor-sites-v0.36.js' index.html
-          grep -q 'decor-runtime-v0.36.js' index.html
+          test -f preview-v0.37.0.html
+          test -f baseline-v0.37.0-lowfx.html
+          test -f style-v0.37.0.css
+          grep -q 'game-v0.37.0.js' index.html
+          grep -q 'game-v0.37.0-lowfx.js' baseline-v0.37.0-lowfx.html
+          grep -q 'decor-art-v0.37.js' index.html
+          grep -q 'decor-runtime-v0.37.js' index.html
           grep -q 'decorPreviewNext' index.html
-          grep -q 'bit-bazaar-v0.36.0' sw.js
+          grep -q 'bit-bazaar-v0.37.0' sw.js

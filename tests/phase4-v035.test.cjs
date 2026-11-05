@@ -157,9 +157,11 @@ for(const f of ['assets/decor-art-v0.35.js','assets/decor-sites-v0.35.js',
  assert.ok(html.includes('./'+f),'HTML must load '+f);
 assert.ok(html.indexOf('decor-art-v0.35.js')<html.indexOf('decor-sites-v0.35.js'));
 assert.ok(html.indexOf('decor-sites-v0.35.js')<html.indexOf('decor-runtime-v0.35.js'));
-for(const f of ['assets/decor-art-v0.35.js','assets/decor-sites-v0.35.js',
- 'assets/decor-runtime-v0.35.js'])assert.ok(sw.includes('./'+f),'PWA must cache '+f);
-assert.ok(sw.includes('bit-bazaar-v0.36.0'));
+for(const f of ['assets/decor-art-v0.35.js','assets/decor-sites-v0.35.js'])
+ assert.ok(sw.includes('./'+f),'latest catalog still loads historical modules '+f);
+assert.ok(html.includes('./assets/decor-runtime-v0.35.js'),
+ 'v0.35 historical preview uses historical runtime');
+assert.ok(sw.includes('bit-bazaar-v0.37.0'));
 assert.ok(source('baseline-v0.35.0-lowfx.html').includes('game-v0.35.0-lowfx.js'));
 for(const file of ['game-v0.35.0.js','game-v0.35.0-lowfx.js'])
  for(const marker of ['bit-bazaar-save-v3','decorAffordable:','decorFindOpenSite:','decorCatalogCapacity:'])

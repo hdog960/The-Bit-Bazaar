@@ -1,5 +1,45 @@
 # The Bit Bazaar — The Great Figurine Sort
 
+## v0.37.0 — The Complete Original Gallery: All 180 Artworks (November 4, 2026)
+
+This milestone finishes **the *content-count* objective** of the locked Phase 4 Sacrifice Catalog: exactly **180 separately named, individually illustrated original decorations** across all nine original quotas. The one-at-a-time 3,000-figurine sorting experience, cleaning progress, 300 named sets, current perfect rows, lifetime achievement memory, map, saves and all existing shop fixtures remain unchanged.
+
+### The final twenty individually hand-painted works
+
+The last twenty are authored pixel by pixel through separate 32×40, 40×48, 40×28 and 48×28 fixed-resolution canvas compositions, cached once at initialization and then reused in the live world and catalog. All have unique IDs, names, descriptive visual stories, distinct art layouts, compatible physical mount kinds and individual **1–20 currently PERFECT row** prices.
+
+- **Framed scenes (35/35):** *Moonlit Koi Festival*, *The Museum of Dawn*, *Glass Forest Fireflies*.
+- **Statues (25/25):** *Clockwork Unicorn Scholar*, *Moss Griffin Sentinel*, *Velvet Lantern Owl*, *Copper River Dragon*, *Little Astro Courier*.
+- **Plants (20/20):** *Moonberry Ivy Trellis*, *Crystal Fern Cavern*, *Golden Marsh Lantern Reeds*.
+- **Lighting (20/20):** *Stained-Glass Carousel Lamp*, *Aurora Observatory Beacon*.
+- **Rugs (20/20):** *Bluebell Star Compass*, *Copper Autumn Quilt*.
+- **Architecture (20/20):** *Hollow Moon Archway*, *Hearthstone Story Window*.
+- **Ceilings (15/15):** already finished by v0.35, untouched.
+- **Shelf finishes (15/15):** *Royal Enamel Checkwork*, *Silver Tide Brasswork*. Both have distinct handcrafted **five-tier world-space** trim patterns as well as individual 48×28 thumbnails; actual decorated shelf tiers render these materials, not a generic texture.
+- **Curios (10/10):** *Pocket World Diorama*, a spherical miniature village scene.
+
+**Exact art quotas:** 35 framed, 25 statues, 20 plants, 20 lighting, 20 rugs, 20 architectural, 15 ceiling, 15 shelf trim and 10 curios = **180 unique decorations**. The final module verifies unique IDs, unique names and every exact category count, and fails fast on missing or excess content.
+
+### Collector experience
+
+- The previously built **ALL / NEW 20 / UNOWNED / CAN CLAIM / category / OWNED** filters and case-insensitive **name/category/story search** remain available; physical art relocation and free confirmed moves still work.
+- The Sacrifice Catalog now displays an **owned-art progress meter** out of 180. At 180 **permanently owned** works, it shows a special completion message. This is an earned ownership reward, not a misleading indication that merely opening the catalog or perfecting 180 shelf rows completes the gallery.
+- The old **"MORE COMING" artwork label** is gone; the catalog explicitly shows **ALL 180 ORIGINAL DECORATIONS · NINE CATEGORIES COMPLETE** and avoids claiming every placement/refinement goal is complete.
+- Capacity remains **232 append-only decoration anchors**: 56 wall/endcap, 75 freestanding floor, 20 rugs, 21 ceiling, 60 real shelf-finish faces. This accommodates the full 180-item collection simultaneously if players choose to own it all.
+
+### Protecting established progress and completed game logic
+
+- The new `assets/decor-art-v0.37.js` loads immediately after the complete historical decor chain and before `assets/decor-runtime-v0.37.js`. Both `game-v0.37.0.js` and `game-v0.37.0-lowfx.js` run the same runtime. Existing artwork IDs and mounting locations remain in their exact saved order.
+- The save key remains **`bit-bazaar-save-v3`**; the `decor:{owned,placed,adjustments,room}` structure, one-at-a-time figurine movement, 3,000 individual original figure IDs, current/lifetime perfect distinctions and original before-first-sacrifice backup are unchanged. No migration or forced reset.
+- Added `tests/phase4-v037.test.cjs` to assert the entire source chain totals, 20 independent new canvas compositions, true 180 distinct names/IDs, exact all-nine quotas, and safe unchanged 232 slots. It performs a **six-currently-perfect-row purchase** and verifies that exactly **60 existing, distinct figures** are re-scattered and lifetime completion persists, plus same-slot no-ops, no-write preview/cancellation, two unique five-tier trim renderers, searchable new art, and a real catalog-rendering test for the complete-owned progress message.
+- All earlier safety suites v0.31–v0.36 remain required. The network-first PWA cache is `bit-bazaar-v0.37.0`, and previous v0.36 standard/Low FX artifacts remain as optional recovery files.
+- Automated tests cannot replace an actual iPhone Safari visual and long-session performance pass. The 180 artwork **content-count** milestone is complete, but **Phase 4 final acceptance** still requires further freeform placement improvements, layout quality review and device QA before moving to the planned Coward's Glasses Phase 5.
+
+**Next roadmap priority:** refine tangible placement freedom and the decor preview controls, audit density/occlusion and phone rendering for the full 232 positions, test save compatibility across updates and polish all gallery surfaces without changing the locked 180-category content plan.
+
+---
+
+
 ## v0.36.0 — Searchable Gallery: 160 Original Artworks and All 75 Standing Mounts (November 4, 2026)
 
 A second major development pass during the extended Phase 4 work session. The original 300 distinct named figure sets, 3,000 figure IDs, full 40-shelf layout, 60 cleanable faces and single-figurine carry rule remain unchanged. The real money-free Sacrifice Catalog (buy art with **currently** PERFECT rows, not lifetime achievements) is preserved.
