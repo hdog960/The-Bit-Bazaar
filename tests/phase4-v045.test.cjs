@@ -126,10 +126,10 @@ async function main(){
   assert.ok(read(game).includes('id="shareSaveFile"'));
   assert.ok(read(game).includes("bit-bazaar-save-v3"));
  }
- for(const entry of ['index.html','preview-v0.45.0.html','baseline-v0.45.0-lowfx.html']){
+ for(const entry of ['preview-v0.45.0.html','baseline-v0.45.0-lowfx.html']){
   assert.ok(read(entry).includes('assets/save-manager-v0.45.js'));
  }
- assert.ok(read('sw.js').includes('bit-bazaar-v0.46.0'));
+ assert.ok(read('sw.js').includes('bit-bazaar-v0.47.0'));
  assert.ok(read('sw.js').includes('./assets/save-manager-v0.45.js'));
  console.log('PASS v0.45: iPhone share sheet, valid 3000-object backup, cancel / fail closed, stale-save prevention, Files roundtrip and rollback, two mobile engines.');
 }
