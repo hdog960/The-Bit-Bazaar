@@ -165,8 +165,10 @@ for(const p of ['assets/decor-art-v0.36.js','assets/decor-sites-v0.36.js',
  assert.ok(html.includes('./'+p),'live shell must load '+p);
 assert.ok(html.indexOf('decor-art-v0.36.js')<html.indexOf('decor-sites-v0.36.js'));
 assert.ok(html.indexOf('decor-sites-v0.36.js')<html.indexOf('decor-runtime-v0.36.js'));
-for(const p of ['assets/decor-art-v0.36.js','assets/decor-sites-v0.36.js','assets/decor-runtime-v0.36.js'])
- assert.ok(sw.includes('./'+p),'offline cache must preload '+p);
+for(const p of ['assets/decor-art-v0.36.js','assets/decor-sites-v0.36.js'])
+ assert.ok(sw.includes('./'+p),'current catalog still needs this historical artwork/site module '+p);
+assert.ok(html.includes('./assets/decor-runtime-v0.36.js'),
+ 'historical v0.36 preview loads its original matching runtime');
 assert.ok(sw.includes('bit-bazaar-v0.38.0'));
 assert.ok(code('baseline-v0.36.0-lowfx.html').includes('game-v0.36.0-lowfx.js'));
 const active=code('assets/decor-runtime-v0.36.js');
