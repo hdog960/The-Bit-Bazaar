@@ -1,5 +1,43 @@
 # The Bit Bazaar — The Great Figurine Sort
 
+## v0.42.0 — Verified Save Backups and Pre-Import Recovery (November 5, 2026)
+
+This release is a targeted Phase 4 **save/reopen and downloadable backup reliability pass** after the original 180-art content milestone and precision-placement updates. The full game stays first-person, iPhone Safari/Home Screen compatible, free, with the same **3,000 figurine IDs, 300 unique named sets, 60 shelf faces, 45 one-time floor messes, 18 hidden figures, 180 individual original decorations and 232 physical decoration anchors**. No feature in this release asks players to reset progress or spend perfect rows.
+
+### A real save-format mismatch repaired
+
+The original `assets/save-manager-v0.29.js` validation had never been updated when the v0.38 precision workshop raised the safe fine-position range for **floor art, rugs and ceiling ornaments** to ±1.00 world unit. The running game correctly saved `[artId, dx, dz, turn, tone]` quarter-unit integer offsets as high as ±4, but downloading or importing those otherwise valid saves was incorrectly rejected by the file validation limit of ±2.
+
+New **`assets/save-manager-v0.42.js`** explicitly validates mounting-surface-specific limits:
+
+- **Floor sculptures, plants, freestanding lamps and curios; rugs; ceilings:** integer quarter-unit offsets from **−4 to +4** along each allowed axis (±1.00 unit), subject to the original shop coordinate bounds.
+- **Wall paintings / architecture:** **−2 to +2** (±0.50 unit) solely along the original wall plane, with the other coordinate fixed.
+- **Shelf finishes:** no physical offset or rotation, but their three independent saved metallic accents continue to work.
+- **Actual shelf endcap paintings:** fixed to the opaque panel, no physical offset. Rug rotation remains 0–3 right-angle turns; wall/floor/ceiling artwork cannot rotate; rail material tone remains 0–2 and cannot be misapplied to other kinds.
+- Existing valid ±0.50 saves and old saves with no `decor` or `adjustments` fields still validate. The same **`bit-bazaar-save-v3`** key and **`decor:{owned,placed,adjustments,room}`** structure remain untouched. Invalid duplicates, unowned art positions, invalid figure IDs and corrupt row/slot arrangements are still rejected.
+
+### Player-visible safety controls
+
+The Almanac's existing **YOUR SHOP · SAVE PROTECTION** panel now contains:
+
+1. **✓ VERIFY SAVE** — forces the currently running game to persist its latest progress, validates the written save, then reports how many figurines are shelved, how many rows are currently perfect, how many original decorations are permanently owned, how many art positions are customized and how many lifetime sets have been mastered.
+2. **↓ DOWNLOAD SAVE** — validates a *freshly written* snapshot, then requests a dated JSON download. A full/blocked browser localStorage write **fails visibly and does not export stale progress**. Users should still check iPhone Files/Downloads before clearing browser data.
+3. **↑ RESTORE FILE** — as before, validates selected backup data and asks for explicit replacement confirmation, but now also verifies that the currently running shop was actually saved immediately before creating the pre-import local recovery copy. A failed current-save write aborts the restore.
+4. **↶ UNDO LAST FILE RESTORE** — appears enabled only if a local pre-import backup is present. Verifies the saved earlier shop, asks for confirmation, writes a second safety copy of the current post-import state under `bit-bazaar-v3-before-import-rollback`, then restores the pre-import game. No figure, cosmetic ownership, or history is changed except by the player's intentional restore choice.
+
+All actions take place entirely on the player's device; no accounts or file uploads. Mobile hit targets retain their existing 48px minimum, with the four actions arranged in the existing two-column touch grid.
+
+### Automated safety coverage and limitations
+
+- `tests/phase4-v042.test.cjs` runs a real copy of the new file-manager script in a DOM/storage simulation: valid six-kind original decoration adjustments; older two-step and pre-decoration backups; rejection of impossible offsets and duplicate or invalid figure identities; fresh-save verification and JSON export; simulated browser storage quota failures; explicit import, cancel, validation failures, and rollback restoring the original copy; both standard and Low FX game shells.
+- All existing eleven Phase 4 test suites remain in CI. The service worker is network-first, now `bit-bazaar-v0.42.0`, and retains the complete prior v0.41 game and older file manager as optional fallback assets. `game-v0.42.0.js` and `game-v0.42.0-lowfx.js` both report a real boolean result from the existing normal `save()` function, without modifying autosave timing or any game save fields.
+- **Verification versus device QA:** A successful validation proves internal JSON compatibility, not that Safari definitely stored a download or that iOS Files accepted it. Actual iPhone download/open/import and long-session GPU visual inspection should still be performed before marking all Phase 4 acceptance checks complete. All file restores explicitly replace current progress; use the verification/download controls before trying one.
+
+**Next:** a real iPhone save-download/reopen/import test, a dense-gallery visual and 3,000-figure invariant pass, then Phase 4 sign-off. Continue into the locked Phase 5 Coward's Glasses only after final Phase 4 approval.
+
+---
+
+
 ## v0.41.0 — Exposed Artwork Slices and Accurate In-World Inspection (November 4, 2026)
 
 Phase 4 dense-gallery visual refinement following the successful 180-artwork content milestone. In v0.40 a solid rack blocked the center of a decoration and therefore incorrectly hid the entire illustration even when its edges were plainly visible beside the shelf. v0.41 replaces that near-range all-or-nothing decision with four horizontal, physical shelf-tested artwork lanes.

@@ -132,7 +132,7 @@ rt.load({decor:rt.state()});
 assert.equal(rt.state().owned.length,5);
 assert.equal(rt.state().placed.length,4);
 assert.equal(saves,0);
-const html=code('index.html'),sw=code('sw.js');
+const html=code('preview-v0.41.0.html'),sw=code('sw.js');
 for(const p of ['assets/decor-visibility-v0.41.js','assets/decor-runtime-v0.41.js',
  'assets/decor-world-v0.41.js','game-v0.41.0.js','style-v0.41.0.css']){
  assert.ok(html.includes('./'+p),'active iPhone shell loads '+p);
@@ -146,5 +146,5 @@ for(const p of ['game-v0.41.0.js','game-v0.41.0-lowfx.js']){
   'false,e.bands)','ctx,player.yaw,e.bands)','bit-bazaar-save-v3'])
  assert.ok(s.includes(q),p+' must wire matching visual and inspection masks '+q);
 }
-assert.ok(sw.includes('bit-bazaar-v0.41.0'));
+assert.ok(sw.includes('bit-bazaar-v0.42.0'));
 console.log('PASS v0.41: partial world artwork visible and reticle-targetable, hidden columns never drawn, full occlusion culls, near rug/ceiling/ghosts clipped, far art stays efficient, no save changes, both mobile engines wired.');

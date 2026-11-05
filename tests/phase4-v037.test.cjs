@@ -199,5 +199,5 @@ for(const p of ['assets/decor-art-v0.37.js','assets/decor-runtime-v0.37.js'])
  assert.ok(worker.includes('./'+p),'current catalog or recovery still loads '+p);
 assert.ok(main.indexOf('decor-art-v0.37.js')<main.indexOf('decor-runtime-v0.37.js'));
 assert.ok(source('baseline-v0.37.0-lowfx.html').includes('game-v0.37.0-lowfx.js'));
-assert.ok(worker.includes('bit-bazaar-v0.41.0'));
+assert.ok(worker.includes('bit-bazaar-v0.42.0'));
 console.log('PASS v0.37: 180 unique hand-authored works with 9 exact quotas, 232 stable sites, 60 figure identities conserved in 6-row sacrifice, no-op moves, read-only search, true completion UI, two unique five-tier shelf finishes, standard/Low FX and new offline cache.');
