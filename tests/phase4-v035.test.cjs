@@ -151,7 +151,7 @@ let panels=0,beams=0;
 assert.equal(runtime.drawShelfFinish(0,{w:7.7},1,1,6,()=>panels++,()=>beams++),true);
 assert.equal(panels,5,'new shelf finish covers five physical tiers');
 assert.ok(beams>=40,'detailed unique shelf embellishment is rendered');
-const html=source('index.html'),sw=source('sw.js');
+const html=source('preview-v0.35.0.html'),sw=source('sw.js');
 for(const f of ['assets/decor-art-v0.35.js','assets/decor-sites-v0.35.js',
  'assets/decor-runtime-v0.35.js','game-v0.35.0.js','style-v0.35.0.css'])
  assert.ok(html.includes('./'+f),'HTML must load '+f);
@@ -159,7 +159,7 @@ assert.ok(html.indexOf('decor-art-v0.35.js')<html.indexOf('decor-sites-v0.35.js'
 assert.ok(html.indexOf('decor-sites-v0.35.js')<html.indexOf('decor-runtime-v0.35.js'));
 for(const f of ['assets/decor-art-v0.35.js','assets/decor-sites-v0.35.js',
  'assets/decor-runtime-v0.35.js'])assert.ok(sw.includes('./'+f),'PWA must cache '+f);
-assert.ok(sw.includes('bit-bazaar-v0.35.0'));
+assert.ok(sw.includes('bit-bazaar-v0.36.0'));
 assert.ok(source('baseline-v0.35.0-lowfx.html').includes('game-v0.35.0-lowfx.js'));
 for(const file of ['game-v0.35.0.js','game-v0.35.0-lowfx.js'])
  for(const marker of ['bit-bazaar-save-v3','decorAffordable:','decorFindOpenSite:','decorCatalogCapacity:'])
