@@ -117,7 +117,7 @@ for(const page of ['preview-v0.60.0.html','baseline-v0.60.0-lowfx.html']){
  assert.ok(h.indexOf('assets/showcase-v0.60.js')<h.indexOf('game-v0.60.0'));
  assert.match(h,/style-v0\.60\.0\.css/);
 }
-assert.match(read('index.html'),/sw\.js\?v=0\.60\.0/);
+assert.match(read('index.html'),/sw\.js\?v=0\.61\.0/);
 assert.match(read('sw.js'),/bit-bazaar-v0\.61\.0/);
 assert.match(read('sw.js'),/assets\/showcase-v0\.60\.js/);
 assert.match(read('sw.js'),/game-v0\.59\.0\.js/,'retains v0.59 rollback');
