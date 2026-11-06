@@ -149,7 +149,7 @@ jobs:
           test -f assets/device-qa-v0.44.js
           test -f assets/save-manager-v0.45.js
           test -f assets/save-manager-v0.47.js
-          grep -q 'save-manager-v0.55.js' index.html
+          test -f assets/save-manager-v0.55.js
           grep -q 'lifetime-honors-v0.55.js' index.html
           grep -q 'journeys-v0.56.js' index.html
           grep -q 'achievements-v0.57.js' index.html
