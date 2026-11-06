@@ -147,5 +147,5 @@ for(const p of ['game-v0.41.0.js','game-v0.41.0-lowfx.js']){
   'false,e.bands)','ctx,player.yaw,e.bands)','bit-bazaar-save-v3'])
  assert.ok(s.includes(q),p+' must wire matching visual and inspection masks '+q);
 }
-assert.ok(sw.includes('bit-bazaar-v0.60.0'));
+assert.ok(sw.includes('bit-bazaar-v0.61.0'));
 console.log('PASS v0.41: partial world artwork visible and reticle-targetable, hidden columns never drawn, full occlusion culls, near rug/ceiling/ghosts clipped, far art stays efficient, no save changes, both mobile engines wired.');

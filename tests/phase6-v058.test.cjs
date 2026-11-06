@@ -93,7 +93,7 @@ vm.runInNewContext(script,{window,document:{addEventListener(){},getElementById(
 assert.throws(()=>window.BitBazaarSaveTools.validate({version:1,finaleViewed:'true'}),/Invalid Collector/);
 assert.throws(()=>window.BitBazaarSaveTools.validate({version:1,finaleViewed:1}),/Invalid Collector/);
 const sw=read('sw.js');
-assert.match(sw,/bit-bazaar-v0\.60\.0/);
+assert.match(sw,/bit-bazaar-v0\.61\.0/);
 assert.match(sw,/assets\/finale-v0\.58\.js/);
 assert.match(sw,/assets\/save-manager-v0\.58\.js/);
 assert.match(sw,/game-v0\.57\.0\.js/,'previous stable gameplay remains available');

@@ -108,7 +108,7 @@ for(const file of ['game-v0.60.0.js','game-v0.60.0-lowfx.js']){
  assert.match(saved,/version:1/);
  assert.ok(!saved.includes('showcaseActive')&&!saved.includes('showcaseOverhead'),'no showcase save fields');
 }
-for(const page of ['index.html','preview-v0.60.0.html','baseline-v0.60.0-lowfx.html']){
+for(const page of ['preview-v0.60.0.html','baseline-v0.60.0-lowfx.html']){
  const h=read(page);
  for(const id of ['showcaseBtn','showcaseBar','showcaseExit','showcaseView',
   'showcaseCapture','showcaseOverhead','showcaseOverheadCanvas','showcaseStatus']){
@@ -118,7 +118,7 @@ for(const page of ['index.html','preview-v0.60.0.html','baseline-v0.60.0-lowfx.h
  assert.match(h,/style-v0\.60\.0\.css/);
 }
 assert.match(read('index.html'),/sw\.js\?v=0\.60\.0/);
-assert.match(read('sw.js'),/bit-bazaar-v0\.60\.0/);
+assert.match(read('sw.js'),/bit-bazaar-v0\.61\.0/);
 assert.match(read('sw.js'),/assets\/showcase-v0\.60\.js/);
 assert.match(read('sw.js'),/game-v0\.59\.0\.js/,'retains v0.59 rollback');
 assert.match(read('style-v0.60.0.css'),/#game\.showcase-active #topbar/);

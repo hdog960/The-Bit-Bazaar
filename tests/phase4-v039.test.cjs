@@ -154,5 +154,5 @@ for(const pathName of ['game-v0.39.0.js','game-v0.39.0-lowfx.js']){
    'bit-bazaar-save-v3','visibleDecor(cameraDepth,cameraSide,visibleSlope,'])
  assert.ok(content.includes(marker),'both renderers share new gallery budget '+marker);
 }
-assert.ok(worker.includes('bit-bazaar-v0.60.0'));
+assert.ok(worker.includes('bit-bazaar-v0.61.0'));
 console.log('PASS v0.39: 55 owned works loaded, near-art guarantee, stable budgeted distant sprites, ghost always visible, no-save previews, cache after precision/move/store/load, 5 shelf tiers, rug 8/4/2 LOD, complete 180-art chain and both iPhone builds.');
