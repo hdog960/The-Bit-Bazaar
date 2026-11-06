@@ -1,3 +1,7 @@
+## Current release — v0.62 (November 6, 2026)
+
+**The original six-phase creative roadmap is complete.** Post-roadmap v0.62 repairs the original first-person 16-bit world's physical shelf visibility, proper figurine occlusion behind racks, shelf-front sprite clipping, and edge visibility at grazing angles, in both standard and Low FX. No original art palette, 3,000-figure inventory, decoration, save format or gameplay progression is changed. The [technical visual audit](VISUAL_INTEGRITY_v0.62_AUDIT.md) links to the merged-main safety, real WebKit browser and successful GitHub Pages deployment checks. Developer-run QA is required; physical iPhone testing is optional.
+
 [Visual Integrity Audit v0.62](VISUAL_INTEGRITY_v0.62_AUDIT.md) repairs physically grounded shelf occlusion, shelf-face silhouette clipping, and near-angle shelf disappearance without replacing the game's original 16-bit art. The same verified algorithms cover standard and Low FX; rigorous WebKit angle/distance sweeps and eight reference images are pending developer-owned acceptance. The original roadmap remains complete and all saves remain unchanged.
 
 Post-roadmap v0.61 release checks passed: [main safety suite](https://github.com/hdog960/The-Bit-Bazaar/actions/runs/42285155954), [mobile WebKit gameplay](https://github.com/hdog960/The-Bit-Bazaar/actions/runs/42285155810), and [GitHub Pages deployment](https://github.com/hdog960/The-Bit-Bazaar/actions/runs/42285154375). The original six-phase roadmap remains complete; the new Collector Postcards are optional and save-neutral.

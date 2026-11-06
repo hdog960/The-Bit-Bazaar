@@ -1,7 +1,7 @@
 # Bit Bazaar — v0.62 Visual Integrity Audit
 
 ## Status
-On an isolated development branch; do not merge until all historical game safety checks and physical WebKit world-render tests pass. The original v0.61 release remains on main during verification.
+**Accepted and deployed November 6, 2026 — v0.62 on `main`.** The original v0.61 release remains available as a rollback. The automated safety suite, actual Linux WebKit browser rendering checks, and GitHub Pages deployment all passed on merged commit `7b94083`. Physical iPhone testing is optional, not claimed completed.
 
 ## Scope: repair rendering, do not redesign it
 The user's original first-person 16-bit shop aesthetic, sprites, texture palette, lighting, camera focal length and UI styling are intentional and must remain intact. The new v0.62 CSS is **byte-identical** to the previous accepted CSS. The original 480×270 software projection, unique 3,000 figurines, 300 collections, 40 physical racks (20 double-sided floor plus 20 wall displays), 60 shelf faces, 180 decorative items and 232 mounts are unchanged.
@@ -32,5 +32,14 @@ The user's original first-person 16-bit shop aesthetic, sprites, texture palette
 ## No-save-loss contract
 The bit-bazaar-save-v3 version 1 schema, recovery/backup tools, all 3,000 real figure IDs and their physical ledger, permanent cleaning, discovered hidden pieces, real décor mounting and purchase sacrifices, collector achievements, Final Monument, Encore, and Photo Studio remain exactly compatible. No player intervention, new game, changed currency or replay grind is needed to receive this patch.
 
-## Release evidence
-Developer-owned CI acceptance, image artifacts, merged commit and deployment links will be added here after all gates succeed. No declaration of perfection can guarantee every possible device and angle, but failures found by these automated sweeps must be fixed before calling the build released.
+## Release evidence — accepted November 6, 2026
+- Merged patch: [PR #6](https://github.com/hdog960/The-Bit-Bazaar/pull/6) and commit [`7b94083`](https://github.com/hdog960/The-Bit-Bazaar/commit/7b94083aad4b3ed75528e4c66ca98173488a8a1c).
+- [Merged-main safety checks: success](https://github.com/hdog960/The-Bit-Bazaar/actions/runs/42304456180).
+- [Merged-main 390×844 mobile WebKit acceptance: success](https://github.com/hdog960/The-Bit-Bazaar/actions/runs/42304456116).
+- [GitHub Pages deployment: success](https://github.com/hdog960/The-Bit-Bazaar/actions/runs/42304455180).
+- [Real screenshot artifact from the accepted 268-pose sweep](https://github.com/hdog960/The-Bit-Bazaar/actions/runs/42304030968/artifacts/13546140077): standard/Low FX close, reverse, oblique and previously missing corner images.
+- The image-atlas readiness gate prevents false "missing figure" screenshots before the original `figurines.png` loads.
+- At touching distance an empty, opaque shelf fascia can correctly dominate the entire field of view. Acceptance relies on actual positive shelf-material pixels and photographed canvas, not a fabricated minimum number of palette colors.
+- **Limits:** Linux WebKit is not physical iOS hardware; this is strong automated coverage, not a claim that all angles or devices can never glitch. QA remains developer-owned.
+
+No creative-scope changes, new figures, resets or save migrations are required.
