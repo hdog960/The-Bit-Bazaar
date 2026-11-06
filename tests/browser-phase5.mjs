@@ -122,7 +122,10 @@ try{
  assert.ok(stats.sprites.cacheSize<=112,'Low FX sprite cache must remain bounded');
  await low.close();
 
+ // After a reload the title card intentionally covers HUD controls.
+ // Enter the shop before using the actual touch-activated glasses toggle.
  // Un-equipping persists without changing permanent lifetime mastery.
+ await page.locator('#startBtn').click();
  await page.locator('#glassesToggle').click();
  assert.equal(await page.locator('#cowardBadge').isVisible(),false);
  await reload(page);

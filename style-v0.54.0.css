@@ -1192,7 +1192,7 @@ button.folio-figure-card:focus-visible{outline:2px solid #b4f0d7}
 .boot-recovery-last button{background:#663743;border-color:#d9999f}
 
 /* Phase 5: visible choice, permanently earned after 150 unique perfected sets. */
-.glasses-dock{display:grid;gap:3px;width:min(262px,73vw);padding:7px 8px;
+.glasses-dock{pointer-events:auto;display:grid;gap:3px;width:min(262px,73vw);padding:7px 8px;
  border:2px solid #6b9c92;background:rgba(27,38,54,.92);box-shadow:3px 3px #211b30;
  margin-top:5px}
 .glasses-dock button{background:#284d4b;color:#d6ffe5;border:2px solid #a0dfc7;
