@@ -1,10 +1,10 @@
-/* The Bit Bazaar v0.50 — network-first iPhone Safari PWA.
+/* The Bit Bazaar v0.51 — network-first iPhone Safari PWA.
    Keeps local figure/decor saves in localStorage, never touches them. */
-const CACHE="bit-bazaar-v0.50.0";
+const CACHE="bit-bazaar-v0.51.0";
 const CORE=[
- "./index.html","./style-v0.50.0.css","./game-v0.50.0.js",
- "./game-v0.50.0-lowfx.js","./baseline-v0.50.0-lowfx.html",
- "./preview-v0.50.0.html",
+ "./index.html","./style-v0.51.0.css","./game-v0.51.0.js",
+ "./game-v0.51.0-lowfx.js","./baseline-v0.51.0-lowfx.html",
+ "./preview-v0.51.0.html",
  "./assets/collection.js","./assets/collection-extension.js",
  "./assets/optimized-sprites.js","./assets/figurines.png",
  "./assets/decor-v0.19.js","./assets/decor-expansion-v0.20.js",
@@ -27,6 +27,9 @@ const CORE=[
  "./manifest.webmanifest","./icon.png"
 ];
 const OPTIONAL=[
+ "./game-v0.50.0.js","./game-v0.50.0-lowfx.js",
+ "./style-v0.50.0.css","./baseline-v0.50.0-lowfx.html",
+ "./preview-v0.50.0.html",
  "./game-v0.49.0.js","./game-v0.49.0-lowfx.js",
  "./style-v0.49.0.css","./baseline-v0.49.0-lowfx.html",
  "./preview-v0.49.0.html","./assets/boot-recovery-v0.49.js",

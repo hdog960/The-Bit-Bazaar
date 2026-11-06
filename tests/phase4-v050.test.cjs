@@ -100,13 +100,13 @@ for(const p of ['game-v0.50.0.js','game-v0.50.0-lowfx.js']){
  assert.ok(s.includes('window.BitBazaarSaveHold=true;'));
  assert.ok(s.includes('bit-bazaar-save-v3'));
 }
-for(const p of ['index.html','preview-v0.50.0.html','baseline-v0.50.0-lowfx.html']){
+for(const p of ['preview-v0.50.0.html','baseline-v0.50.0-lowfx.html']){
  const html=read(p);
  assert.ok(html.includes('boot-recovery-v0.50.js'),p);
  assert.ok(html.indexOf('boot-recovery-v0.50.js')<html.indexOf('game-v0.50.0'),p);
 }
 const sw=read('sw.js');
-assert.ok(sw.includes('bit-bazaar-v0.50.0'));
+assert.ok(sw.includes('bit-bazaar-v0.51.0'));
 assert.ok(sw.includes('./assets/boot-recovery-v0.50.js'));
 assert.ok(sw.includes('./assets/boot-recovery-v0.49.js'));
 console.log('PASS v0.50: current saves deep-validated for duplicate figures, slot/ground/carry conflicts, artwork and mastery before boot; valid 20/60-face historical migrations still accepted and no bytes overwritten.');
