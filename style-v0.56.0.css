@@ -1253,7 +1253,7 @@ button.folio-figure-card:focus-visible{outline:2px solid #b4f0d7}
 
 
 /* Phase 6.2 — Three Journeys. Mobile-first, no texture or canvas allocations. */
-.journey-shortcut{display:block;max-width:270px;min-height:32px;margin:7px 0 8px;
+.journey-shortcut{display:block;pointer-events:auto;max-width:270px;min-height:32px;margin:7px 0 8px;
  padding:6px 9px;border:2px solid #d5b574;border-radius:2px;box-shadow:2px 2px #191324;
  background:linear-gradient(90deg,#41324b,#304c55);color:#fff0c9;
  text-align:left;font:900 10px/1.35 monospace;letter-spacing:.025em;
