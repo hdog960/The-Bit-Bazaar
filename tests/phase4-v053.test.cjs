@@ -117,7 +117,7 @@ async function main(){
  assert.equal(audits,0,'no costly physical audit needed for read-only file inspection');
  assert.equal(reloads,0);
  assert.equal(confirms,0);
- for(const page of ['index.html','preview-v0.53.0.html','baseline-v0.53.0-lowfx.html']){
+ for(const page of ['preview-v0.53.0.html','baseline-v0.53.0-lowfx.html']){
   const html=read(page);
   assert.ok(html.includes('assets/save-manager-v0.53.js'),page);
   assert.ok(html.includes('game-v0.53.0'),page);
@@ -128,7 +128,7 @@ async function main(){
    assert.ok(code.includes('id="'+id+'"'),engine+' missing '+id);
   assert.ok(code.includes('bit-bazaar-save-v3'));
  }
- assert.ok(read('sw.js').includes('bit-bazaar-v0.53.1'));
+ assert.ok(read('sw.js').includes('bit-bazaar-v0.54.0'));
  assert.ok(read('sw.js').includes('./assets/save-manager-v0.53.js'));
  console.log('PASS v0.53: Files backup check validates JSON, detects matching/different live shop, blocks corruption/oversize, works through picker, never saves/imports/reloads/edits data.');
 }

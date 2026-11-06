@@ -181,7 +181,7 @@ try{
  phase='Low FX startup and drawing';
  const low=await context.newPage();
  watch(low);
- await ready(low,new URL('baseline-v0.53.0-lowfx.html',base).href);
+ await ready(low,new URL('baseline-v0.54.0-lowfx.html',base).href);
  assert.equal(await low.evaluate(()=>window.BitBazaarQA.decorStatus().owned.length),160);
  await low.locator('#startBtn').click();
  await assertDrawn(low,phase);

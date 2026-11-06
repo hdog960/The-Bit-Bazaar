@@ -23,6 +23,7 @@ jobs:
       - name: Validate scripts and install the matching Playwright API
         run: |
           node --check tests/browser-phase4.mjs
+          node --check tests/browser-phase5.mjs
           node --check tests/browser-server.mjs
           npm install --no-save --package-lock=false playwright@1.56.1
       - name: Launch local game with dependency-free test server
@@ -37,7 +38,9 @@ jobs:
       - name: Run WebKit touch-browser gameplay and backup acceptance
         env:
           BIT_BAZAAR_TEST_URL: http://127.0.0.1:4173/
-        run: node tests/browser-phase4.mjs
+        run: |
+          node tests/browser-phase4.mjs
+          node tests/browser-phase5.mjs
       - name: Show local server diagnostics on failure
         if: failure()
         run: tail -n 100 /tmp/bit-bazaar-browser.log || true

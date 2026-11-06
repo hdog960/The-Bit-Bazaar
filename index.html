@@ -11,7 +11,7 @@
 <link rel="icon" type="image/png" href="./icon.png" />
 <link rel="apple-touch-icon" href="./icon.png" />
 <title>The Bit Bazaar — The Great Figurine Sort</title>
-<link rel="stylesheet" href="./style-v0.53.0.css" />
+<link rel="stylesheet" href="./style-v0.54.0.css" />
 </head><body>
 <div id="game">
  <canvas id="world" width="480" height="270" aria-label="First-person view of a pixel-art figurine shop"></canvas>
@@ -46,8 +46,15 @@
    <button type="button" id="huntToggle" class="hunt-toggle" aria-controls="huntBody" aria-expanded="false">☆ PIN A HUNT</button>
    <div id="huntBody" class="hunt-body" hidden></div>
   </section>
+  <aside id="glassesDock" class="glasses-dock" aria-label="Optional Coward's Glasses">
+   <button id="glassesToggle" type="button" disabled aria-pressed="false">◎ GLASSES LOCKED</button>
+   <small id="glassesProgress">0 / 150 LIFETIME PERFECT SETS</small>
+  </aside>
   <div class="mission"><span class="tinycaps">YOUR NEW SHOP</span><strong>Three thousand tiny treasures.</strong><span>Restore the shop, pin your favorite sets, and follow their 1–10 checklists while you collect.</span></div>
  </div>
+ <aside id="cowardBadge" class="coward-badge" hidden aria-label="Coward's Glasses are equipped">
+  <strong>COWARD</strong><small>OPTIONAL GLASSES ACTIVE</small>
+ </aside>
  <aside id="worldArtFocus" class="world-art-focus" hidden aria-label="Targeted owned artwork">
   <span class="world-art-copy"><strong id="worldArtName">ARTWORK</strong>
    <small id="worldArtLocation">DISPLAY LOCATION</small></span>
@@ -186,13 +193,14 @@
 <script src="./assets/decor-world-v0.41.js"></script>
 <script src="./assets/decor-visibility-v0.41.js"></script>
 <script src="./assets/figure-integrity-v0.43.js"></script>
-<script src="./assets/save-manager-v0.53.js"></script>
+<script src="./assets/save-manager-v0.54.js"></script>
+<script src="./assets/cowards-glasses-v0.54.js"></script>
 <script src="./assets/boot-recovery-v0.50.js"></script>
 <script src="./assets/device-qa-v0.52.js"></script>
-<script src="./game-v0.53.0.js?v=0.53.0" defer></script>
+<script src="./game-v0.54.0.js?v=0.54.0" defer></script>
 <script>
 if ("serviceWorker" in navigator) {
-  addEventListener("load", () => navigator.serviceWorker.register("./sw.js?v=0.53.1", {updateViaCache:"none"}).catch(() => {}));
+  addEventListener("load", () => navigator.serviceWorker.register("./sw.js?v=0.54.0", {updateViaCache:"none"}).catch(() => {}));
 }
 </script>
 </body></html>
