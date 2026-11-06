@@ -61,8 +61,16 @@ try{
  await ready(page);
  assert.equal(await page.evaluate(()=>window.BitBazaarQA.stats().distinctAssets),3000);
  assert.equal(await page.evaluate(()=>window.BitBazaarQA.stats().displayFaces),60);
- assert.equal(await page.evaluate(()=>window.BIT_BAZAAR_DECOR.items.length),180);
- assert.equal(await page.evaluate(()=>window.BIT_BAZAAR_DECOR.slots.length),232);
+ const gallery=await page.evaluate(()=>({
+  items:window.BIT_BAZAAR_DECOR.items.length,
+  slots:window.BIT_BAZAAR_DECOR.slots.length,
+  finalScript:[...document.scripts].some(x=>x.src.includes('decor-art-v0.37.js'))
+ }));
+ assert.equal(gallery.items,180,
+  'live catalog count='+gallery.items+'; slots='+gallery.slots+
+  '; final script='+gallery.finalScript+'; page errors: '+problems.join(' | '));
+ assert.equal(gallery.slots,232,
+  'live catalog slots='+gallery.slots+'; page errors: '+problems.join(' | '));
  await page.locator('#startBtn').click();
  await assertDrawn(page,phase);
  const original=await page.evaluate(()=>window.BitBazaarQA.snapshotNow());
