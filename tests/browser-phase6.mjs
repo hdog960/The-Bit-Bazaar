@@ -97,7 +97,14 @@ try{
  await setProgress(50);
  await page.locator('#startBtn').click();
  await page.locator('#albumBtn').click();
- assert.equal(await page.locator('[data-honor-finish="1"]').isEnabled(),true);
+ const check50=await page.evaluate(()=>({
+  state:window.BitBazaarQA.honorsState(),
+  saveMastered:window.BitBazaarQA.snapshotNow().lifetimePerfect.length,
+  button:document.querySelector('[data-honor-finish="1"]')?.outerHTML,
+  hold:window.BitBazaarSaveHold
+ }));
+ assert.equal(await page.locator('[data-honor-finish="1"]').isEnabled(),true,
+  'Finish unlock at 50: '+JSON.stringify(check50));
  await page.locator('[data-honor-finish="1"]').click();
  assert.equal(await page.evaluate(()=>window.BitBazaarQA.honorsState().trim),1);
  assert.deepEqual(errors,[],'unexpected WebKit script errors');
