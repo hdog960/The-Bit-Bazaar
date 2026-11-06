@@ -24,10 +24,16 @@ async function setProgress(count,trim=0){
   s.lifetimePerfect=Array.from({length:count},(_,i)=>i);
   s.honorTrim=trim;
   window.BitBazaarSaveTools.validate(s);
+  // This is an isolated synthetic fixture injection, NOT a player save.
+  // Freeze the running game's pagehide autosave before reloading, otherwise
+  // its old 49/300 scene correctly overwrites the just-injected 50/300 data.
+  window.BitBazaarSaveHold=true;
   localStorage.setItem(key,JSON.stringify(s));
  },{count,trim,key:KEY});
  await page.reload({waitUntil:'domcontentloaded'});
  await ready();
+ assert.equal(await page.evaluate(()=>window.BitBazaarQA.honorsState().count),
+  count,'synthetic mastery count survived reload without pagehide overwrite');
 }
 try{
  await page.goto(root,{waitUntil:'domcontentloaded'});
