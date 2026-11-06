@@ -64,7 +64,7 @@ const count=g.drawHighlights(ctx,[blocked,distant,...figures],
  (x,z)=>({x:240+(x-20)*4,y:126+(z-20)*3,depth:3}),player,480,270);
 assert.equal(count,6,'local labels must have an explicit six-figure cap');
 assert.equal(strokes.filter(x=>String(x).startsWith('#')).length,6);
-assert.equal(strokes.some(x=>/^#\\d+ · SET 1$/.test(String(x))),false,
+assert.equal(strokes.some(x=>/^#\d+ · SET 1$/.test(String(x))),false,
  'faraway figure locations must never be disclosed');
 strokes.length=0;
 assert.equal(g.drawHighlights(ctx,[distant],()=>({x:240,y:100,depth:3}),player,480,270),0);
