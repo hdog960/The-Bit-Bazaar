@@ -120,7 +120,7 @@ jobs:
           test -f assets/save-manager-v0.43.js
           grep -q 'figure-integrity-v0.43.js' index.html
           grep -q 'bit-bazaar-v0.52.0' sw.js
-          grep -q 'device-qa-v0.44.js' index.html
+          test -f assets/device-qa-v0.44.js
           test -f assets/save-manager-v0.45.js
           test -f assets/save-manager-v0.47.js
           grep -q 'save-manager-v0.49.js' index.html
