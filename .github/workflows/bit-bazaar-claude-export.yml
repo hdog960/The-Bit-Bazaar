@@ -1,0 +1,99 @@
+name: Bit Bazaar complete Claude transfer export
+on:
+  push:
+    branches:
+      - claude-transfer-v062-20261106
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  archive:
+    name: Bundle full game source, historical assets, docs and git history
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out complete repository history and historical branches
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Build a single portable ZIP from ALL tracked project files
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p transfer-artifact
+          python3 - <<'PY'
+          import os, subprocess, hashlib, json, zipfile, datetime
+          root='Bit_Bazaar_v0.62_Complete_Project'
+          dest='transfer-artifact/Bit_Bazaar_v0.62_Claude_Complete.zip'
+          tracked=[os.fsdecode(x) for x in subprocess.check_output(['git','ls-files','-z']).split(b'\0') if x]
+          must_have=[
+            'index.html','game-v0.62.0.js','game-v0.62.0-lowfx.js',
+            'baseline-v0.62.0-lowfx.html','style-v0.62.0.css',
+            'assets/figurines.png','assets/collection.js','assets/visibility-v0.62.js',
+            'MASTER_ROADMAP_LOCKED.md','POST_ROADMAP_DEV_LOG.md',
+            'VISUAL_INTEGRITY_v0.62_AUDIT.md','QA_AUTOMATION_POLICY.md',
+            'CLAUDE_HANDOFF_READ_FIRST.md','README.md',
+            '.github/workflows/bit-bazaar-qa.yml',
+            '.github/workflows/bit-bazaar-webkit.yml',
+            'tests/browser-visual-integrity-v062.mjs'
+          ]
+          for name in must_have:
+            assert name in tracked and os.path.isfile(name), 'Missing essential file: '+name
+          history='transfer-artifact/FULL_GIT_HISTORY.bundle'
+          subprocess.run(['git','bundle','create',history,'--all'],check=True)
+          subprocess.run(['git','bundle','verify',history],check=True)
+          source_base='426b534372affd7e3f2ca8f0b674cb12ab7bec1c'
+          work_head=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()
+          manifest={
+            'game':'The Bit Bazaar',
+            'current_game_version':'v0.62.0',
+            'production_main_commit':source_base,
+            'package_branch_commit':work_head,
+            'generated_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),
+            'tracking_policy':'All git-tracked source, artwork, docs, tests, historical build and fallback files',
+            'git_history':'FULL_GIT_HISTORY.bundle',
+            'git_history_bytes':os.path.getsize(history),
+            'file_count':len(tracked),
+            'files':[]
+          }
+          for p in tracked:
+            with open(p,'rb') as fp: data=fp.read()
+            manifest['files'].append({'path':p,'bytes':len(data),'sha256':hashlib.sha256(data).hexdigest()})
+          notes=(
+            'THE BIT BAZAAR — COMPLETE v0.62 CLAUDE TRANSFER\n'
+            'Begin with CLAUDE_HANDOFF_READ_FIRST.md, MASTER_ROADMAP_LOCKED.md, and index.html.\n'
+            'Contains ALL tracked game files, 16-bit artwork, current normal/Low FX engines,\n'
+            'historical builds and fallbacks, release docs, README, tests, workflows, and\n'
+            'a verified full Git bundle. The personal iPhone save is NOT included.\n'
+            'Production main snapshot: '+source_base+'\n'
+            'Files: '+str(len(tracked))+'\n'
+            'To restore full git history: git clone FULL_GIT_HISTORY.bundle restored-repo\n'
+            'To run the game: serve this folder over HTTP and open index.html.\n'
+          )
+          with zipfile.ZipFile(dest,'w',compression=zipfile.ZIP_DEFLATED,compresslevel=7,allowZip64=True) as z:
+            for p in tracked:
+              z.write(p,arcname=root+'/'+p)
+            z.write(history,arcname=root+'/FULL_GIT_HISTORY.bundle')
+            z.writestr(root+'/PACKAGE_MANIFEST.json',json.dumps(manifest,indent=2,ensure_ascii=False)+'\n')
+            z.writestr(root+'/PACKAGE_CONTENTS.txt',notes+'\n'+''.join(f+'\n' for f in tracked))
+          with zipfile.ZipFile(dest,'r') as z:
+            bad=z.testzip()
+            assert bad is None, 'Archive corrupt: '+str(bad)
+            names=set(z.namelist())
+            assert all(root+'/'+p in names for p in must_have)
+            assert root+'/FULL_GIT_HISTORY.bundle' in names
+            assert len(names)==len(tracked)+3, (len(names),len(tracked))
+          print('PACKAGE_OK',dest,'TRACKED_FILES',len(tracked),'BUNDLE_BYTES',os.path.getsize(history),
+                'ARCHIVE_BYTES',os.path.getsize(dest))
+          print('SHA256',hashlib.sha256(open(dest,'rb').read()).hexdigest())
+          PY
+      - name: Preserve full project ZIP for download
+        uses: actions/upload-artifact@v4
+        with:
+          name: bit-bazaar-v062-complete-claude-handoff
+          path: transfer-artifact/Bit_Bazaar_v0.62_Claude_Complete.zip
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 14
