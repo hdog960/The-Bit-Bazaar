@@ -166,7 +166,7 @@ for(const file of ['assets/decor-workshop-v0.38.js','assets/decor-map-v0.38.js',
  assert.ok(main.includes('./'+file),'archived v0.38 preview retains '+file);
 for(const file of ['assets/decor-workshop-v0.38.js','assets/decor-map-v0.38.js'])
  assert.ok(sw.includes('./'+file),'current build still uses '+file);
-assert.ok(sw.includes('bit-bazaar-v0.47.0'));
+assert.ok(sw.includes('bit-bazaar-v0.48.0'));
 assert.ok(main.indexOf('decor-workshop-v0.38.js')<main.indexOf('decor-runtime-v0.37.js'));
 assert.ok(main.indexOf('decor-runtime-v0.37.js')<main.indexOf('decor-map-v0.38.js'));
 assert.ok(read('baseline-v0.38.0-lowfx.html').includes('game-v0.38.0-lowfx.js'));

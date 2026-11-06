@@ -114,5 +114,5 @@ assert.ok(main.indexOf('figure-integrity-v0.43.js')<
 assert.ok(main.indexOf('figure-integrity-v0.43.js')<
  main.indexOf('game-v0.43.0.js'));
 assert.ok(code('baseline-v0.43.0-lowfx.html').includes('game-v0.43.0-lowfx.js'));
-assert.ok(sw.includes('bit-bazaar-v0.47.0'));
+assert.ok(sw.includes('bit-bazaar-v0.48.0'));
 console.log('PASS v0.43: all 3,000 unique live IDs, conceal/reveal, carried and shelf state, no-save audit, sacrifice return, missing pieces, stale overrides, spatial index consistency and both mobile builds.');
