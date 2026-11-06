@@ -74,7 +74,7 @@ try{
  const photo=await inspectPNG(page);
  assert.equal(photo.width,960);
  assert.equal(photo.height,540);
- assert.equal((await page.evaluate(()=>window.BitBazaarQA.showcasePhotoCanvas())).width,960);
+ assert.equal(await page.evaluate(()=>window.BitBazaarQA.showcasePhotoCanvas()?.width),960);
  await page.locator('#showcaseView').click();
  assert.equal((await page.evaluate(()=>window.BitBazaarQA.showcaseState())).overhead,true);
  assert.equal(await page.locator('#showcaseOverhead').evaluate(e=>e.hidden),false);
