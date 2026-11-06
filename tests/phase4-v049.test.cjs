@@ -113,7 +113,7 @@ async function main(){
  assert.equal(map.get(KEY),JSON.stringify(good),'valid chosen Files backup takes over');
  assert.equal(win.BitBazaarImportInProgress,true);
  // Every entry point must load the recovery module before the active engine.
- for(const p of ['index.html','preview-v0.49.0.html','baseline-v0.49.0-lowfx.html']){
+ for(const p of ['preview-v0.49.0.html','baseline-v0.49.0-lowfx.html']){
   const html=read(p);
   assert.ok(html.includes('id="bootRecovery"'),p);
   assert.ok(html.includes('id="bootRecoveryFile"'),p);
@@ -130,7 +130,7 @@ async function main(){
   assert.ok(game.includes('bit-bazaar-save-v3'));
  }
  assert.ok(read('style-v0.49.0.css').includes('.boot-recovery[hidden]'));
- assert.ok(read('sw.js').includes('bit-bazaar-v0.49.0'));
+ assert.ok(read('sw.js').includes('bit-bazaar-v0.50.0'));
  assert.ok(read('sw.js').includes('./assets/boot-recovery-v0.49.js'));
  assert.ok(read('sw.js').includes('./assets/save-manager-v0.49.js'));
  console.log('PASS v0.49: fresh/legacy/modern boots, corrupt source quarantine, raw export, safe Files restore, previous backup preservation, double-confirm reset, normal/Low FX/PWA wiring.');

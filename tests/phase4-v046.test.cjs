@@ -115,7 +115,7 @@ for(const page of ['preview-v0.46.0.html','baseline-v0.46.0-lowfx.html']){
   assert.ok(s.includes('./assets/'+mod),page+' loads '+mod);
 }
 const sw=read('sw.js');
-assert.ok(sw.includes('bit-bazaar-v0.49.0'));
+assert.ok(sw.includes('bit-bazaar-v0.50.0'));
 for(const mod of ['decor-workshop-v0.46.js','room-workshop-v0.46.js','decor-runtime-v0.46.js'])
  assert.ok(sw.includes('./assets/'+mod),'PWA offline contains '+mod);
 console.log('PASS v0.46: failed move, store, artwork placement and room finish never corrupt saved decoration state; retry, ownership and 3,000-figure data model preserved.');
