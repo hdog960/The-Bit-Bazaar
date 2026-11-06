@@ -1,0 +1,38 @@
+name: Bit Bazaar mobile WebKit acceptance
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+jobs:
+  mobile-webkit:
+    name: Automated iPhone-shaped WebKit and Files QA
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate browser-test syntax
+        run: node --check tests/browser-phase4.mjs
+      - name: Install pinned Playwright WebKit browser and Linux libraries
+        run: |
+          npm install --no-save --package-lock=false playwright@1.56.1
+          npx playwright install --with-deps webkit
+      - name: Launch local game (no real player data)
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 > /tmp/bit-bazaar-browser.log 2>&1 &
+          for i in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:4173/index.html -o /dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/bit-bazaar-browser.log
+          exit 1
+      - name: Run real WebKit mobile browser end-to-end checks
+        env:
+          BIT_BAZAAR_TEST_URL: http://127.0.0.1:4173/
+        run: node tests/browser-phase4.mjs
+      - name: Show local server errors on failure
+        if: failure()
+        run: tail -n 100 /tmp/bit-bazaar-browser.log || true

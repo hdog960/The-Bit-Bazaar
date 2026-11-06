@@ -75,5 +75,8 @@ Permanent milestones never decrement if decorations re-scatter a perfected row.
 6.6 Showcase/photo mode hides HUD, gives smooth camera and optional overhead store snapshot without accounts or multiplayer.
 
 ## Implementation order / stage gates
-**1 → 2 → 3 → 4 → 5 → 6**, with small targeted QA checks and physical iPhone testing between milestones. Do not silently skip any phase, overload the CPU, erase saves, or claim a feature implemented before it is committed and tested.
+**1 → 2 → 3 → 4 → 5 → 6**, with automated unit and mobile WebKit browser checks between milestones. Physical iPhone playtesting can add useful information, but is **optional, never a requirement placed on the player, and never a condition for continuing development**. Accept or hold each phase based on available automated evidence and tracked defects; do not pretend a Linux WebKit test proves physical iOS behavior. Do not silently skip any phase, overload the CPU, erase saves, or claim a feature implemented before it is committed and tested.
+
+### QA ownership amendment · 2026-11-05 (process only)
+Developer/CI owns testing, regression triage, browser boot checks, synthetic-file backup/restore/undo, and dense-gallery stress. The player is not expected to use the Files app, record diagnostics, run a QA script, or provide screenshots to unlock Phase 5. These activities are only optional if the player spontaneously wants to report something. This amends the workflow, **not any locked creative scope**, and preserves all 3,000 figures and the original save schema. Evidence and remaining limitations are documented in `QA_AUTOMATION_POLICY.md`.
 This document is the canonical roadmap and should be updated with status only if the user explicitly approves a creative scope change.

@@ -1,3 +1,7 @@
+## QA is developer-owned (November 5, 2026)
+
+Players are **not required to test on iPhone, share screenshots, use Files, or sign off on releases**. Automated Node regressions plus a mobile-shaped WebKit browser suite run via GitHub Actions; see [QA_AUTOMATION_POLICY.md](QA_AUTOMATION_POLICY.md). Native iPhone hardware behavior remains a documented uncertainty, not a blocker assigned to the player.
+
 ## v0.45.0 — Verified iPhone Save to Files / Share (November 5, 2026)
 
 **Phase 4 reliability work, not Phase 5.** The Collection Almanac's Save Protection section has a new **SAVE TO FILES / SHARE** button alongside the existing **DOWNLOAD SAVE**, **RESTORE FILE**, **UNDO LAST FILE RESTORE**, **VERIFY SAVE** and 3,000-figure audit. On iPhone, choose Save to Files from the native share sheet and confirm the JSON exists in Files before deleting any browser data.
