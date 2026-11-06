@@ -11,7 +11,7 @@
 <link rel="icon" type="image/png" href="./icon.png" />
 <link rel="apple-touch-icon" href="./icon.png" />
 <title>The Bit Bazaar — The Great Figurine Sort</title>
-<link rel="stylesheet" href="./style-v0.48.0.css" />
+<link rel="stylesheet" href="./style-v0.49.0.css" />
 </head><body>
 <div id="game">
  <canvas id="world" width="480" height="270" aria-label="First-person view of a pixel-art figurine shop"></canvas>
@@ -134,6 +134,27 @@
  </div>
  <div class="drawer-shade" id="drawerShade"></div>
  <div id="confirm" class="confirm" hidden><div><h3>START A FRESH SHOP?</h3><p>This deletes your current sorting progress. Your 3,000 figurines will be scattered again.</p><button id="cancelReset" class="chrome">CANCEL</button><button id="doReset" class="danger">RESET STORE</button></div></div>
+<section id="bootRecovery" class="boot-recovery" role="dialog" aria-modal="true" aria-labelledby="bootRecoveryTitle" hidden>
+ <div class="boot-recovery-card">
+  <span class="boot-recovery-kicker">✦ THE BIT BAZAAR · SAFE RECOVERY</span>
+  <h2 id="bootRecoveryTitle">YOUR SHOP SAVE NEEDS ATTENTION</h2>
+  <p>We found existing progress but could not safely read it. <strong>Nothing has been reset or overwritten.</strong> Autosaving is paused to protect the original data.</p>
+  <p id="bootRecoveryReason" class="boot-recovery-reason"></p>
+  <div class="boot-recovery-actions">
+   <button type="button" id="bootRecoveryChoose">▣ RESTORE VERIFIED SAVE FROM FILES</button>
+   <button type="button" id="bootRecoveryPrevious">↶ RESTORE PREVIOUS IMPORT</button>
+   <button type="button" id="bootRecoveryRaw">↓ DOWNLOAD UNREADABLE RAW DATA</button>
+  </div>
+  <input type="file" id="bootRecoveryFile" accept=".json,application/json" hidden aria-label="Choose a Bit Bazaar save file" />
+  <p class="boot-recovery-note">Save the unreadable data as a text file before deleting anything. That text file is for recovery assistance, not a playable save.</p>
+  <p id="bootRecoveryStatus" role="status" aria-live="polite"></p>
+  <details class="boot-recovery-last">
+   <summary>Last resort: start an entirely new shop</summary>
+   <p>Only use this if you cannot restore a backup. You will confirm twice before deleting existing local saved data.</p>
+   <button type="button" id="bootRecoveryFresh">DELETE UNREADABLE SAVE & START NEW</button>
+  </details>
+ </div>
+</section>
 </div>
 <script src="./assets/collection.js"></script>
 <script src="./assets/collection-extension.js"></script>
@@ -165,12 +186,13 @@
 <script src="./assets/decor-world-v0.41.js"></script>
 <script src="./assets/decor-visibility-v0.41.js"></script>
 <script src="./assets/figure-integrity-v0.43.js"></script>
-<script src="./assets/save-manager-v0.47.js"></script>
+<script src="./assets/save-manager-v0.49.js"></script>
+<script src="./assets/boot-recovery-v0.49.js"></script>
 <script src="./assets/device-qa-v0.44.js"></script>
-<script src="./game-v0.48.0.js?v=0.48.0" defer></script>
+<script src="./game-v0.49.0.js?v=0.49.0" defer></script>
 <script>
 if ("serviceWorker" in navigator) {
-  addEventListener("load", () => navigator.serviceWorker.register("./sw.js?v=0.48.0", {updateViaCache:"none"}).catch(() => {}));
+  addEventListener("load", () => navigator.serviceWorker.register("./sw.js?v=0.49.0", {updateViaCache:"none"}).catch(() => {}));
 }
 </script>
 </body></html>

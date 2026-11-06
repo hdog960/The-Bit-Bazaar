@@ -130,7 +130,7 @@ assert.ok(html.indexOf('decor-sites-v0.33.js')<html.indexOf('decor-runtime-v0.33
 for(const f of ['assets/decor-art-v0.33.js','assets/decor-sites-v0.33.js'])
  assert.ok(sw.includes('./'+f),'active build still loads historical art/locations '+f);
 assert.ok(html.includes('./assets/decor-runtime-v0.33.js'),'archived preview retains archived runtime');
-assert.ok(sw.includes('bit-bazaar-v0.48.0'));
+assert.ok(sw.includes('bit-bazaar-v0.49.0'));
 for(const f of ['game-v0.33.0.js','game-v0.33.0-lowfx.js']){
  const source=code(f);
  for(const name of ['decorPreviewPrevious','decorPreviewNext','decorPreviewFace',
