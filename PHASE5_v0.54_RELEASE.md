@@ -1,6 +1,13 @@
 # The Bit Bazaar — Phase 5 v0.54.0, Coward's Glasses
 
-**Phase 5 scope from the locked roadmap is implemented; CI/browser signoff pending.**
+**Phase 5 accepted:** automated unit, browser and Pages checks passed on November 5, 2026.
+
+Acceptance evidence:
+- [GitHub historical + new phase tests](https://github.com/hdog960/The-Bit-Bazaar/actions/runs/42154380513)
+- [WebKit mobile browser and touch acceptance](https://github.com/hdog960/The-Bit-Bazaar/actions/runs/42154380533)
+- [GitHub Pages deployment](https://github.com/hdog960/The-Bit-Bazaar/actions/runs/42154379502)
+
+The mobile browser suite verified **149 sets locked / 150 sets unlocked**, saved equipment toggling, persistent COWARD overlay, direction only for started sets, no arrow for unstarted or sacrificed rows, both normal and Low FX views, 3,000-object integrity and the 112-sprite cache. Physical iPhone hardware remains a distinct unverified environment, not player-required QA.
 No player-operated QA, screenshots or device signoff are required.
 
 ## Unlock and persisted equipment
@@ -26,4 +33,4 @@ No player-operated QA, screenshots or device signoff are required.
 
 ## Further work
 
-The rest of the locked roadmap is Phase 6 (30 achievements, three journeys, finale and showcase/photo mode), once Phase 5 automation passes. Native iPhone physical-device behavior remains distinct from WebKit-on-Linux testing, without becoming work assigned to the player.
+The rest of the locked roadmap is Phase 6 (30 achievements, three journeys, finale and showcase/photo mode), now that Phase 5 automation has passed. Native iPhone physical-device behavior remains distinct from WebKit-on-Linux testing, without becoming work assigned to the player.

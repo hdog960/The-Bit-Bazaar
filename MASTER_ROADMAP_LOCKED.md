@@ -7,8 +7,8 @@ This is the canonical creative brief. Do not introduce customers, employees, sto
 
 **Phases 1–3:** Implemented with historical regression coverage.
 **Phase 4:** Automated acceptance passed; [evidence](PHASE4_AUTOMATED_SIGNOFF.md). Physical iPhone testing is optional and cannot block development.
-**Phase 5:** Unblocked; implement Coward's Glasses next, in the exact scope already locked below.
-**Phase 6:** Locked for after Phase 5.
+**Phase 5:** Implemented and accepted via automated unit + mobile WebKit gameplay testing ([evidence](PHASE5_v0.54_RELEASE.md)). Unlock, optional equipment, COWARD overlay and started-set-only arrow are live in both render modes.
+**Phase 6:** Unblocked; begin the 30 achievements, three journeys, finale and showcase without waiting for player QA.
 
 ## Permanent design principles
 - Exactly **3,000 collectible figurines**, grouped into **300 unique named sets**, each containing exactly **10 numbered figures (#1 through #10)**.
