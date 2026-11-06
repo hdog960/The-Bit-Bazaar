@@ -99,6 +99,6 @@ for(const page of ['preview-v0.52.0.html','baseline-v0.52.0-lowfx.html'])
 for(const engine of ['game-v0.52.0.js','game-v0.52.0-lowfx.js'])
  assert.ok(read(engine).includes('bit-bazaar-save-v3'));
 const worker=read('sw.js');
-assert.ok(worker.includes('bit-bazaar-v0.59.0'));
+assert.ok(worker.includes('bit-bazaar-v0.60.0'));
 assert.ok(worker.includes('./assets/decor-runtime-v0.52.js'));
 console.log('PASS v0.52: dense 160-art output identical to preoptimization, 4-band near clipping and ghost intact, far occlusion work bounded by draw budget, all saves unchanged.');

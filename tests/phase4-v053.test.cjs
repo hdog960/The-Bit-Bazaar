@@ -128,7 +128,7 @@ async function main(){
    assert.ok(code.includes('id="'+id+'"'),engine+' missing '+id);
   assert.ok(code.includes('bit-bazaar-save-v3'));
  }
- assert.ok(read('sw.js').includes('bit-bazaar-v0.59.0'));
+ assert.ok(read('sw.js').includes('bit-bazaar-v0.60.0'));
  assert.ok(read('sw.js').includes('./assets/save-manager-v0.53.js'));
  console.log('PASS v0.53: Files backup check validates JSON, detects matching/different live shop, blocks corruption/oversize, works through picker, never saves/imports/reloads/edits data.');
 }
