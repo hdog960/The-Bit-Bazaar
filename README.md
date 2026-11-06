@@ -1,4 +1,4 @@
-## QA is developer-owned (November 5, 2026)
+**Phase 4 automated QA accepted:** [developer-owned signoff](PHASE4_AUTOMATED_SIGNOFF.md). **Phase 5 is now unblocked**—no player testing or approval required.\n\n## QA is developer-owned (November 5, 2026)
 
 Players are **not required to test on iPhone, share screenshots, use Files, or sign off on releases**. Automated Node regressions plus a mobile-shaped WebKit browser suite run via GitHub Actions; see [QA_AUTOMATION_POLICY.md](QA_AUTOMATION_POLICY.md). Native iPhone hardware behavior remains a documented uncertainty, not a blocker assigned to the player.
 

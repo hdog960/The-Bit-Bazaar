@@ -18,3 +18,7 @@ A Linux WebKit build shares an engine family with Safari but **does not replicat
 
 ### Phase transition rule
 Phase 4 may be closed and Phase 5 started based on passing automated historical tests plus mobile WebKit browser checks, absence of known high-severity data-loss/blocker defects, and an honest account of what was and wasn't tested. Physical-device signoff from the player is **not required**. If the browser acceptance suite fails, development continues with developer-owned fixes, rather than asking the player to test it for us.
+
+## Phase 4 automated acceptance recorded
+
+Historical suite, real Linux WebKit mobile viewport, disposable JSON download and restore/undo, and a 160-decoration dense render all passed on November 5, 2026. Evidence: [PHASE4_AUTOMATED_SIGNOFF.md](PHASE4_AUTOMATED_SIGNOFF.md). Phase 5 development may begin without any user device interaction.

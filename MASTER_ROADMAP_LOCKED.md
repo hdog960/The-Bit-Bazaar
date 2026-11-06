@@ -3,6 +3,13 @@ Status: **APPROVED / LOCKED** · 2026-11-03
 Project: First-person iPhone Safari/Home Screen pixel-art cleaning, collecting, sorting and personal decorating game.
 This is the canonical creative brief. Do not introduce customers, employees, store sales or conventional merchant management.
 
+## Delivery status — November 5, 2026
+
+**Phases 1–3:** Implemented with historical regression coverage.
+**Phase 4:** Automated acceptance passed; [evidence](PHASE4_AUTOMATED_SIGNOFF.md). Physical iPhone testing is optional and cannot block development.
+**Phase 5:** Unblocked; implement Coward's Glasses next, in the exact scope already locked below.
+**Phase 6:** Locked for after Phase 5.
+
 ## Permanent design principles
 - Exactly **3,000 collectible figurines**, grouped into **300 unique named sets**, each containing exactly **10 numbered figures (#1 through #10)**.
 - Player **carries one figure at a time**. Pickups, shelf targeting and precise placement use the central reticle; vertical looking works on iPhone.
