@@ -75,14 +75,14 @@ for(const file of ['game-v0.61.0.js','game-v0.61.0-lowfx.js']){
  assert.ok(!savedRegion.includes('postcard'),'frame preference never saved');
 }
 assert.match(read('game-v0.61.0.js'),/baseline-v0\.61\.0-lowfx\.html\?recovery=tracker-perf/);
-for(const page of ['index.html','preview-v0.61.0.html','baseline-v0.61.0-lowfx.html']){
+for(const page of ['preview-v0.61.0.html','baseline-v0.61.0-lowfx.html']){
  const html=read(page);
  assert.match(html,/id="showcaseFrame"/);
  assert.match(html,/assets\/postcards-v0\.61\.js/);
  assert.ok(html.indexOf('postcards-v0.61.js')<html.indexOf('game-v0.61.0'));
  assert.match(html,/style-v0\.61\.0\.css/);
 }
-assert.match(read('sw.js'),/bit-bazaar-v0\.61\.0/);
+assert.match(read('sw.js'),/bit-bazaar-v0\.62\.0/);
 assert.match(read('sw.js'),/postcards-v0\.61\.js/);
 assert.match(read('sw.js'),/game-v0\.60\.0\.js/);
 assert.match(read('style-v0.61.0.css'),/data-postcard-style="hearthwood"/);

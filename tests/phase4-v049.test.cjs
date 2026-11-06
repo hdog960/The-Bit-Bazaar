@@ -130,7 +130,7 @@ async function main(){
   assert.ok(game.includes('bit-bazaar-save-v3'));
  }
  assert.ok(read('style-v0.49.0.css').includes('.boot-recovery[hidden]'));
- assert.ok(read('sw.js').includes('bit-bazaar-v0.61.0'));
+ assert.ok(read('sw.js').includes('bit-bazaar-v0.62.0'));
  assert.ok(read('sw.js').includes('./assets/boot-recovery-v0.49.js'));
  assert.ok(read('sw.js').includes('./assets/save-manager-v0.49.js'));
  console.log('PASS v0.49: fresh/legacy/modern boots, corrupt source quarantine, raw export, safe Files restore, previous backup preservation, double-confirm reset, normal/Low FX/PWA wiring.');
