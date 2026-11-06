@@ -168,7 +168,7 @@ assert.ok(html.indexOf('decor-sites-v0.34.js')<html.indexOf('decor-runtime-v0.34
 for(const file of ['assets/decor-art-v0.34.js','assets/decor-sites-v0.34.js'])
  assert.ok(sw.includes('./'+file),'historical files remain in active catalog '+file);
 assert.ok(html.includes('./assets/decor-runtime-v0.34.js'),'archived preview uses archived runtime');
-assert.ok(sw.includes('bit-bazaar-v0.51.0'),'fresh PWA cache');
+assert.ok(sw.includes('bit-bazaar-v0.52.0'),'fresh PWA cache');
 assert.ok(src('baseline-v0.34.0-lowfx.html').includes('game-v0.34.0-lowfx.js'));
 for(const game of ['game-v0.34.0.js','game-v0.34.0-lowfx.js']){
  const code=src(game);

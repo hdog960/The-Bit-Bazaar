@@ -150,7 +150,7 @@ async function main(){
  for(const p of ['preview-v0.47.0.html','baseline-v0.47.0-lowfx.html']){
   assert.ok(read(p).includes('assets/save-manager-v0.47.js'),p);
  }
- assert.ok(read('sw.js').includes('bit-bazaar-v0.51.0'));
+ assert.ok(read('sw.js').includes('bit-bazaar-v0.52.0'));
  assert.ok(read('sw.js').includes('assets/save-manager-v0.47.js'));
  console.log('PASS v0.47: validate before save, quarantine bad live state, preserve last good local save, recover via Files and release quarantine after clean checks.');
 }
