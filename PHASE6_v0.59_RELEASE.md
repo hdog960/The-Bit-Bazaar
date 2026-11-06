@@ -1,7 +1,7 @@
 # Bit Bazaar Phase 6.5 — The Collector's Encore (v0.59.0)
 
 ## Status
-Implemented on isolated development branch, pending developer-owned regression tests, mobile WebKit acceptance and GitHub Pages deployment. No player testing is required.
+**Accepted and deployed November 6, 2026.** The merged main gameplay commit 094e42c passed [safety suite](https://github.com/hdog960/The-Bit-Bazaar/actions/runs/42256930313), [mobile WebKit acceptance](https://github.com/hdog960/The-Bit-Bazaar/actions/runs/42256930433), and [GitHub Pages publication](https://github.com/hdog960/The-Bit-Bazaar/actions/runs/42256930320). Linux WebKit is not an actual iPhone hardware certification. Player testing is never a release requirement.
 
 ## One more chapter, entirely on the player's terms
 Once the existing Perfect Bazaar achievement has been permanently earned, the collector may open a new, optional **Collector's Encore** from the mobile HUD or the Collection Almanac. It is never a victory interruption or a required quest.
