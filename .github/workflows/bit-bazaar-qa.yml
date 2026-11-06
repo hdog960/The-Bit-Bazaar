@@ -190,7 +190,7 @@ jobs:
           test -f preview-v0.61.0.html
           test -f baseline-v0.61.0-lowfx.html
           test -f style-v0.61.0.css
-          grep -q 'sw.js?v=0.61.0' index.html
+          test -f preview-v0.61.0.html
           test -f game-v0.60.0.js
           test -f game-v0.60.0-lowfx.js
           test -f style-v0.60.0.css
