@@ -84,6 +84,11 @@ try{
     const result=await frame(page,f.id,pose);
     poses++;
     assert.ok(result.visible,'shelf vanished id='+f.id+' face='+face+' distance='+dist);
+    if(result.colors<6||result.nonzero<100||result.shelfPixels<=4){
+     const tag='diagnostic-'+f.id+'-'+(face===1?'front':'reverse')+'-'+String(dist).replace('.','p')+'.png';
+     await frame(page,f.id,pose,tag);
+     console.error('VISUAL DIAGNOSTIC',tag,JSON.stringify({fixture:f.id,face,dist,result}));
+    }
     assert.ok(result.colors>=6,'broken/blank texture id='+f.id+' '+dist+' colors='+result.colors);
     assert.ok(result.nonzero>=100,'almost entirely black frame id='+f.id);
     assert.ok(result.shelfPixels>4,'physical shelf face missing at id='+f.id+
