@@ -1,7 +1,7 @@
 # Bit Bazaar Phase 6.2 — The Three Journeys (v0.56.0)
 
 ## Status
-Implementation prepared for the existing GitHub Actions and mobile WebKit acceptance. Not signed off until CI passes.
+ACCEPTED on November 6, 2026. The actual v0.56 implementation, historical regression checks, mobile WebKit browser acceptance, and GitHub Pages all passed at commit 172a567: [safety regression suite](https://github.com/hdog960/The-Bit-Bazaar/actions/runs/42234976174), [mobile WebKit gameplay](https://github.com/hdog960/The-Bit-Bazaar/actions/runs/42234976098), and [GitHub Pages deployment](https://github.com/hdog960/The-Bit-Bazaar/actions/runs/42234976680). This certifies automated checks, not physical iOS hardware.
 
 ## Three real gameplay journeys
 - **The Restorer:** Complete cleaning on all **60 shelf faces**, all **45 permanent floor messes**, and recover all **18 original hidden figurines**. Each floor mess counts only after its type-specific final cleaning step.
@@ -25,4 +25,4 @@ The old automatic blocking victory modal is no longer triggered at 300 rows. The
 - All existing Phase 4/5/6.1 regressions remain in GitHub Actions. Linux WebKit does not certify actual iPhone hardware behavior; player QA is optional and never blocks development.
 
 ## Next
-On automated acceptance: Phase 6.3, the 30 authored achievements, then Phase 6.4 Collector's Monument and finale, Phase 6.5 optional postgame and Phase 6.6 showcase/photo mode.
+Next: Phase 6.3, the 30 authored achievements, then Phase 6.4 Collector's Monument and finale, Phase 6.5 optional postgame and Phase 6.6 showcase/photo mode.
