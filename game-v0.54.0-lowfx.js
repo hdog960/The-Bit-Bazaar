@@ -651,6 +651,9 @@ function restore(){
   !Array.isArray(raw.revealed)||!raw.slots||
   !Array.isArray(raw.lifetimePerfect)||!localStorage.getItem(STORE_KEY);
  window.BitBazaarSaveHold=false;
+ // Startup's earlier stats() ran while saving was quarantined; release
+ // the earned-equipment button only after the restoration transaction ends.
+ refreshGlasses();
  if(migrated&&!save())
   throw Error('Migrated shop could not be saved; original progress is protected');
 }
