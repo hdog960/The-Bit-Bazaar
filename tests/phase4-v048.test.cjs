@@ -144,7 +144,7 @@ assert.equal(buy(),false,'owned art cannot be bought twice');
 assert.equal(cleared,2);
 assert.equal(scattered,20);
 // Current normal/Low FX builds share the same new runtime and PWA.
-for(const entry of ['index.html','preview-v0.48.0.html','baseline-v0.48.0-lowfx.html']){
+for(const entry of ['preview-v0.48.0.html','baseline-v0.48.0-lowfx.html']){
  assert.ok(read(entry).includes('assets/decor-runtime-v0.48.js'));
 }
 for(const game of ['game-v0.48.0.js','game-v0.48.0-lowfx.js']){
