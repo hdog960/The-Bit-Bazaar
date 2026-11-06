@@ -11,7 +11,7 @@
 <link rel="icon" type="image/png" href="./icon.png" />
 <link rel="apple-touch-icon" href="./icon.png" />
 <title>The Bit Bazaar — The Great Figurine Sort</title>
-<link rel="stylesheet" href="./style-v0.58.0.css" />
+<link rel="stylesheet" href="./style-v0.59.0.css" />
 </head><body>
 <div id="game">
  <canvas id="world" width="480" height="270" aria-label="First-person view of a pixel-art figurine shop"></canvas>
@@ -43,6 +43,7 @@
    <span class="restoration-secret">HIDDEN <b id="hiddenCount">0</b>/18</span>
   </div>
   <button id="journeyBtn" class="journey-shortcut" type="button" aria-label="Open your Three Journeys in the Collection Almanac">✦ THREE JOURNEYS · 0/3</button>
+  <button id="encoreBtn" class="encore-shortcut" type="button" hidden aria-label="Open the optional Collector's Encore after completion">✦ COLLECTOR’S ENCORE · 300/300</button>
   <button id="finaleBtn" class="finale-shortcut" type="button" hidden aria-label="View or replay the optional grand finale">♛ GRAND FINALE READY · VIEW</button>
   <button id="achievementBtn" class="achievement-shortcut" type="button" aria-label="Open thirty collector achievements">✦ MEDALS · 0/30</button>
   <section id="huntDock" class="hunt-dock" aria-label="Optional pinned collection tracker">
@@ -211,16 +212,17 @@
 <script src="./assets/figure-integrity-v0.43.js"></script>
 <script src="./assets/achievements-v0.57.js"></script>
 <script src="./assets/finale-v0.58.js"></script>
+<script src="./assets/postgame-v0.59.js"></script>
 <script src="./assets/save-manager-v0.58.js"></script>
 <script src="./assets/cowards-glasses-v0.54.js"></script>
 <script src="./assets/lifetime-honors-v0.55.js"></script>
 <script src="./assets/journeys-v0.56.js"></script>
 <script src="./assets/boot-recovery-v0.50.js"></script>
 <script src="./assets/device-qa-v0.52.js"></script>
-<script src="./game-v0.58.0.js?v=0.58.0" defer></script>
+<script src="./game-v0.59.0.js?v=0.59.0" defer></script>
 <script>
 if ("serviceWorker" in navigator) {
-  addEventListener("load", () => navigator.serviceWorker.register("./sw.js?v=0.58.0", {updateViaCache:"none"}).catch(() => {}));
+  addEventListener("load", () => navigator.serviceWorker.register("./sw.js?v=0.59.0", {updateViaCache:"none"}).catch(() => {}));
 }
 </script>
 </body></html>

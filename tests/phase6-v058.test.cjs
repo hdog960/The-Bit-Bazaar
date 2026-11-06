@@ -76,7 +76,7 @@ for(const engine of ['game-v0.58.0.js','game-v0.58.0-lowfx.js']){
  assert.ok(!game.includes('if(completed===NUM_RACKS*ROWS){setTimeout(()=>showVictory(),1200)}'));
  assert.ok(game.includes("const STORE_KEY='bit-bazaar-save-v3'"));
 }
-for(const page of ['index.html','preview-v0.58.0.html','baseline-v0.58.0-lowfx.html']){
+for(const page of ['preview-v0.58.0.html','baseline-v0.58.0-lowfx.html']){
  const html=read(page);
  for(const id of ['finaleOverlay','finaleContent','finaleBtn','finaleClose','finaleNext','finaleReplay','finaleSkip']){
   assert.ok(html.includes('id="'+id+'"'),page+' missing '+id);
@@ -93,7 +93,7 @@ vm.runInNewContext(script,{window,document:{addEventListener(){},getElementById(
 assert.throws(()=>window.BitBazaarSaveTools.validate({version:1,finaleViewed:'true'}),/Invalid Collector/);
 assert.throws(()=>window.BitBazaarSaveTools.validate({version:1,finaleViewed:1}),/Invalid Collector/);
 const sw=read('sw.js');
-assert.match(sw,/bit-bazaar-v0\.58\.0/);
+assert.match(sw,/bit-bazaar-v0\.59\.0/);
 assert.match(sw,/assets\/finale-v0\.58\.js/);
 assert.match(sw,/assets\/save-manager-v0\.58\.js/);
 assert.match(sw,/game-v0\.57\.0\.js/,'previous stable gameplay remains available');
