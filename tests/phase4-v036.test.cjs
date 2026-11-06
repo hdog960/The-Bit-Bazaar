@@ -169,7 +169,7 @@ for(const p of ['assets/decor-art-v0.36.js','assets/decor-sites-v0.36.js'])
  assert.ok(sw.includes('./'+p),'current catalog still needs this historical artwork/site module '+p);
 assert.ok(html.includes('./assets/decor-runtime-v0.36.js'),
  'historical v0.36 preview loads its original matching runtime');
-assert.ok(sw.includes('bit-bazaar-v0.60.0'));
+assert.ok(sw.includes('bit-bazaar-v0.61.0'));
 assert.ok(code('baseline-v0.36.0-lowfx.html').includes('game-v0.36.0-lowfx.js'));
 const active=code('assets/decor-runtime-v0.36.js');
 for(const text of ["data-decor-search-apply","data-decor-search-clear",

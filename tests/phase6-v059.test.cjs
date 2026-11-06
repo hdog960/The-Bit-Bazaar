@@ -132,7 +132,7 @@ for(const page of ['preview-v0.59.0.html','baseline-v0.59.0-lowfx.html']){
  assert.ok(html.indexOf('postgame-v0.59.js')<html.indexOf('game-v0.59.0'));
  assert.match(html,/style-v0\.59\.0\.css/);
 }
-assert.match(read('sw.js'),/bit-bazaar-v0\.60\.0/);
+assert.match(read('sw.js'),/bit-bazaar-v0\.61\.0/);
 assert.match(read('sw.js'),/postgame-v0\.59\.js/);
 assert.match(read('sw.js'),/game-v0\.58\.0\.js/,'v0.58 remains a rollback');
 assert.match(read('style-v0.59.0.css'),/\.encore-details/);
