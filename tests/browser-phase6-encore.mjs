@@ -133,6 +133,7 @@ try{
  await low.locator('#startBtn').click();
  await low.locator('#encoreBtn').click();
  assert.equal(await low.locator('#encoreDetails').evaluate(e=>e.open),true);
+ await low.locator('#closeDrawer').click(); // World rendering correctly pauses while a drawer is open.
  await low.waitForFunction(()=>window.BitBazaarQA.stats().renderFrames>3);
  assert.ok((await low.evaluate(()=>window.BitBazaarQA.stats().sprites.cacheSize))<=112);
  assert.equal((await low.evaluate(()=>window.BitBazaarQA.figureIntegrity())).ok,true);
