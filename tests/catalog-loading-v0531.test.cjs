@@ -22,9 +22,9 @@ for(const html of ['preview-v0.53.0.html','baseline-v0.53.0-lowfx.html']){
  assert.ok(src.includes('game-v0.53.0'),html+' points to wrong game engine');
 }
 const worker=read('sw.js');
-assert.ok(worker.includes('const CACHE="bit-bazaar-v0.57.0"'),
+assert.ok(worker.includes('const CACHE="bit-bazaar-v0.58.0"'),
  'PWA must invalidate old broken v0.53.0 cached shell');
-assert.ok(read('index.html').includes('sw.js?v=0.57.0'),
+assert.ok(read('index.html').includes('sw.js?v=0.58.0'),
  'Safari must request updated service worker after hotfix');
 assert.ok(worker.includes('./assets/decor-art-v0.37.js'),
  'final original artwork remains available to offline PWA');

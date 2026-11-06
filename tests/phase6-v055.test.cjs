@@ -93,6 +93,6 @@ for(const page of ['preview-v0.55.0.html','baseline-v0.55.0-lowfx.html']){
  assert.ok(html.indexOf('lifetime-honors-v0.55.js')<html.indexOf('game-v0.55.0'));
 }
 assert.match(read('style-v0.55.0.css'),/honor-grid/);
-assert.match(read('sw.js'),/bit-bazaar-v0\.57\.0/);
+assert.match(read('sw.js'),/bit-bazaar-v0\.58\.0/);
 assert.match(read('sw.js'),/\.\/assets\/lifetime-honors-v0\.55\.js/);
 console.log('PASS v0.55 Phase 6.1: all 9 permanent first-time milestones, stable after sacrifice, 3 gated free finish choices, 8 bounded world awards, 25 shelf nameplates, 200 floor seal, safe save schema in both mobile builds.');

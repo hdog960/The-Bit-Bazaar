@@ -11,7 +11,7 @@
 <link rel="icon" type="image/png" href="./icon.png" />
 <link rel="apple-touch-icon" href="./icon.png" />
 <title>The Bit Bazaar — The Great Figurine Sort</title>
-<link rel="stylesheet" href="./style-v0.57.0.css" />
+<link rel="stylesheet" href="./style-v0.58.0.css" />
 </head><body>
 <div id="game">
  <canvas id="world" width="480" height="270" aria-label="First-person view of a pixel-art figurine shop"></canvas>
@@ -43,6 +43,7 @@
    <span class="restoration-secret">HIDDEN <b id="hiddenCount">0</b>/18</span>
   </div>
   <button id="journeyBtn" class="journey-shortcut" type="button" aria-label="Open your Three Journeys in the Collection Almanac">✦ THREE JOURNEYS · 0/3</button>
+  <button id="finaleBtn" class="finale-shortcut" type="button" hidden aria-label="View or replay the optional grand finale">♛ GRAND FINALE READY · VIEW</button>
   <button id="achievementBtn" class="achievement-shortcut" type="button" aria-label="Open thirty collector achievements">✦ MEDALS · 0/30</button>
   <section id="huntDock" class="hunt-dock" aria-label="Optional pinned collection tracker">
    <button type="button" id="huntToggle" class="hunt-toggle" aria-controls="huntBody" aria-expanded="false">☆ PIN A HUNT</button>
@@ -142,6 +143,19 @@
   <h2 id="drawerTitle">POCKET TOTE</h2><div class="drawer-body" id="drawerBody"></div>
  </div>
  <div class="drawer-shade" id="drawerShade"></div>
+<section id="finaleOverlay" class="finale-overlay" role="dialog" aria-modal="true" aria-labelledby="finaleTitle" aria-label="Optional Collector's Monument celebration" hidden>
+ <div class="finale-shell">
+  <div class="finale-edge" aria-hidden="true">✦ ───────── ♛ ───────── ✦</div>
+  <div id="finaleContent" class="finale-content" aria-live="polite"></div>
+  <div class="finale-actions">
+   <button id="finaleClose" type="button" aria-label="Return to your playable shop">✕ RETURN TO SHOP</button>
+   <button id="finaleSkip" type="button">SKIP TO MONUMENT</button>
+   <button id="finaleNext" type="button">NEXT CHAPTER →</button>
+   <button id="finaleReplay" type="button" hidden>↺ REPLAY FINALE</button>
+  </div>
+  <p class="finale-guarantee">No resets. No purchases. Your figures and decorations stay exactly as you left them.</p>
+ </div>
+</section>
  <div id="confirm" class="confirm" hidden><div><h3>START A FRESH SHOP?</h3><p>This deletes your current sorting progress. Your 3,000 figurines will be scattered again.</p><button id="cancelReset" class="chrome">CANCEL</button><button id="doReset" class="danger">RESET STORE</button></div></div>
 <section id="bootRecovery" class="boot-recovery" role="dialog" aria-modal="true" aria-labelledby="bootRecoveryTitle" hidden>
  <div class="boot-recovery-card">
@@ -196,16 +210,17 @@
 <script src="./assets/decor-visibility-v0.41.js"></script>
 <script src="./assets/figure-integrity-v0.43.js"></script>
 <script src="./assets/achievements-v0.57.js"></script>
-<script src="./assets/save-manager-v0.57.js"></script>
+<script src="./assets/finale-v0.58.js"></script>
+<script src="./assets/save-manager-v0.58.js"></script>
 <script src="./assets/cowards-glasses-v0.54.js"></script>
 <script src="./assets/lifetime-honors-v0.55.js"></script>
 <script src="./assets/journeys-v0.56.js"></script>
 <script src="./assets/boot-recovery-v0.50.js"></script>
 <script src="./assets/device-qa-v0.52.js"></script>
-<script src="./game-v0.57.0.js?v=0.55.0" defer></script>
+<script src="./game-v0.58.0.js?v=0.58.0" defer></script>
 <script>
 if ("serviceWorker" in navigator) {
-  addEventListener("load", () => navigator.serviceWorker.register("./sw.js?v=0.57.0", {updateViaCache:"none"}).catch(() => {}));
+  addEventListener("load", () => navigator.serviceWorker.register("./sw.js?v=0.58.0", {updateViaCache:"none"}).catch(() => {}));
 }
 </script>
 </body></html>

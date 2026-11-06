@@ -12,6 +12,8 @@ This is the canonical creative brief. Do not introduce customers, employees, sto
 **Phase 6.2:** **Accepted November 6, 2026** — Restorer / Archivist / Perfect Bazaar journeys.
 **Phase 6.3:** **Accepted November 6, 2026 on v0.57** — 30 named permanently earned medals, real sorting and sacrifice history, glasses interaction and validated optional save extension. Then 6.4 (monument and finale), 6.5 (optional postgame), and 6.6 (showcase/photo mode).
 
+**Phase 6.4:** **Implemented as v0.58; automated acceptance pending** — Exclusive Collector's Monument in the world permanently unlocks after all 300 physical rows are perfect simultaneously. The nonblocking four-chapter celebration supports next, skip, replay and return. Only a validated optional viewed boolean is saved. Phase 6.5 and 6.6 remain next.
+
 ## Permanent design principles
 - Exactly **3,000 collectible figurines**, grouped into **300 unique named sets**, each containing exactly **10 numbered figures (#1 through #10)**.
 - Player **carries one figure at a time**. Pickups, shelf targeting and precise placement use the central reticle; vertical looking works on iPhone.
@@ -98,3 +100,6 @@ Thirty Little Legends is implemented with exactly thirty named collector challen
 
 ### Phase 6.3 acceptance · November 6, 2026
 All historical and new unit checks passed, including 30 authored medals and save-schema integrity. The real mobile-shaped WebKit browser acceptance passed on the merged game commit f348d41, including actual shelf swapping, save/reload persistence and Low FX. GitHub Pages deployment completed successfully. Evidence: [main safety regression suite](https://github.com/hdog960/The-Bit-Bazaar/actions/runs/42244628713), [main mobile WebKit gameplay acceptance](https://github.com/hdog960/The-Bit-Bazaar/actions/runs/42244628703), and [GitHub Pages deployment](https://github.com/hdog960/The-Bit-Bazaar/actions/runs/42244628135). Physical iPhone hardware remains separate and does not require player testing. **Next: Phase 6.4 — exclusive Collector's Monument and optional finale.**
+
+### Phase 6.4 implementation update · November 6, 2026
+The v0.58 Collector's Monument is a unique, non-purchasable multi-tier pixel-art installation fixed to the east entrance alcove, rendered using the existing first-person projection without an additional atlas, figure ID, decoration slot or collision trap. Its permanent unlock is the already-earned Perfect Bazaar medal, requiring 300 perfectly sorted rows and all 3,000 original figures physically shelved together. Its four-chapter cinematic never opens automatically; Next, Skip, Replay and Return are available. Decoration sacrifices cannot remove the monument. Older save version 1 files remain valid with only an optional strictly validated finaleViewed boolean. Standard and Low FX preserve feature parity and v0.57 remains a fallback. Automated acceptance and Pages deployment pending; next Phase 6.5. Creative scope unchanged, no player QA required.
