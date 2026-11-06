@@ -1,7 +1,7 @@
 # Bit Bazaar Phase 6.4 — Collector's Monument and Grand Finale (v0.58.0)
 
 ## Status
-Implemented on a development branch. Automated acceptance and GitHub Pages deployment pending.
+**Accepted and deployed on November 6, 2026.** All new and existing tests passed after merge into main (c144cfb): [safety regression suite](https://github.com/hdog960/The-Bit-Bazaar/actions/runs/42248752204), [mobile WebKit gameplay acceptance](https://github.com/hdog960/The-Bit-Bazaar/actions/runs/42248752085), and [GitHub Pages deployment](https://github.com/hdog960/The-Bit-Bazaar/actions/runs/42248751490). WebKit-on-Linux does not certify physical iPhone hardware, and no player QA is required.
 
 ## Exclusive Collector's Monument
 A custom architectural pixel-art monument permanently appears in the **east entrance alcove** only after the collector first has **all 300 physical shelf rows perfect simultaneously** with the full **3,000 original figurines** shelved. The existing permanent Perfect Bazaar medal is the authoritative unlock. Mastering 300 sets over a lifetime does not meet this stricter condition.
