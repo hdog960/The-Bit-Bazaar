@@ -11,10 +11,23 @@
 <link rel="icon" type="image/png" href="./icon.png" />
 <link rel="apple-touch-icon" href="./icon.png" />
 <title>The Bit Bazaar — The Great Figurine Sort</title>
-<link rel="stylesheet" href="./style-v0.59.0.css" />
+<link rel="stylesheet" href="./style-v0.60.0.css" />
 </head><body>
 <div id="game">
  <canvas id="world" width="480" height="270" aria-label="First-person view of a pixel-art figurine shop"></canvas>
+ <aside id="showcaseBar" class="showcase-bar" role="toolbar" aria-label="Showcase and photo controls" hidden>
+   <span class="showcase-heading">✦ BIT BAZAAR · PHOTO STUDIO</span>
+   <div class="showcase-buttons">
+    <button id="showcaseExit" type="button" aria-label="Return to sorting game">← RETURN TO SHOP</button>
+    <button id="showcaseView" type="button" aria-label="Switch between first-person photo and overhead store portrait">▦ OVERHEAD</button>
+    <button id="showcaseCapture" type="button" aria-label="Save or share the current PNG snapshot">▣ SAVE / SHARE PNG</button>
+   </div>
+   <small id="showcaseHelp">DRAG TO LOOK · NO FIGURES CAN BE MOVED</small>
+   <small id="showcaseStatus" role="status" aria-live="polite"></small>
+ </aside>
+ <div id="showcaseOverhead" class="showcase-overhead" hidden aria-label="Overhead snapshot of your actual store">
+  <canvas id="showcaseOverheadCanvas" width="760" height="900" aria-label="Pixel-art top-down store portrait with real shelf, artwork and player positions"></canvas>
+ </div>
  <aside id="roomPreviewHud" class="room-preview-hud" hidden aria-label="Walk-around room finish preview" role="region">
   <strong>✦ LIVE STORE MATERIAL PREVIEW</strong>
   <small>Walk and look around. Changes remain temporary until you apply them.</small>
@@ -33,6 +46,7 @@
    <button id="decorBtn" class="chrome small" aria-label="Open the Sacrifice Catalog">◇ DECOR</button>
    <button id="mapBtn" class="chrome small" aria-label="Open interactive store map">▦ MAP</button>
    <button id="albumBtn" class="chrome small" aria-label="Open collectible almanac">✦ COLLECTION</button>
+   <button id="showcaseBtn" class="chrome small showcase-entry" aria-label="Enter Showcase and Photo Mode" title="Showcase and Photo Mode">▣</button>
   </div>
  </header>
  <div id="progress-track"><div id="progress-fill"></div></div>
@@ -213,16 +227,17 @@
 <script src="./assets/achievements-v0.57.js"></script>
 <script src="./assets/finale-v0.58.js"></script>
 <script src="./assets/postgame-v0.59.js"></script>
+<script src="./assets/showcase-v0.60.js"></script>
 <script src="./assets/save-manager-v0.58.js"></script>
 <script src="./assets/cowards-glasses-v0.54.js"></script>
 <script src="./assets/lifetime-honors-v0.55.js"></script>
 <script src="./assets/journeys-v0.56.js"></script>
 <script src="./assets/boot-recovery-v0.50.js"></script>
 <script src="./assets/device-qa-v0.52.js"></script>
-<script src="./game-v0.59.0.js?v=0.59.0" defer></script>
+<script src="./game-v0.60.0.js?v=0.60.0" defer></script>
 <script>
 if ("serviceWorker" in navigator) {
-  addEventListener("load", () => navigator.serviceWorker.register("./sw.js?v=0.59.0", {updateViaCache:"none"}).catch(() => {}));
+  addEventListener("load", () => navigator.serviceWorker.register("./sw.js?v=0.60.0", {updateViaCache:"none"}).catch(() => {}));
 }
 </script>
 </body></html>

@@ -136,7 +136,7 @@ for(const page of ['preview-v0.57.0.html','baseline-v0.57.0-lowfx.html']){
  assert.ok(html.indexOf('achievements-v0.57.js')<html.indexOf('save-manager-v0.57.js'));
  assert.ok(html.indexOf('save-manager-v0.57.js')<html.indexOf('game-v0.57.0'));
 }
-assert.match(read('sw.js'),/bit-bazaar-v0\.59\.0/);
+assert.match(read('sw.js'),/bit-bazaar-v0\.60\.0/);
 assert.match(read('sw.js'),/assets\/achievements-v0\.57\.js/);
 assert.match(read('sw.js'),/game-v0\.56\.0\.js/);
 console.log('PASS Phase 6.3: 30 authored medals in five groups; genuine sorting and restoration history, permanent awards, strict optional backup schema, iPhone/Low FX entry points and no per-frame achievement scans.');

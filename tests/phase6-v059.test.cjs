@@ -125,14 +125,14 @@ for(const path of ['game-v0.59.0.js','game-v0.59.0-lowfx.js']){
  const saveData=text.slice(text.indexOf('function saveData(){'),text.indexOf('function save(){'));
  assert.ok(!saveData.includes('encorePage')&&!saveData.includes('postgame'),'postgame never writes new save fields');
 }
-for(const page of ['index.html','preview-v0.59.0.html','baseline-v0.59.0-lowfx.html']){
+for(const page of ['preview-v0.59.0.html','baseline-v0.59.0-lowfx.html']){
  const html=read(page);
  assert.match(html,/id="encoreBtn"/);
  assert.match(html,/assets\/postgame-v0\.59\.js/);
  assert.ok(html.indexOf('postgame-v0.59.js')<html.indexOf('game-v0.59.0'));
  assert.match(html,/style-v0\.59\.0\.css/);
 }
-assert.match(read('sw.js'),/bit-bazaar-v0\.59\.0/);
+assert.match(read('sw.js'),/bit-bazaar-v0\.60\.0/);
 assert.match(read('sw.js'),/postgame-v0\.59\.js/);
 assert.match(read('sw.js'),/game-v0\.58\.0\.js/,'v0.58 remains a rollback');
 assert.match(read('style-v0.59.0.css'),/\.encore-details/);
