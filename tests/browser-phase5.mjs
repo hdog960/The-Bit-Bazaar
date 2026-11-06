@@ -107,7 +107,7 @@ try{
  // Normal and low-FX views both render the same optional overlay/setting.
  const low=await context.newPage();
  low.on('pageerror',e=>errors.push('Low FX: '+e.message));
- await low.goto(new URL('baseline-v0.54.0-lowfx.html',base).href,
+ await low.goto(new URL('baseline-v0.55.0-lowfx.html',base).href,
   {waitUntil:'domcontentloaded'});
  await wait(low);
  const lowState=await low.evaluate(()=>window.BitBazaarQA.glassesState());

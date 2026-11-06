@@ -106,7 +106,7 @@ for(const p of ['preview-v0.50.0.html','baseline-v0.50.0-lowfx.html']){
  assert.ok(html.indexOf('boot-recovery-v0.50.js')<html.indexOf('game-v0.50.0'),p);
 }
 const sw=read('sw.js');
-assert.ok(sw.includes('bit-bazaar-v0.54.0'));
+assert.ok(sw.includes('bit-bazaar-v0.55.0'));
 assert.ok(sw.includes('./assets/boot-recovery-v0.50.js'));
 assert.ok(sw.includes('./assets/boot-recovery-v0.49.js'));
 console.log('PASS v0.50: current saves deep-validated for duplicate figures, slot/ground/carry conflicts, artwork and mastery before boot; valid 20/60-face historical migrations still accepted and no bytes overwritten.');

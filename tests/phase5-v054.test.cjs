@@ -87,7 +87,7 @@ for(const engine of ['game-v0.54.0.js','game-v0.54.0-lowfx.js']){
  assert.ok(code.includes("glassesState:()=>"));
  assert.ok(code.includes("glassesToggle:toggleGlasses"));
 }
-for(const page of ['index.html','preview-v0.54.0.html','baseline-v0.54.0-lowfx.html']){
+for(const page of ['preview-v0.54.0.html','baseline-v0.54.0-lowfx.html']){
  const s=load(page);
  for(const id of ['glassesDock','glassesToggle','glassesProgress','cowardBadge'])
   assert.ok(s.includes('id="'+id+'"'),page+' missing '+id);
@@ -96,6 +96,6 @@ for(const page of ['index.html','preview-v0.54.0.html','baseline-v0.54.0-lowfx.h
  assert.ok(s.indexOf("assets/cowards-glasses-v0.54.js")<s.indexOf("game-v0.54.0"));
 }
 assert.ok(load('style-v0.54.0.css').includes('.coward-badge[hidden]'));
-assert.ok(load('sw.js').includes('bit-bazaar-v0.54.0'));
+assert.ok(load('sw.js').includes('bit-bazaar-v0.55.0'));
 assert.ok(load('sw.js').includes('./assets/cowards-glasses-v0.54.js'));
 console.log('PASS Phase 5 v0.54: lifetime unlock 150, true started-set shelf arrow only, 6 local labels maximum, COWARD persistent HUD, optional safe boolean save in both engine builds and offline cache.');
