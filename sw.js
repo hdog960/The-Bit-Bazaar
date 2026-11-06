@@ -1,6 +1,6 @@
-/* The Bit Bazaar v0.53 — network-first iPhone Safari PWA.
+/* The Bit Bazaar v0.53.1 — network-first iPhone Safari PWA.
    Keeps local figure/decor saves in localStorage, never touches them. */
-const CACHE="bit-bazaar-v0.53.0";
+const CACHE="bit-bazaar-v0.53.1";
 const CORE=[
  "./index.html","./style-v0.53.0.css","./game-v0.53.0.js",
  "./game-v0.53.0-lowfx.js","./baseline-v0.53.0-lowfx.html",

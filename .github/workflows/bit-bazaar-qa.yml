@@ -62,6 +62,7 @@ jobs:
           node --check tests/phase4-v052.test.cjs
           node --check tests/phase4-v052-telemetry.test.cjs
           node --check tests/phase4-v053.test.cjs
+          node --check tests/catalog-loading-v0531.test.cjs
       - name: Historical v0.31 world relocation and figure priority
         run: node tests/phase4-v031.test.cjs
       - name: Historical v0.32 original art and space preservation
@@ -110,7 +111,9 @@ jobs:
           node tests/phase4-v052-telemetry.test.cjs
       - name: v0.53 read-only Files backup round-trip checker
         run: node tests/phase4-v053.test.cjs
-      - name: Validate all iPhone entrypoints and v0.53 offline cache
+      - name: v0.53.1 original 180-art dependency load order
+        run: node tests/catalog-loading-v0531.test.cjs
+      - name: Validate all iPhone entrypoints and v0.53.1 offline cache
         run: |
           test -f index.html
           test -f preview-v0.53.0.html
@@ -123,7 +126,7 @@ jobs:
           grep -q 'decor-art-v0.37.js' index.html
           test -f assets/save-manager-v0.43.js
           grep -q 'figure-integrity-v0.43.js' index.html
-          grep -q 'bit-bazaar-v0.53.0' sw.js
+          grep -q 'bit-bazaar-v0.53.1' sw.js
           test -f assets/device-qa-v0.44.js
           test -f assets/save-manager-v0.45.js
           test -f assets/save-manager-v0.47.js
