@@ -32,7 +32,7 @@ assert.equal(data.faces[1].shelved,49);
 const pose={yaw:Math.PI-.03,pitch:.15},target={yaw:-Math.PI+.07,pitch:-.32};
 const smooth=m.ease(pose,target,.016);
 assert.ok(smooth.yaw>pose.yaw,'shortest turn across angle wrap');
-assert.ok(smooth.yaw-pose.y<.03,'camera gently eases, never jumps');
+assert.ok(smooth.yaw-pose.yaw<.03,'camera gently eases, never jumps');
 assert.ok(smooth.pitch<pose.pitch&&smooth.pitch>target.pitch);
 assert.equal(m.ease({yaw:0,pitch:0},{yaw:1,pitch:1},0).pitch,0);
 assert.equal(m.ease({yaw:0,pitch:0},{yaw:1,pitch:1},1).pitch<.95,true);
