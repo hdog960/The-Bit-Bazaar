@@ -96,6 +96,6 @@ for(const page of ['preview-v0.54.0.html','baseline-v0.54.0-lowfx.html']){
  assert.ok(s.indexOf("assets/cowards-glasses-v0.54.js")<s.indexOf("game-v0.54.0"));
 }
 assert.ok(load('style-v0.54.0.css').includes('.coward-badge[hidden]'));
-assert.ok(load('sw.js').includes('bit-bazaar-v0.56.0'));
+assert.ok(load('sw.js').includes('bit-bazaar-v0.57.0'));
 assert.ok(load('sw.js').includes('./assets/cowards-glasses-v0.54.js'));
 console.log('PASS Phase 5 v0.54: lifetime unlock 150, true started-set shelf arrow only, 6 local labels maximum, COWARD persistent HUD, optional safe boolean save in both engine builds and offline cache.');

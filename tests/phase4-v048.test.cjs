@@ -152,6 +152,6 @@ for(const game of ['game-v0.48.0.js','game-v0.48.0-lowfx.js']){
  assert.ok(read(game).includes('BitBazaarSaveHold'));
 }
 const sw=read('sw.js');
-assert.ok(sw.includes('bit-bazaar-v0.56.0'));
+assert.ok(sw.includes('bit-bazaar-v0.57.0'));
 assert.ok(sw.includes('assets/decor-runtime-v0.48.js'));
 console.log('PASS v0.48: paused purchases do not bypass save quarantine; old and proposed inventories validated before writing; physical audit, quota rollback, two-row/20-figure conservation and PWA confirmed.');

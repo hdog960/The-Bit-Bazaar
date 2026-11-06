@@ -26,6 +26,7 @@ jobs:
           node --check tests/browser-phase5.mjs
           node --check tests/browser-phase6.mjs
           node --check tests/browser-phase6-journeys.mjs
+          node --check tests/browser-phase6-achievements.mjs
           node --check tests/browser-server.mjs
           npm install --no-save --package-lock=false playwright@1.56.1
       - name: Launch local game with dependency-free test server
@@ -45,6 +46,7 @@ jobs:
           node tests/browser-phase5.mjs
           node tests/browser-phase6.mjs
           node tests/browser-phase6-journeys.mjs
+          node tests/browser-phase6-achievements.mjs
       - name: Show local server diagnostics on failure
         if: failure()
         run: tail -n 100 /tmp/bit-bazaar-browser.log || true
