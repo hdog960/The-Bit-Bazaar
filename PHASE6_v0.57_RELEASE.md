@@ -1,7 +1,7 @@
 # Bit Bazaar Phase 6.3 — Thirty Little Legends (v0.57.0)
 
 ## Status
-Implementation ready for GitHub Actions on a development branch. Not accepted or deployed until automated tests pass and main is updated.
+**ACCEPTED and DEPLOYED on November 6, 2026.** The actual merged v0.57 game at commit f348d41 passed [main safety regression suite](https://github.com/hdog960/The-Bit-Bazaar/actions/runs/42244628713), [main mobile WebKit gameplay acceptance](https://github.com/hdog960/The-Bit-Bazaar/actions/runs/42244628703), and [GitHub Pages deployment](https://github.com/hdog960/The-Bit-Bazaar/actions/runs/42244628135). These are developer-owned automated checks. WebKit-on-Linux is not a physical iPhone and no player QA is required.
 
 ## Thirty authored, permanently earned medals
 - **Collection (8):** Discovery from one through 3,000 real figures; mastering the first, 150th, and 300th named sets.
