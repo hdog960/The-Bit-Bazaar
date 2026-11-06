@@ -1,7 +1,7 @@
 # Bit Bazaar — Post-Roadmap v0.61: Collector Postcards
 
 ## Status
-Implemented on isolated development branch; acceptance requires all historical Node safety regressions, new mobile WebKit tests and GitHub Pages deployment.
+**Accepted and deployed on November 6, 2026.** The merged gameplay commit 30af2a0 passed [main safety suite](https://github.com/hdog960/The-Bit-Bazaar/actions/runs/42285155954), [mobile WebKit gameplay](https://github.com/hdog960/The-Bit-Bazaar/actions/runs/42285155810), and [GitHub Pages deployment](https://github.com/hdog960/The-Bit-Bazaar/actions/runs/42285154375). Linux WebKit is not equivalent to physical iPhone hardware; no player QA is required.
 
 ## Original artistic expansion
 The accepted six-phase roadmap ended at v0.60. This is a separate optional polish feature, not a revision to the locked collecting rules. Photo Studio gains a FRAME button with four freely selectable styles:
