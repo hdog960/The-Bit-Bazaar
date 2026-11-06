@@ -671,8 +671,9 @@ function restore(){
   !Array.isArray(raw.lifetimePerfect)||raw.achievementData===undefined||!localStorage.getItem(STORE_KEY);
  window.BitBazaarSaveHold=false;
  // Startup's earlier stats() ran while saving was quarantined; release
- // the earned-equipment button only after the restoration transaction ends.
+ // the earned-equipment AND finale buttons after restoration ends.
  refreshGlasses();
+ $('finaleBtn').disabled=!finaleUnlocked;
  if(migrated&&!save())
   throw Error('Migrated shop could not be saved; original progress is protected');
 }
