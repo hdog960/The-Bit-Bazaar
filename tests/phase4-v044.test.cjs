@@ -44,5 +44,5 @@ for(const p of ['game-v0.44.0.js','game-v0.44.0-lowfx.js']){
  assert.ok(s.includes('bit-bazaar-save-v3'));
 }
 for(const p of ['preview-v0.44.0.html','baseline-v0.44.0-lowfx.html'])assert.ok(read(p).includes('device-qa-v0.44.js'));
-assert.ok(read('sw.js').includes('bit-bazaar-v0.55.0'));
+assert.ok(read('sw.js').includes('bit-bazaar-v0.56.0'));
 console.log('PASS v0.44 optional iPhone recording, bounded telemetry, recovery and no save writes');

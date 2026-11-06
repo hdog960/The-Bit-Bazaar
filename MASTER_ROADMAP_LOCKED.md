@@ -9,7 +9,7 @@ This is the canonical creative brief. Do not introduce customers, employees, sto
 **Phase 4:** Automated acceptance passed; [evidence](PHASE4_AUTOMATED_SIGNOFF.md). Physical iPhone testing is optional and cannot block development.
 **Phase 5:** Implemented and accepted via automated unit + mobile WebKit gameplay testing ([evidence](PHASE5_v0.54_RELEASE.md)). Unlock, optional equipment, COWARD overlay and started-set-only arrow are live in both render modes.
 **Phase 6.1:** **Accepted** — nine permanent lifetime-set milestones, signed pixel-art honors in the shop, shelf nameplates, a 200-set floor seal, and three free gallery finishes. Unit and mobile WebKit tests passed at [v0.55](PHASE6_v0.55_RELEASE.md); no user QA required.
-**Phase 6.2:** **Next** — the three distinct Restorer, Archivist, and Perfect Bazaar journeys. Then Phase 6.3 (30 authored achievements), 6.4 (monument and finale), 6.5 (optional postgame), and 6.6 (showcase/photo mode).
+**Phase 6.2:** **Implemented for v0.56; automated acceptance pending** — the three distinct Restorer, Archivist, and Perfect Bazaar journeys. Then Phase 6.3 (30 authored achievements), 6.4 (monument and finale), 6.5 (optional postgame), and 6.6 (showcase/photo mode).
 
 ## Permanent design principles
 - Exactly **3,000 collectible figurines**, grouped into **300 unique named sets**, each containing exactly **10 numbered figures (#1 through #10)**.
@@ -88,3 +88,6 @@ Permanent milestones never decrement if decorations re-scatter a perfected row.
 ### QA ownership amendment · 2026-11-05 (process only)
 Developer/CI owns testing, regression triage, browser boot checks, synthetic-file backup/restore/undo, and dense-gallery stress. The player is not expected to use the Files app, record diagnostics, run a QA script, or provide screenshots to unlock Phase 5. These activities are only optional if the player spontaneously wants to report something. This amends the workflow, **not any locked creative scope**, and preserves all 3,000 figures and the original save schema. Evidence and remaining limitations are documented in `QA_AUTOMATION_POLICY.md`.
 This document is the canonical roadmap and should be updated with status only if the user explicitly approves a creative scope change.
+
+### Phase 6.2 implementation update · November 6, 2026
+The Three Journeys now have independent progress/status UI sourced exclusively from the already-saved world state (cleaning stages and revealed original figures, unique lifetime perfected IDs, and physically perfect current shelf rows). v0.56 retains old saves, original 3,000 figures, optional Low FX and v0.55 rollback. The optional grand finale remains Phase 6.4; completing the current Perfect Bazaar does not block interaction or force credits. This is a status update only, not a creative-scope change. Automated acceptance pending GitHub Actions.

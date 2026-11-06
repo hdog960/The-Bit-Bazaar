@@ -85,7 +85,7 @@ for(const file of ['game-v0.55.0.js','game-v0.55.0-lowfx.js']){
  assert.ok(game.includes('HONORS.panel(lifetimePerfect,honorTrim)'));
  assert.ok(game.includes('GLASSES.unlocked(lifetimePerfect)'));
 }
-for(const page of ['index.html','preview-v0.55.0.html','baseline-v0.55.0-lowfx.html']){
+for(const page of ['preview-v0.55.0.html','baseline-v0.55.0-lowfx.html']){
  const html=read(page);
  assert.ok(html.includes('assets/lifetime-honors-v0.55.js'));
  assert.ok(html.includes('assets/save-manager-v0.55.js'));

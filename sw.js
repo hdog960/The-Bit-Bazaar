@@ -1,10 +1,10 @@
-/* The Bit Bazaar v0.55 — network-first iPhone Safari PWA.
+/* The Bit Bazaar v0.56 — network-first iPhone Safari PWA.
    Keeps local figure/decor saves in localStorage, never touches them. */
-const CACHE="bit-bazaar-v0.55.0";
+const CACHE="bit-bazaar-v0.56.0";
 const CORE=[
- "./index.html","./style-v0.55.0.css","./game-v0.55.0.js",
- "./game-v0.55.0-lowfx.js","./baseline-v0.55.0-lowfx.html",
- "./preview-v0.55.0.html",
+ "./index.html","./style-v0.56.0.css","./game-v0.56.0.js",
+ "./game-v0.56.0-lowfx.js","./baseline-v0.56.0-lowfx.html",
+ "./preview-v0.56.0.html",
  "./assets/collection.js","./assets/collection-extension.js",
  "./assets/optimized-sprites.js","./assets/figurines.png",
  "./assets/decor-v0.19.js","./assets/decor-expansion-v0.20.js",
@@ -22,13 +22,16 @@ const CORE=[
  "./assets/decor-runtime-v0.52.js","./assets/decor-map-v0.38.js",
  "./assets/decor-world-v0.41.js","./assets/decor-visibility-v0.41.js",
  "./assets/figure-integrity-v0.43.js","./assets/save-manager-v0.55.js",
- "./assets/lifetime-honors-v0.55.js",
+ "./assets/lifetime-honors-v0.55.js","./assets/journeys-v0.56.js",
  "./assets/cowards-glasses-v0.54.js",
  "./assets/boot-recovery-v0.50.js",
  "./assets/device-qa-v0.52.js",
  "./manifest.webmanifest","./icon.png"
 ];
 const OPTIONAL=[
+ "./game-v0.55.0.js","./game-v0.55.0-lowfx.js",
+ "./style-v0.55.0.css","./baseline-v0.55.0-lowfx.html",
+ "./preview-v0.55.0.html",
  "./game-v0.54.0.js","./game-v0.54.0-lowfx.js",
  "./style-v0.54.0.css","./baseline-v0.54.0-lowfx.html",
  "./preview-v0.54.0.html","./assets/save-manager-v0.54.js",
