@@ -1,4 +1,8 @@
-**Phase 5 accepted:** [Coward's Glasses v0.54](PHASE5_v0.54_RELEASE.md) passed automated WebKit touch-browser and historical checks. **Phase 6 is next**, with no player QA required.\n\n**Phase 4 automated QA accepted:** [developer-owned signoff](PHASE4_AUTOMATED_SIGNOFF.md). **Phase 5 is now unblocked**—no player testing or approval required.\n\n## QA is developer-owned (November 5, 2026)
+**Current build v0.55 — Phase 6.1 accepted.** Nine permanent lifetime collection awards, tangible honor displays and three free gallery finishes are live. [Phase 6.1 release and automated acceptance](PHASE6_v0.55_RELEASE.md). **Next:** Phase 6.2 (Restorer / Archivist / Perfect Bazaar journeys). No player QA is required.
+
+[Phase 5 Coward's Glasses](PHASE5_v0.54_RELEASE.md) and [Phase 4 automated acceptance](PHASE4_AUTOMATED_SIGNOFF.md) remain complete.
+
+## QA is developer-owned (November 5, 2026)
 
 Players are **not required to test on iPhone, share screenshots, use Files, or sign off on releases**. Automated Node regressions plus a mobile-shaped WebKit browser suite run via GitHub Actions; see [QA_AUTOMATION_POLICY.md](QA_AUTOMATION_POLICY.md). Native iPhone hardware behavior remains a documented uncertainty, not a blocker assigned to the player.
 
