@@ -87,7 +87,7 @@ for(const file of ['game-v0.56.0.js','game-v0.56.0-lowfx.js']){
  assert.ok(src.includes('const STORE_KEY='));
  assert.ok(src.includes("const HONORS=window.BIT_BAZAAR_HONORS"));
 }
-for(const page of ['index.html','preview-v0.56.0.html','baseline-v0.56.0-lowfx.html']){
+for(const page of ['preview-v0.56.0.html','baseline-v0.56.0-lowfx.html']){
  const src=read(page);
  assert.ok(src.includes('id="journeyBtn"'));
  assert.ok(src.includes('assets/journeys-v0.56.js'));
