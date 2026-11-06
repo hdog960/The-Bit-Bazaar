@@ -118,7 +118,15 @@ try{
    const pose=poseFor(exemplar,1,d,0,angle);
    const res=await frame(page,exemplar.id,pose);
    assert.ok(res.visible,'edge angle shelf disappeared d='+d+' yawOffset='+angle);
-   assert.ok(res.colors>5,'edge angle blank frame');
+   if(res.colors<3||res.nonzero<100||res.shelfPixels<=4){
+    const tag='angle-failure-'+String(d).replace('.','p')+'-'+String(angle).replace('.','p')+'.png';
+    await frame(page,exemplar.id,pose,tag);
+    console.error('ANGLE DIAGNOSTIC',tag,JSON.stringify({d,angle,res}));
+   }
+   // Oblique near-plane clipping may paint a single physical fascia, rather
+   // than six arbitrary palette colors. Assert actual material, not richness.
+   assert.ok(res.colors>=3&&res.nonzero>=100&&res.shelfPixels>4,
+    'edge angle missing shelf material d='+d+' angle='+angle);
    poses++;
   }
  }
