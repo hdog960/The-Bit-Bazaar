@@ -114,7 +114,7 @@ for(const shell of ['preview-v0.51.0.html','baseline-v0.51.0-lowfx.html']){
  assert.ok(s.includes('boot-recovery-v0.50.js'));
 }
 const sw=read('sw.js');
-assert.ok(sw.includes('bit-bazaar-v0.57.0'));
+assert.ok(sw.includes('bit-bazaar-v0.58.0'));
 assert.ok(sw.includes('./game-v0.51.0.js'));
 assert.ok(sw.includes('./game-v0.51.0-lowfx.js'));
 console.log('PASS v0.51: production normal/Low FX restore transactions: artwork/floor/schema/quota failure quarantined with zero writes; modern and legacy successes commit safely.');

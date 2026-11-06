@@ -130,5 +130,5 @@ assert.ok(html.indexOf('decor-sites-v0.32.js')<html.indexOf('decor-runtime-v0.32
 for(const file of ['assets/decor-art-v0.32.js','assets/decor-sites-v0.32.js'])
  assert.ok(sw.includes('./'+file),'current build still loads historical artwork and sites '+file);
 assert.ok(html.includes('./assets/decor-runtime-v0.32.js'),'archived v0.32 preview shell retains its original runtime');
-assert.ok(sw.includes('bit-bazaar-v0.57.0'),'updated service worker includes stable v0.32 art and runtime');
+assert.ok(sw.includes('bit-bazaar-v0.58.0'),'updated service worker includes stable v0.32 art and runtime');
 console.log('PASS Bit Bazaar v0.32: 20 unique works, 15 collision-checked anchors, exact quotas, non-destructive relocation, trim art, full/Low FX, cache integrity.');
