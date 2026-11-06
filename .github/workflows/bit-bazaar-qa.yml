@@ -14,8 +14,8 @@ jobs:
           node-version: '22'
       - name: Syntax-check standard and Low FX visual occlusion and all regression scripts
         run: |
-          node --check game-v0.56.0.js
-          node --check game-v0.56.0-lowfx.js
+          node --check game-v0.57.0.js
+          node --check game-v0.57.0-lowfx.js
           node --check assets/decor-runtime-v0.46.js
           node --check assets/decor-runtime-v0.48.js
           node --check assets/decor-runtime-v0.52.js
@@ -36,6 +36,8 @@ jobs:
           node --check assets/save-manager-v0.55.js
           node --check assets/lifetime-honors-v0.55.js
           node --check assets/journeys-v0.56.js
+          node --check assets/achievements-v0.57.js
+          node --check assets/save-manager-v0.57.js
           node --check assets/cowards-glasses-v0.54.js
           node --check assets/boot-recovery-v0.49.js
           node --check assets/boot-recovery-v0.50.js
@@ -71,6 +73,7 @@ jobs:
           node --check tests/phase5-v054.test.cjs
           node --check tests/phase6-v055.test.cjs
           node --check tests/phase6-v056.test.cjs
+          node --check tests/phase6-v057.test.cjs
       - name: Historical v0.31 world relocation and figure priority
         run: node tests/phase4-v031.test.cjs
       - name: Historical v0.32 original art and space preservation
@@ -127,26 +130,35 @@ jobs:
         run: node tests/phase6-v055.test.cjs
       - name: Phase 6.2 Three Journeys, permanent mastery and live perfect shop
         run: node tests/phase6-v056.test.cjs
-      - name: Validate all iPhone entrypoints and v0.56.0 offline cache
+      - name: Phase 6.3 permanent 30 authored achievements and save safety
+        run: node tests/phase6-v057.test.cjs
+      - name: Validate all iPhone entrypoints and v0.57.0 offline cache
         run: |
           test -f index.html
-          test -f preview-v0.56.0.html
-          test -f baseline-v0.56.0-lowfx.html
-          test -f style-v0.56.0.css
-          grep -q 'game-v0.56.0.js' index.html
-          grep -q 'game-v0.56.0-lowfx.js' baseline-v0.56.0-lowfx.html
+          test -f preview-v0.57.0.html
+          test -f baseline-v0.57.0-lowfx.html
+          test -f style-v0.57.0.css
+          grep -q 'game-v0.57.0.js' index.html
+          grep -q 'game-v0.57.0-lowfx.js' baseline-v0.57.0-lowfx.html
           test -f assets/decor-runtime-v0.41.js
           grep -q 'decor-visibility-v0.41.js' index.html
           grep -q 'decor-art-v0.37.js' index.html
           test -f assets/save-manager-v0.43.js
           grep -q 'figure-integrity-v0.43.js' index.html
-          grep -q 'bit-bazaar-v0.56.0' sw.js
+          grep -q 'bit-bazaar-v0.57.0' sw.js
           test -f assets/device-qa-v0.44.js
           test -f assets/save-manager-v0.45.js
           test -f assets/save-manager-v0.47.js
-          grep -q 'save-manager-v0.55.js' index.html
+          test -f assets/save-manager-v0.55.js
           grep -q 'lifetime-honors-v0.55.js' index.html
           grep -q 'journeys-v0.56.js' index.html
+          grep -q 'achievements-v0.57.js' index.html
+          grep -q 'save-manager-v0.57.js' index.html
+          grep -q 'achievements-v0.57.js' sw.js
+          test -f game-v0.56.0.js
+          test -f game-v0.56.0-lowfx.js
+          test -f preview-v0.56.0.html
+          test -f baseline-v0.56.0-lowfx.html
           grep -q 'journeys-v0.56.js' sw.js
           test -f game-v0.55.0.js
           test -f game-v0.55.0-lowfx.js
