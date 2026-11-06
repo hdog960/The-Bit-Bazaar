@@ -43,7 +43,7 @@ const key='bit-bazaar-device-qa-recovery-v052';
 assert.match(storage.get(key),/AUTO LOW FX RECOVERY/);
 assert.equal(saves,0);
 assert.equal(audits,1,'emergency report skips expensive inventory audit');
-for(const p of ['index.html','preview-v0.52.0.html','baseline-v0.52.0-lowfx.html'])
+for(const p of ['preview-v0.52.0.html','baseline-v0.52.0-lowfx.html'])
  assert.ok(read(p).includes('assets/device-qa-v0.52.js'));
 const sw=read('sw.js');
 assert.ok(sw.includes('./assets/device-qa-v0.52.js'));

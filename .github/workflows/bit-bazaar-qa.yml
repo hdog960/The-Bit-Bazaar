@@ -14,8 +14,8 @@ jobs:
           node-version: '22'
       - name: Syntax-check standard and Low FX visual occlusion and all regression scripts
         run: |
-          node --check game-v0.52.0.js
-          node --check game-v0.52.0-lowfx.js
+          node --check game-v0.53.0.js
+          node --check game-v0.53.0-lowfx.js
           node --check assets/decor-runtime-v0.46.js
           node --check assets/decor-runtime-v0.48.js
           node --check assets/decor-runtime-v0.52.js
@@ -31,6 +31,7 @@ jobs:
           node --check assets/save-manager-v0.45.js
           node --check assets/save-manager-v0.47.js
           node --check assets/save-manager-v0.49.js
+          node --check assets/save-manager-v0.53.js
           node --check assets/boot-recovery-v0.49.js
           node --check assets/boot-recovery-v0.50.js
           node --check assets/figure-integrity-v0.43.js
@@ -60,6 +61,7 @@ jobs:
           node --check tests/phase4-v051.test.cjs
           node --check tests/phase4-v052.test.cjs
           node --check tests/phase4-v052-telemetry.test.cjs
+          node --check tests/phase4-v053.test.cjs
       - name: Historical v0.31 world relocation and figure priority
         run: node tests/phase4-v031.test.cjs
       - name: Historical v0.32 original art and space preservation
@@ -106,25 +108,29 @@ jobs:
         run: |
           node tests/phase4-v052.test.cjs
           node tests/phase4-v052-telemetry.test.cjs
-      - name: Validate all iPhone entrypoints and v0.52 offline cache
+      - name: v0.53 read-only Files backup round-trip checker
+        run: node tests/phase4-v053.test.cjs
+      - name: Validate all iPhone entrypoints and v0.53 offline cache
         run: |
           test -f index.html
-          test -f preview-v0.52.0.html
-          test -f baseline-v0.52.0-lowfx.html
-          test -f style-v0.52.0.css
-          grep -q 'game-v0.52.0.js' index.html
-          grep -q 'game-v0.52.0-lowfx.js' baseline-v0.52.0-lowfx.html
+          test -f preview-v0.53.0.html
+          test -f baseline-v0.53.0-lowfx.html
+          test -f style-v0.53.0.css
+          grep -q 'game-v0.53.0.js' index.html
+          grep -q 'game-v0.53.0-lowfx.js' baseline-v0.53.0-lowfx.html
           test -f assets/decor-runtime-v0.41.js
           grep -q 'decor-visibility-v0.41.js' index.html
           grep -q 'decor-art-v0.37.js' index.html
           test -f assets/save-manager-v0.43.js
           grep -q 'figure-integrity-v0.43.js' index.html
-          grep -q 'bit-bazaar-v0.52.0' sw.js
+          grep -q 'bit-bazaar-v0.53.0' sw.js
           test -f assets/device-qa-v0.44.js
           test -f assets/save-manager-v0.45.js
           test -f assets/save-manager-v0.47.js
-          grep -q 'save-manager-v0.49.js' index.html
+          grep -q 'save-manager-v0.53.js' index.html
+          test -f assets/save-manager-v0.49.js
           grep -q 'boot-recovery-v0.50.js' index.html
+          grep -q 'save-manager-v0.53.js' sw.js
           grep -q 'save-manager-v0.49.js' sw.js
           grep -q 'boot-recovery-v0.50.js' sw.js
           grep -q 'boot-recovery-v0.49.js' sw.js
