@@ -49,7 +49,7 @@ function simulate(pathname,scenario){
   window:w,STORE_KEY:KEY,LEGACY_KEY:LEGACY,
   localStorage:{
    getItem:k=>store.has(k)?store.get(k):null,
-   setItem:(k,v)=>{writes++;store.set(k,String(v));}
+   setItem:(k,v)=>{if(k===KEY)writes++;store.set(k,String(v));}
   },
   decorEngine:{load:()=>{install++;if(flags.failLoad)throw Error('Art installation failed');}},
   NUM_RACKS:60,ROWS:5,PER_ROW:10,
