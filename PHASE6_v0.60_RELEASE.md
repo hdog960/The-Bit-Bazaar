@@ -1,7 +1,7 @@
 # Bit Bazaar Phase 6.6 — Showcase & Photo Mode (v0.60.0)
 
 ## Status
-Implementation staged on the development branch pending the full historical safety suite, new mobile WebKit touch acceptance and successful GitHub Pages deployment.
+**Accepted and deployed on November 6, 2026.** The merged main gameplay commit 13bb1de passed [safety regression suite](https://github.com/hdog960/The-Bit-Bazaar/actions/runs/42278820428), [mobile WebKit browser acceptance](https://github.com/hdog960/The-Bit-Bazaar/actions/runs/42278820417), [GitHub Pages deployment](https://github.com/hdog960/The-Bit-Bazaar/actions/runs/42278819463). Linux WebKit touch simulation does not certify an actual iPhone. No player QA is required.
 
 ## Photo studio in the real shop
 During normal gameplay, the new compact ▣ Photo Mode button (or P on a desktop keyboard) enters an optional non-interactive view. All existing HUD, reticle, cleaning effects, movement controls and in-world context prompts disappear. Finger dragging smoothly aims the original pixel-art perspective camera while walking, pickup, cleaning, swaps, décor edits and spending are suspended. Escape or Return to Shop restores the original exact camera and player position. Even if the game autosaves while composing a shot, the saved position is the true pre-photo pose. Photo Mode is blocked while another drawer, editor or incomplete save recovery is active.
