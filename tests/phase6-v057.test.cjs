@@ -73,7 +73,7 @@ p=see(one,d2,null).prior;
 const bought=state();bought.ownedArt=1;
 p=see(bought,d2,p).prior;
 assert.ok(has(d2,'first-sacrifice'));
-assert.deepEqual(d2.sacrificed,[0]);
+assert.deepEqual(Array.from(d2.sacrificed),[0]);
 assert.ok(!has(d2,'sacrificed-and-restored'));
 const again=state();again.ownedArt=1;again.slots[0][0]=one.slots[0][0];
 p=see(again,d2,p).prior;
