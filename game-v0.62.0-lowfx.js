@@ -2955,6 +2955,8 @@ $('startBtn').onclick=()=>{
 };
 // Snapshot integrity API for QA and external automation.
 window.BitBazaarQA={
+ // Read-only asset readiness for reproducible native-pixel WebKit captures.
+ spriteReady:()=>img.complete&&img.naturalWidth>0,
  geometryProbe:(pose,fixtureId,point,exclude=-1)=>{
   const old={...player},prevFocus=focus;
   try{
